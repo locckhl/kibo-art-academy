@@ -10,7 +10,13 @@ import Attendance from "./pages/Attendance/Attendance";
 import Evaluation from "./pages/Evaluation/Evaluation";
 import Document from "./pages/Document/Document";
 
+// import { useEffect } from 'react';
+// import { getFirebaseItems } from "./lib/firebase";
+
 function App() {
+  // useEffect(() => {
+  //   getFirebaseItems("Classes");
+  // }, []);
   return (
     <Router>
       {window.location.pathname !== "/signin" && <Header />}
