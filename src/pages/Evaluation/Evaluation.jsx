@@ -1,5 +1,7 @@
 import React from "react";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
+import { useState } from 'react';
+
 const people = [
   {
     title: "日本語5",
@@ -39,6 +41,23 @@ const people = [
   // More people...
 ];
 export default function Evaluation() {
+  const [state, setState] = useState({
+   isEdit : false
+})
+
+  const handleEdit = () => {
+    setState({
+      ...state,
+      isEdit : true
+    })
+  };
+  const save = () => {
+    setState({
+      ...state,
+      isEdit : false
+    })
+  };
+
   return (
     <div className="container mt-20 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
@@ -103,6 +122,7 @@ export default function Evaluation() {
                             <div className="text-sm text-gray-900">
                               <input
                                 type="text"
+                                disabled={!state.isEdit}
                                 value={`${person.numberOfLessons}/100`}
                               />
                             </div>
@@ -118,10 +138,10 @@ export default function Evaluation() {
           <div className="class-action my-10 flex justify-around">
             <div>
 
-            <button className=" btn ">更新保存</button>
+            <button className=" btn "onClick={save}>更新保存</button>
             </div>
             <div>
-            <button className=" btn ">修正</button>
+            <button className=" btn " onClick={handleEdit}>修正</button>
 
             </div>
           </div>

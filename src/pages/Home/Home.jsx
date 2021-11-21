@@ -1,47 +1,72 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./index.scss";
+import { getFirebaseItems } from "./../../lib/firebase";
+import { useEffect, useState } from 'react';
+
+
 /* This example requires Tailwind CSS v2.0+ */
-const people = [
-  {
-    title: "日本語5",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語5",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語6",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",　
-  },
-  {
-    title: "日本語7",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語8",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  // More people...
-];
+// const people = [
+//   {
+//     title: "日本語5",
+//     ninzuu: "36",
+//     info: "JLPT (聴解・会話)",
+//     numberOfLessons: "25",
+//     tantousha: "Viet Thi Thu Huyen",
+//   },
+//   {
+//     title: "日本語5",
+//     ninzuu: "36",
+//     info: "JLPT (聴解・会話)",
+//     numberOfLessons: "25",
+//     tantousha: "Viet Thi Thu Huyen",
+//   },
+//   {
+//     title: "日本語6",
+//     ninzuu: "36",
+//     info: "JLPT (聴解・会話)",
+//     numberOfLessons: "25",
+//     tantousha: "Viet Thi Thu Huyen",
+//   },
+//   {
+//     title: "日本語7",
+//     ninzuu: "36",
+//     info: "JLPT (聴解・会話)",
+//     numberOfLessons: "25",
+//     tantousha: "Viet Thi Thu Huyen",
+//   },
+//   {
+//     title: "日本語8",
+//     ninzuu: "36",
+//     info: "JLPT (聴解・会話)",
+//     numberOfLessons: "25",
+//     tantousha: "Viet Thi Thu Huyen",
+//   },
+//   // More people...
+// ];
 
 export default function Example() {
+  const [state, setState] = useState({
+    dataClasses: [],
+  });
+  const dataClass = [];
+  useEffect(() => {
+    async function fetchData() {
+      const data = await getFirebaseItems("Classes");
+      data.forEach((doc) => {
+        dataClass.push(doc.data());
+      });
+      setState({
+        ...state,
+        dataClasses: dataClass,
+      });
+    }
+    fetchData();
+    console.log("data", state.dataClasses);
+
+  }, []);
+
+  const { dataClasses } = state;
   return (
     <div className="container flex flex-col home px-20">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -89,27 +114,26 @@ export default function Example() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {people.map((person) => (
-                  <tr key={person.title}>
+                {(dataClasses.length !== 0) && dataClasses.map((item) => (
+                  <tr key={item.className}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {person.title}
+                        {item.className}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {person.ninzuu}
+                        {item.numTalents}
                       </div>
-                      <div className="text-sm text-gray-500">{person.info}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{person.info}</div>
+                      <div className="text-sm text-gray-900">{item.summary}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {person.numberOfLessons}
+                      {item.numLessons}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {person.tantousha}
+                      {item.teacherID}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
@@ -123,8 +147,8 @@ export default function Example() {
                       </div>
                       <div>
                         <Link
-                          to="/evaluation/1"
-                          className="text-indigo-600 hover:text-indigo-900"
+                        to={"/evaluation/" + item.className}
+                        className="text-indigo-600 hover:text-indigo-900"
                         >
                           評価
                         </Link>

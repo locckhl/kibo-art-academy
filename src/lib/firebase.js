@@ -20,6 +20,7 @@ export const getFirebaseItems = async (table) => {
     result.forEach((doc) => {
       console.log(doc.data());
     });
+    return result;
   } catch (err) {
     console.log(err);
   }
