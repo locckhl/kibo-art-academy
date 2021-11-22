@@ -35,7 +35,7 @@ export default function Document() {
       <div className="class-center flex">
         <div className="class-left flex flex-col flex-auto">
           <div className="class-table relative">
-              <div className="absolute bottom-full mb-1">既存のドキュメント</div>
+            <div className="absolute bottom-full mb-1">既存のドキュメント</div>
             <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
@@ -113,9 +113,12 @@ export default function Document() {
         <div className="mx-10 class-right flex-auto">
           {/* <div className="flex justify-end"> */}
           <ClassInfo
-            changeClassId={() => {
-              alert("Đổi class id bằng cái hàm này");
-            }}
+            classInfo={{}}
+            classes={[
+              { id: 1, name: "lop1" },
+              { id: 2, name: "lop2" },
+            ]}
+            changeClassId={() => alert("Đổi class id bằng cái hàm này")}
           />
 
           {/* </div> */}
