@@ -126,10 +126,8 @@ export default function Attendance() {
           </div>
         </div>
         <div className="mx-10 class-right flex-auto">
-          {/* <div className="flex justify-end"> */}
-          <ClassInfo changeClassId={()=>{
-              alert("Đổi class id bằng cái hàm này")
-          }} />
+          {/* <div className="flex jutify-end"> */}
+          <ClassInfo classInfo={{  }} classes={[{id: 1, name: "lop1"},{id: 2, name: "lop2"}]} changeClassId={(id)=>alert(id)}/>
 
           {/* </div> */}
         </div>
