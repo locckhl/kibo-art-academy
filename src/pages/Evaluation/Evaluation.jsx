@@ -1,44 +1,68 @@
 import React from "react";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
-const people = [
-  {
-    title: "日本語5",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語6",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語7",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語8",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語9",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  // More people...
-];
+import { useState, useEffect } from 'react';
+import { updateAchievementsItem, getFirebaseItems } from "./../../lib/evaluation";
+
 export default function Evaluation() {
+  const [state, setState] = useState({
+    isEdit: false,
+    dataClasses: [],
+    talent: [{
+      talentID: "",
+      score: 0,
+      maxScore: 0
+    }],
+  })
+  const handleEdit = () => {
+    setState({
+      ...state,
+      isEdit: true
+    })
+  };
+
+  const dataClass = [];
+  useEffect(() => {
+    async function fetchData() {
+      const data = await getFirebaseItems('/Classes/97sxQMGJ5pQj80JnmodI/ClassLessons/yXhng4x1MPLSJj1D6z2w/Achievements');
+      data.forEach((doc) => {
+        dataClass.push(doc.data());
+      });
+      setState({
+        ...state,
+        dataClasses: dataClass,
+      });
+    }
+    fetchData();
+
+  }, []);
+
+  const handleEditScore = (key, talentID, value) => {
+    const data = state.dataClasses;
+    let index = data.findIndex(item => item.talentID === talentID);
+    data[index].score = parseInt(value.split('/')[0]);
+    data[index].maxScore = parseInt(value.split('/')[1]);
+    setState({
+      ...state,
+      dataClasses: data
+    })
+  }
+
+  const save = ()  => {
+    setState({
+      ...state,
+      isEdit: false
+    })
+    try {
+      state.dataClasses.forEach(async (item) => {
+        await updateAchievementsItem(item.talentID, item.score, item.maxScore);
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  
+  }
+  const { dataClasses } = state;
+
   return (
     <div className="container mt-20 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
@@ -84,26 +108,25 @@ export default function Evaluation() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {people.map((person) => (
-                        <tr key={person.title}>
+                      {dataClasses.length !== 0 && dataClasses.map((value, key) => (
+                        <tr key={key}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">
-                              {person.title}
+                              {key + 1}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                              {person.ninzuu}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {person.info}
+                              {value.talentID}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
                               <input
                                 type="text"
-                                value={`${person.numberOfLessons}/100`}
+                                disabled={!state.isEdit}
+                                defaultValue={`${value.score}/${value.maxScore}`}
+                                onChange={e => handleEditScore(key, value.talentID, e.target.value)}
                               />
                             </div>
                           </td>
@@ -118,10 +141,10 @@ export default function Evaluation() {
           <div className="class-action my-10 flex justify-around">
             <div>
 
-            <button className=" btn ">更新保存</button>
+              <button className=" btn " onClick={save}>更新保存</button>
             </div>
             <div>
-            <button className=" btn ">修正</button>
+              <button className=" btn " onClick={handleEdit}>修正</button>
 
             </div>
           </div>
