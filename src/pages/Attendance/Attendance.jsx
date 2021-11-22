@@ -1,53 +1,73 @@
 import React from "react";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
-const people = [
-  {
-    title: "日本語5",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語6",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語7",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語8",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語9",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  // More people...
-];
+import { getAllTalentsByClassUID, getClassesLesson, Save } from "../../lib/attendance";
+import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
+/**
+ * 
+ * @param {string} date 
+ */
+const formatTime = (stringSeconds) => {
+  const date = new Date(parseInt(stringSeconds)*1000)
+  return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+}
+
 export default function Attendance() {
+
+  const [talents, setTalents] = React.useState([])
+  const [classUID, setClassesUID] = React.useState("97sxQMGJ5pQj80JnmodI")
+  const [lessonList, setLessonList] = React.useState([])
+  const [lesson, setLesson] = React.useState(-1)
+  const [loading, setLoadding] = React.useState(false)
+
+  React.useState(() => {
+    const getAllLessons = async () => {
+      await getClassesLesson(classUID)
+      .then(lessons => { setLessonList(lessons); setLesson(0)})
+    }
+    getAllLessons()
+  }, [classUID]);
+
+  React.useEffect(()=>{
+    const getAllStudent = async() => {
+      await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(talents => setTalents(() => [...talents]))
+    }
+    if (lesson > -1) {
+      getAllStudent();
+    }
+  }, [classUID, lesson])
+
+  const handleClick = (index) => {
+    if(talents[index].status) {
+      talents[index].checked --
+    }else{
+      talents[index].checked ++
+    }
+    talents[index].status = !talents[index].status;
+    
+    setTalents([...talents])
+  }
+
+  const handleSubmit = async () => {
+    setLoadding(true)
+    const isSuccess = await Save(classUID,lessonList[lesson].id,talents)
+    if (isSuccess) {
+      console.log(1)
+      SuccessMessage("Success")
+    } else {
+      ErrorMessage("Error")
+    }
+    setLoadding(false)
+  }
+
   return (
-    <div className="container mt-20 px-20 flex flex-col">
+    <div className="container mt-40 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
         <div className="class-date">
           <label for="dates">日付け：</label>
-          <select name="dates" id="">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
+          <select name="dates" id="" onChange={(envet) => setLesson(envet.target.value)}>
+            {lessonList.map((item, index) => {
+              return <option value={index} selected={`${index === lesson? "selected":""}`}>{formatTime(item.date.seconds)}</option>
+            })}
           </select>
         </div>
         <div className="class-function flex-1 flex justify-center text-3xl">
@@ -90,28 +110,25 @@ export default function Attendance() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {people.map((person) => (
-                        <tr key={person.title}>
+                      {talents.map((talent, index) => (
+                        <tr key={talent.userID}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-gray-900">
-                              {person.title}
+                              {index + 1}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                              {person.ninzuu}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {person.info}
+                              {talent.name}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                              {person.info}
+                              {Math.round(talent.checked/talent.totalLessons * 100)}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <input type="checkbox" className="mx-auto block" />
+                            <input type="checkbox" className="mx-auto block" checked={talent.status} onChange={()=> handleClick(index)}/>
                           </td>
                         </tr>
                       ))}
@@ -122,7 +139,9 @@ export default function Attendance() {
             </div>
           </div>
           <div className="class-action mx-auto my-10">
-            <button className=" btn ">Submit</button>
+            <button className="btn" onClick={() => handleSubmit()} disabled={loading}>
+              <i className={`fas fa-circle-notch fa-spin `} style={{display:!loading?"none":"block"}}></i>
+              {" Submit"}</button>
           </div>
         </div>
         <div className="mx-10 class-right flex-auto">
