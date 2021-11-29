@@ -33,11 +33,9 @@ export const getAllTalentsByClassUID = async (classId, lessonID) => {
   try {
     //Get all talents in the class
     const Lessons = await getFirebaseItems("Classes", classId, "ClassLessons")
-    console.log(Lessons)
     const data = await Promise.all(
       Lessons.map((lesson) => getAttendance(lesson.id))
     )
-    console.log(data)
     const index = data.findIndex((item) => item.lessonID === lessonID)
     const LessonSelected = data[index].data
 
@@ -58,7 +56,6 @@ export const getAllTalentsByClassUID = async (classId, lessonID) => {
   } catch (error) {
     console.log(error)
   }
-  console.log(students)
   return students
 }
 

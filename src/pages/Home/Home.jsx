@@ -65,7 +65,7 @@ return (
                     <div className="flex-auto">
                       {" "}
                       <Link
-                        to="/attendance/1"
+                        to={`/attendance/${item.id}`}
                         className="text-indigo-600 hover:text-indigo-900"
                       >
                         出欠
@@ -73,7 +73,7 @@ return (
                     </div>
                     <div className="flex-auto">
                       <Link
-                        to="/evaluation/1"
+                        to={`/evaluation/${item.id}`}
                         className="text-indigo-600 hover:text-indigo-900"
                       >
                         評価
@@ -81,7 +81,7 @@ return (
                     </div>
                     <div className="flex-auto">
                       <Link
-                        to="/document/1"
+                        to={`/document/${item.id}`}
                         className="text-indigo-600 hover:text-indigo-900"
                       >
                         資料

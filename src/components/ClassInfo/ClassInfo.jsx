@@ -22,12 +22,12 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
               <tr key="title">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900 pl-10">
-                    クラス名: {classInfo.className}   <br />
-                    人数: {classInfo.numTalents}
+                    クラス名: {classInfo?.className}<br />
+                    人数: {classInfo?.numTalents}
                     <br />
-                    クラス内容: {classInfo.summary}
+                    クラス内容: {classInfo?.summary}
                     <br />
-                    授業数: {classInfo.numLessons}
+                    授業数: {classInfo?.numLessons}
                     <br />
                   </div>
                 </td>
@@ -39,7 +39,7 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
                       <label for="dates">クラスリスト：</label>
                       <select onChange={(event)=> {setClassId(event.target.value)}} name="dates" id="">
                         {classes.map((item,idx) => (
-                        <option key={idx} value={item.id}>{item.name}</option>))}
+                        <option key={idx} value={item.id}>{item.className}</option>))}
                       </select>
                     </div>
                     <div className="class-action mx-auto ">
