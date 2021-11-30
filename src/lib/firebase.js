@@ -10,6 +10,7 @@ import {
   limit,
   updateDoc,
 } from "firebase/firestore"
+import { getAuth } from "@firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAsqAL18hjTKzpYNPW3q6lSKaejYO1TuDc",
@@ -20,8 +21,9 @@ const firebaseConfig = {
   appId: "1:182717419459:web:c9090ca49ad66aa7c8b776",
 }
 
-const app = initializeApp(firebaseConfig)
-export const db = getFirestore(app)
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth();
+export const db = getFirestore(app);
 
 // Test function for reading data
 export const getFirebaseItems = async (...args) => {
