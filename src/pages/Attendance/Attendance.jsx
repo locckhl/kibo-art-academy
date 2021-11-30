@@ -1,6 +1,8 @@
 import React from "react";
+import { useParams } from "react-router";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
 import { getAllTalentsByClassUID, getClassesLesson, Save } from "../../lib/attendance";
+import { getFirebaseItems } from "../../lib/firebase";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
 /**
  * 
@@ -12,12 +14,13 @@ const formatTime = (stringSeconds) => {
 }
 
 export default function Attendance() {
-
+  const {classId} = useParams();
   const [talents, setTalents] = React.useState([])
-  const [classUID, setClassesUID] = React.useState("97sxQMGJ5pQj80JnmodI")
+  const [classUID, setClassesUID] = React.useState(classId)
   const [lessonList, setLessonList] = React.useState([])
   const [lesson, setLesson] = React.useState(-1)
   const [loading, setLoadding] = React.useState(false)
+  const [classesCollection, setClassCollection] = React.useState([])
 
   React.useState(() => {
     const getAllLessons = async () => {
@@ -29,12 +32,19 @@ export default function Attendance() {
 
   React.useEffect(()=>{
     const getAllStudent = async() => {
-      await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(talents => setTalents(() => [...talents]))
+      await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(talents => { setTalents(() => [...talents]);})
     }
     if (lesson > -1) {
       getAllStudent();
     }
   }, [classUID, lesson])
+
+  React.useEffect(() => {
+    const getAllClasses = async() => {
+       await getFirebaseItems("Classes").then(data => setClassCollection([...data]));
+    }
+    getAllClasses()
+  }, [])
 
   const handleClick = (index) => {
     if(talents[index].status) {
@@ -51,7 +61,6 @@ export default function Attendance() {
     setLoadding(true)
     const isSuccess = await Save(classUID,lessonList[lesson].id,talents)
     if (isSuccess) {
-      console.log(1)
       SuccessMessage("Success")
     } else {
       ErrorMessage("Error")
@@ -59,6 +68,9 @@ export default function Attendance() {
     setLoadding(false)
   }
 
+  const changeClassId = (classId) => {
+    setClassesUID(classId);
+  }
   return (
     <div className="container mt-40 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
@@ -146,7 +158,7 @@ export default function Attendance() {
         </div>
         <div className="mx-10 class-right flex-auto">
           {/* <div className="flex jutify-end"> */}
-          <ClassInfo classInfo={{  }} classes={[{id: 1, name: "lop1"},{id: 2, name: "lop2"}]} changeClassId={(id)=>alert(id)}/>
+          <ClassInfo classInfo={classesCollection[classesCollection.findIndex(item => item.id === classUID)]} classes={classesCollection} changeClassId={changeClassId}/>
 
           {/* </div> */}
         </div>
