@@ -153,7 +153,7 @@ export default function Attendance() {
           <div className="class-action mx-auto my-10">
             <button className="btn" onClick={() => handleSubmit()} disabled={loading}>
               <i className={`fas fa-circle-notch fa-spin `} style={{display:!loading?"none":"block"}}></i>
-              {" Submit"}</button>
+              {"更新保存"}</button>
           </div>
         </div>
         <div className="mx-10 class-right flex-auto">

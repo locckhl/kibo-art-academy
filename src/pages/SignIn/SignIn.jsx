@@ -116,13 +116,13 @@ export default function SignIn() {
           <div className="img">{/* <img src="img/bg.svg" /> */}</div>
           <div className="login-content">
             <form>
-              <h2 className="title">Welcome</h2>
+              <h2 className="title">ようこそ</h2>
               <div className={`input-div one ${isUsrFocus ? "focus" : ""}`}>
                 <div className="i">
                   <i className="fas fa-user"></i>
                 </div>
                 <div className="div ">
-                  <h5 className={`${email ? "hidden" : ""}`}>Email</h5>
+                  <h5 className={`${email ? "hidden" : ""}`}>メール</h5>
                   <input
                     onChange = {(e) => {
                       setEmail(e.target.value)
@@ -144,7 +144,7 @@ export default function SignIn() {
                   <i className="fas fa-lock"></i>
                 </div>
                 <div className="div">
-                  <h5 className={`${password ? "hidden" : ""}`}>Password</h5>
+                  <h5 className={`${password ? "hidden" : ""}`}>パスワード</h5>
                   <input
                     onChange = {(e) => {
                       setPassword(e.target.value)
@@ -163,7 +163,7 @@ export default function SignIn() {
               </div>
               {/* <a href="#">Forgot Password?</a> */}
               <p className="errorMsg">{passwordError}</p>
-              <input onClick={(e) => {e.preventDefault();handleLogin()}} type="submit" className="btn" value="Login" />
+              <input onClick={(e) => {e.preventDefault();handleLogin()}} type="submit" className="btn" value="サイイン" />
             </form>
           </div>
         </div>

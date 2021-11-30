@@ -127,13 +127,13 @@ export default function SignUp() {
           <div className="img">{/* <img src="img/bg.svg" /> */}</div>
           <div className="login-content">
             <form action="index.html">
-              <h2 className="title">Sign Up</h2>
+              <h2 className="title">アカウント追加</h2>
               <div className={`input-div one ${isUsrFocus ? "focus" : ""}`}>
                 <div className="i">
                   <i className="fas fa-user"></i>
                 </div>
                 <div className="div ">
-                  <h5 className={`${userName ? "hidden" : ""}`}>Username</h5>
+                  <h5 className={`${userName ? "hidden" : ""}`}>ユーザーネーム</h5>
                   <input
                     onChange={(e) => {
                       setUserName(e.target.value);
@@ -155,7 +155,7 @@ export default function SignUp() {
                   <i className="fas fa-user"></i>
                 </div>
                 <div className="div ">
-                  <h5 className={`${email ? "hidden" : ""}`}>Email</h5>
+                  <h5 className={`${email ? "hidden" : ""}`}>メール</h5>
                   <input
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -177,7 +177,7 @@ export default function SignUp() {
                   <i className="fas fa-lock"></i>
                 </div>
                 <div className="div">
-                  <h5 className={`${password ? "hidden" : ""}`}>Password</h5>
+                  <h5 className={`${password ? "hidden" : ""}`}>パスワード</h5>
                   <input
                     onChange={(e) => {
                       setPassword(e.target.value);
@@ -202,7 +202,7 @@ export default function SignUp() {
                 }}
                 type="submit"
                 className="btn"
-                value="Sign Up"
+                value="登録"
               />
             </form>
           </div>

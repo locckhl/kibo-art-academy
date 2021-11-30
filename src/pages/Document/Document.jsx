@@ -95,7 +95,7 @@ export default function Document() {
               <div className="flex justify-center">
                 <div>
                   <label for="document_file" className="btn">
-                    <i className="fas fa-cloud-upload-alt mr-2"></i> Upload file
+                    <i className="fas fa-cloud-upload-alt mr-2"></i> アップロード
                   </label>
                   <input type="file" id="document_file" />
                 </div>

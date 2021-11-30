@@ -20,23 +20,23 @@ export default function Header() {
           <div className="header-navbar ">
             <dl className="flex text-xl">
               <dd>
-                <a href="/">HOME</a>
+                <a href="/">ホーム</a>
               </dd>
               <dd>
-                <a href="/signin">SIGN IN</a>
+                <a href="/signin">サイイン</a>
               </dd>
               <dd>
-                <a href="/signup">SIGN UP</a>
+                <a href="/signup">アカウント追加</a>
               </dd>
             </dl>
           </div>
           <div className="header-user flex-1 ">
             <div className="flex justify-end ">
               <div className="mr-2">
-               Ryo sensei
+               Ryo 先生
               </div>
               <div className="mr-2 flex items-center">
-                <div className="btn">Sign out</div>
+                <div className="btn">サインアウト</div>
               </div>
             </div>
           </div>
