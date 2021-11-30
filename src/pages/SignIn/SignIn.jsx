@@ -122,7 +122,7 @@ export default function SignIn() {
                   <i className="fas fa-user"></i>
                 </div>
                 <div className="div ">
-                  <h5>Email</h5>
+                  <h5 className={`${email ? "hidden" : ""}`}>Email</h5>
                   <input
                     onChange = {(e) => {
                       setEmail(e.target.value)
@@ -144,7 +144,7 @@ export default function SignIn() {
                   <i className="fas fa-lock"></i>
                 </div>
                 <div className="div">
-                  <h5>Password</h5>
+                  <h5 className={`${password ? "hidden" : ""}`}>Password</h5>
                   <input
                     onChange = {(e) => {
                       setPassword(e.target.value)
