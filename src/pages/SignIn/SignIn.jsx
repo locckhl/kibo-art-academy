@@ -33,7 +33,6 @@ export default function SignIn({ logIn }) {
     // const auth = getAuth();
     logIn(email, password)
       .then(() => {
-        window.localStorage.setItem("user", "true");
         SuccessMessage("サイイン成功");
         navigate(from, { replace: true });
       })

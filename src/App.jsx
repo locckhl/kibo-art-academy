@@ -26,16 +26,18 @@ import RequireAuth from "./components/RequireAuth/RequireAuth";
 
 function App() {
   const [user, setUser] = useState(null);
-  const isLoggedIn = window.localStorage.getItem("user");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const authListener = () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
         window.localStorage.setItem("user", "true");
+        setIsLoggedIn("true");
       } else {
         setUser(null);
         window.localStorage.setItem("user", "false");
+        setIsLoggedIn("false");
       }
     });
   };
@@ -45,16 +47,15 @@ function App() {
   }, [user]);
 
   const logIn = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password);
+    return signInWithEmailAndPassword(auth, email, password).then((user) => {
+      setUser(user)
+    });
   };
 
   const handleLogout = () => {
     signOut(auth)
       .then(() => {
-        setUser(null);
-        window.localStorage.setItem("user", "false");
         SuccessMessage("サインアウトしました");
-        window.location.href = "/";
       })
       .catch((error) => {
         ErrorMessage(error);
@@ -68,13 +69,13 @@ function App() {
         <Header {...{ user, handleLogout }} />
       )} */}
 
-      <Header {...{ user, handleLogout }} />
+      <Header {...{ isLoggedIn: isLoggedIn, handleLogout }} />
       <Routes>
         <Route
           path="/"
           element={
-            <RequireAuth user={user}>
-              <Home />
+            <RequireAuth >
+              <Home user={user} />
             </RequireAuth>
           }
         ></Route>
@@ -82,8 +83,8 @@ function App() {
         <Route
           path="/signup"
           element={
-            <RequireAuth user={user}>
-              <SignUp />
+            <RequireAuth >
+              <SignUp  />
             </RequireAuth>
           }
         ></Route>
@@ -102,8 +103,8 @@ function App() {
         <Route
           path="/attendance/:classId"
           element={
-            <RequireAuth user={user}>
-              <Attendance />
+            <RequireAuth >
+              <Attendance user={user} />
             </RequireAuth>
           }
         ></Route>
@@ -111,16 +112,16 @@ function App() {
         <Route
           path="/evaluation/:classId"
           element={
-            <RequireAuth user={user}>
-              <Evaluation />
+            <RequireAuth >
+              <Evaluation user={user} />
             </RequireAuth>
           }
         ></Route>
         <Route
           path="/document/:classId"
           element={
-            <RequireAuth user={user}>
-              <Document />
+            <RequireAuth >
+              <Document user={user} />
             </RequireAuth>
           }
         ></Route>
