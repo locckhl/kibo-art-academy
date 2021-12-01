@@ -21,23 +21,25 @@ export default function Attendance() {
   const [lesson, setLesson] = React.useState(-1)
   const [loading, setLoadding] = React.useState(false)
   const [classesCollection, setClassCollection] = React.useState([])
+  const [disable, setDisable] = React.useState(false)
 
-  React.useState(() => {
+  React.useEffect(() => {
     const getAllLessons = async () => {
       await getClassesLesson(classUID)
-      .then(lessons => { setLessonList(lessons); setLesson(0)})
+      .then(lessons => { console.log(lessons); setLessonList(lessons); setLesson(0)})
     }
     getAllLessons()
   }, [classUID]);
 
   React.useEffect(()=>{
     const getAllStudent = async() => {
+      console.log(classUID, lessonList[lesson]?.id)
       await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(talents => { setTalents(() => [...talents]);})
     }
     if (lesson > -1) {
       getAllStudent();
     }
-  }, [classUID, lesson])
+  }, [classUID, lessonList, lesson])
 
   React.useEffect(() => {
     const getAllClasses = async() => {
@@ -58,19 +60,31 @@ export default function Attendance() {
   }
 
   const handleSubmit = async () => {
-    setLoadding(true)
-    const isSuccess = await Save(classUID,lessonList[lesson].id,talents)
-    if (isSuccess) {
-      SuccessMessage("Success")
-    } else {
+     if(!disable){
+      setLoadding(true)
+      const isSuccess = await Save(classUID,lessonList[lesson].id,talents)
+      if (isSuccess) {
+        SuccessMessage("Success")
+      } else {
+        ErrorMessage("Error")
+      }
+      setLoadding(false)
+     }else{
       ErrorMessage("Error")
-    }
-    setLoadding(false)
+     }
   }
 
   const changeClassId = (classId) => {
     setClassesUID(classId);
+    setLesson(-1);
   }
+  React.useEffect(() => {
+    if (lesson > -1 && lessonList.length > 0) {
+      const lessonSeccond = lessonList[lesson].date.seconds
+      const timeNow = Date.now()/1000
+      setDisable(() => (timeNow - lessonSeccond) > 7*24*60*60)
+    }
+  }, [lessonList, lesson])
   return (
     <div className="container mt-40 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
@@ -140,7 +154,7 @@ export default function Attendance() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <input type="checkbox" className="mx-auto block" checked={talent.status} onChange={()=> handleClick(index)}/>
+                            <input type="checkbox" className="mx-auto block" checked={talent.status} disabled={disable} onChange={()=> handleClick(index)}/>
                           </td>
                         </tr>
                       ))}
@@ -151,7 +165,7 @@ export default function Attendance() {
             </div>
           </div>
           <div className="class-action mx-auto my-10">
-            <button className="btn" onClick={() => handleSubmit()} disabled={loading}>
+            <button className="btn" onClick={() => handleSubmit()} disabled={loading || disable}>
               <i className={`fas fa-circle-notch fa-spin `} style={{display:!loading?"none":"block"}}></i>
               {"更新保存"}</button>
           </div>

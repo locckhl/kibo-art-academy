@@ -23,7 +23,7 @@ export const getAllTalentsByClassUID = async (classId, lessonID) => {
     let count = 0
     Lessons.filter((item) => {
       const index = item.data.findIndex((item) => item.talentID === talentID)
-      if (item.data[index].status) {
+      if (item.data[index]?.status) {
         count++
       }
     })
@@ -37,7 +37,7 @@ export const getAllTalentsByClassUID = async (classId, lessonID) => {
       Lessons.map((lesson) => getAttendance(lesson.id))
     )
     const index = data.findIndex((item) => item.lessonID === lessonID)
-    const LessonSelected = data[index].data
+    const LessonSelected = data[index]?.data || []
 
     // Get talent information by talentId
     for (let i = 0; i < LessonSelected.length; i++) {
