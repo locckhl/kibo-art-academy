@@ -1,50 +1,122 @@
 import React, { useState } from "react";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import "./index.scss";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
-import { auth } from "../../lib/firebase";
+import { auth, db } from "../../lib/firebase";
 
 export default function SignUp() {
   const [isUsrFocus, setIsUsrFocus] = useState(false);
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
+  const [isRoleFocus, setIsRoleFocus] = useState(false);
+  // const [isConfirmPassFocus, setIsConfirmPassFocus] = useState(false);
 
   const [userName, setUserName] = useState("");
+  const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-
-  const clearInput = () => {
-    setEmail("");
-    setPassword("");
-  };
-
-  const clearError = () => {
-    setEmailError("");
-    setPasswordError("");
-  };
+  // const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSignup = () => {
-    clearError();
+    if (!checkUserNameValidation()) {
+      return;
+    }
+    if (!checkRoleValidation()) {
+      return;
+    }
+    if (!checkPassValidation()) {
+      return;
+    }
     createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
+      .then((data) => {
+        console.log(data.user.uid);
         SuccessMessage("登録成功");
-        window.location.href = "/";
+        setDoc(doc(db, "Users", email), {
+          email: email,
+          name: userName,
+          role: role,
+          userID: data.user.uid,
+        });
+        // window.location.href = "/";
+        setTimeout(function () {
+          window.location.href = "/";
+        }, 1000);
       })
       .catch((err) => {
         switch (err.code) {
           case "auth/email-already-in-use":
+            ErrorMessage("Email already in use");
+            break;
+          case "auth/missing-email":
+            ErrorMessage("Missing email");
+            break;
           case "auth/invalid-email":
-            ErrorMessage(err.message);
+            ErrorMessage("Invalid email");
             break;
           case "auth/weak-password":
-            ErrorMessage(err.message);
+            ErrorMessage("Weak password");
             break;
           default:
-            ErrorMessage(err.message);
+            ErrorMessage("Something went wrong");
+            console.log(JSON.stringify(err, null, 2));
         }
       });
+    // window.location.href = "/";
+  };
+
+  //confirm password for future feature?
+  // const checkConfirmPassValidation = (e) => {
+  //   const confirmPassword = e.target.value;
+  //   if (password !== confirmPassword) {
+  //     ErrorMessage("Confirm Password should be match with password");
+  //   } else {
+  //     SuccessMessage("Matched");
+  //     setConfirmPassword(confirmPassword);
+  //   }
+  // };
+
+  //valid password
+  const checkPassValidation = () => {
+    if (password.length < 8 || password.length > 20) {
+      ErrorMessage(
+        "Password must have more than 8 characters and less than 20 characters"
+      );
+      return false;
+    }
+    return true;
+  };
+
+  //valid special characters in username
+  const checkUserNameValidation = () => {
+    const special = ["<", ">", "/", "|", ":", "*", "?", '"', "\\"];
+    //remove extra spaces in userName
+    setUserName((oldUsername) => oldUsername.replace(/\s+/g, " ").trim());
+    //check if userName is empty?
+    if (userName === "") {
+      ErrorMessage("Username cannot be empty");
+      return false;
+    }
+    for (let i = 0; i < special.length; i++) {
+      if (userName.includes(special[i])) {
+        ErrorMessage("Special characters are not allowed");
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const checkRoleValidation = () => {
+    if (role === "") {
+      ErrorMessage("Role cannot be empty");
+      return false;
+    }
+    return true;
+  };
+
+  //Select Role - Radio button onchange
+  const handleRole = (e) => {
+    setRole(parseInt(e.target.value));
   };
 
   return (
@@ -78,9 +150,37 @@ export default function SignUp() {
                 />
               </div>
             </div>
-            <div className={`input-div pass ${isMailFocus ? "focus" : ""}`}>
+            <div className={`input-div pass ${isRoleFocus ? "focus" : ""}`}>
               <div className="i">
                 <i className="fas fa-user"></i>
+              </div>
+              <div className="div ">
+                <h5>Role</h5>
+                <div>
+                  <div>
+                    <input
+                      type="radio"
+                      value={2}
+                      name="role"
+                      onChange={handleRole}
+                    />{" "}
+                    Student
+                  </div>
+                  <div>
+                    <input
+                      type="radio"
+                      value={1}
+                      name="role"
+                      onChange={handleRole}
+                    />{" "}
+                    Teacher
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className={`input-div pass ${isMailFocus ? "focus" : ""}`}>
+              <div className="i">
+                <i className="fas fa-envelope"></i>
               </div>
               <div className="div ">
                 <h5 className={`${email ? "hidden" : ""}`}>メール</h5>
@@ -122,6 +222,28 @@ export default function SignUp() {
                 />
               </div>
             </div>
+            {/* <div className={`input-div pass ${isConfirmPassFocus ? "focus" : ""}`}>
+              <div className="i">
+                <i className="fas fa-lock"></i>
+              </div>
+              <div className="div">
+                <h5 className={`${confirmPassword ? "hidden" : ""}`}>パスワード認証</h5>
+                <input
+                  onChange={(e) => {
+                    checkConfirmPassValidation(e);
+                  }}
+                  type="password"
+                  className="input"
+                  required
+                  onFocus={() => {
+                    setIsConfirmPassFocus(true);
+                  }}
+                  onBlur={() => {
+                    setIsConfirmPassFocus(false);
+                  }}
+                />
+              </div>
+            </div> */}
             {/* <a href="#">Forgot Password?</a> */}
             <input
               onClick={(e) => {
