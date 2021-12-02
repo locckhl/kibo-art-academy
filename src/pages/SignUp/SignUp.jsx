@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore"
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import "./index.scss";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
 import { auth, db } from "../../lib/firebase";
@@ -10,31 +10,27 @@ export default function SignUp() {
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
   const [isRoleFocus, setIsRoleFocus] = useState(false);
-  const [isConfirmPassFocus, setIsConfirmPassFocus] = useState(false);
+  // const [isConfirmPassFocus, setIsConfirmPassFocus] = useState(false);
 
   const [userName, setUserName] = useState("");
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState(true);
-
-  const clearInput = () => {
-    setEmail("");
-    setPassword("");
-  };
-
-  const clearError = () => {
-    setEmailError("");
-    setPasswordError("");
-  };
+  // const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSignup = () => {
-    clearError();
+    if (!checkUserNameValidation()) {
+      return;
+    }
+    if (!checkRoleValidation()) {
+      return;
+    }
+    if (!checkPassValidation()) {
+      return;
+    }
     createUserWithEmailAndPassword(auth, email, password)
       .then((data) => {
-        console.log(data.user.uid)
+        console.log(data.user.uid);
         SuccessMessage("登録成功");
         setDoc(doc(db, "Users", email), {
           email: email,
@@ -43,12 +39,17 @@ export default function SignUp() {
           userID: data.user.uid,
         });
         // window.location.href = "/";
-        setTimeout(function(){ window.location.href = "/"; }, 1000);
+        setTimeout(function () {
+          window.location.href = "/";
+        }, 1000);
       })
       .catch((err) => {
         switch (err.code) {
           case "auth/email-already-in-use":
             ErrorMessage("Email already in use");
+            break;
+          case "auth/missing-email":
+            ErrorMessage("Missing email");
             break;
           case "auth/invalid-email":
             ErrorMessage("Invalid email");
@@ -56,64 +57,67 @@ export default function SignUp() {
           case "auth/weak-password":
             ErrorMessage("Weak password");
             break;
-            case "auth/internal-error":
-              ErrorMessage("Password must have more than 8 characters and less than 20 characters");
-              break;
           default:
-            ErrorMessage(err.message);
+            ErrorMessage("Something went wrong");
+            console.log(JSON.stringify(err, null, 2));
         }
-      })
+      });
     // window.location.href = "/";
   };
 
   //confirm password for future feature?
-  const checkConfirmPassValidation = (e) => {
-    const confirmPassword = e.target.value; 
-    if (password !== confirmPassword) {
-      ErrorMessage("Confirm Password should be match with password");
-    } else {
-      SuccessMessage("Matched");
-      setConfirmPassword(confirmPassword);
-    }
-  }
+  // const checkConfirmPassValidation = (e) => {
+  //   const confirmPassword = e.target.value;
+  //   if (password !== confirmPassword) {
+  //     ErrorMessage("Confirm Password should be match with password");
+  //   } else {
+  //     SuccessMessage("Matched");
+  //     setConfirmPassword(confirmPassword);
+  //   }
+  // };
 
   //valid password
-  const checkPassValidation = (e) => {
-    const password = e.target.value;
-    if (password.length >= 8 && password.length < 20) {
-        setPassword(password);
+  const checkPassValidation = () => {
+    if (password.length < 8 || password.length > 20) {
+      ErrorMessage(
+        "Password must have more than 8 characters and less than 20 characters"
+      );
+      return false;
     }
-  }
+    return true;
+  };
 
   //valid special characters in username
-  const checkUserNameValidation = (e) => {
-    let userName = e.target.value;
-    const special = ["<", ">", "/", "|", ":", "*", "?", '"',"\\"];
-    let result = false;
+  const checkUserNameValidation = () => {
+    const special = ["<", ">", "/", "|", ":", "*", "?", '"', "\\"];
     //remove extra spaces in userName
-    userName = userName.replace(/\s+/g, ' ').trim();
+    setUserName((oldUsername) => oldUsername.replace(/\s+/g, " ").trim());
     //check if userName is empty?
     if (userName === "") {
-      result = true;
-    } else {
-      for (let i=0; i<special.length; i++) {
-        if (userName.includes(special[i])) {
-          result = true;
-          break;
-        }
+      ErrorMessage("Username cannot be empty");
+      return false;
+    }
+    for (let i = 0; i < special.length; i++) {
+      if (userName.includes(special[i])) {
+        ErrorMessage("Special characters are not allowed");
+        return false;
       }
     }
-    if (result === true) {
-      ErrorMessage("Special characters are not allowed");
-    } else {
-      setUserName(userName);
+    return true;
+  };
+
+  const checkRoleValidation = () => {
+    if (role === "") {
+      ErrorMessage("Role cannot be empty");
+      return false;
     }
-  }
+    return true;
+  };
 
   //Select Role - Radio button onchange
   const handleRole = (e) => {
     setRole(parseInt(e.target.value));
-  }
+  };
 
   return (
     <div className="signin">
@@ -132,7 +136,7 @@ export default function SignUp() {
                 </h5>
                 <input
                   onChange={(e) => {
-                    checkUserNameValidation(e);
+                    setUserName(e.target.value);
                   }}
                   type="text"
                   className="input"
@@ -154,11 +158,23 @@ export default function SignUp() {
                 <h5>Role</h5>
                 <div>
                   <div>
-                    <input type="radio" value={2} name="role" onChange={handleRole}/> Student
+                    <input
+                      type="radio"
+                      value={2}
+                      name="role"
+                      onChange={handleRole}
+                    />{" "}
+                    Student
                   </div>
                   <div>
-                    <input type="radio" value={1} name="role" onChange={handleRole}/> Teacher
-                  </div>                
+                    <input
+                      type="radio"
+                      value={1}
+                      name="role"
+                      onChange={handleRole}
+                    />{" "}
+                    Teacher
+                  </div>
                 </div>
               </div>
             </div>
@@ -192,7 +208,7 @@ export default function SignUp() {
                 <h5 className={`${password ? "hidden" : ""}`}>パスワード</h5>
                 <input
                   onChange={(e) => {
-                    checkPassValidation(e);
+                    setPassword(e.target.value);
                   }}
                   type="password"
                   className="input"
@@ -242,5 +258,5 @@ export default function SignUp() {
         </div>
       </div>
     </div>
-    );
+  );
 }
