@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore"
 import "./index.scss";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
-import { auth } from "../../lib/firebase";
+import { auth, db } from "../../lib/firebase";
 
 export default function SignUp() {
   const [isUsrFocus, setIsUsrFocus] = useState(false);
@@ -32,9 +33,17 @@ export default function SignUp() {
   const handleSignup = () => {
     clearError();
     createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
+      .then((data) => {
+        console.log(data.user.uid)
         SuccessMessage("登録成功");
-        window.location.href = "/";
+        setDoc(doc(db, "Users", email), {
+          email: email,
+          name: userName,
+          role: role,
+          userID: data.user.uid,
+        });
+        // window.location.href = "/";
+        setTimeout(function(){ window.location.href = "/"; }, 1000);
       })
       .catch((err) => {
         switch (err.code) {
@@ -53,13 +62,14 @@ export default function SignUp() {
           default:
             ErrorMessage(err.message);
         }
-      });
+      })
+    // window.location.href = "/";
   };
 
   //confirm password for future feature?
   const checkConfirmPassValidation = (e) => {
     const confirmPassword = e.target.value; 
-    if (password != confirmPassword) {
+    if (password !== confirmPassword) {
       ErrorMessage("Confirm Password should be match with password");
     } else {
       SuccessMessage("Matched");
@@ -77,13 +87,20 @@ export default function SignUp() {
 
   //valid special characters in username
   const checkUserNameValidation = (e) => {
-    const userName = e.target.value;
+    let userName = e.target.value;
     const special = ["<", ">", "/", "|", ":", "*", "?", '"',"\\"];
     let result = false;
-    for (let i=0; i<special.length; i++) {
-      if (userName.includes(special[i])) {
-         result = true;
-         break;
+    //remove extra spaces in userName
+    userName = userName.replace(/\s+/g, ' ').trim();
+    //check if userName is empty?
+    if (userName === "") {
+      result = true;
+    } else {
+      for (let i=0; i<special.length; i++) {
+        if (userName.includes(special[i])) {
+          result = true;
+          break;
+        }
       }
     }
     if (result === true) {
@@ -95,7 +112,7 @@ export default function SignUp() {
 
   //Select Role - Radio button onchange
   const handleRole = (e) => {
-    setRole(e.target.value);
+    setRole(parseInt(e.target.value));
   }
 
   return (
@@ -137,10 +154,10 @@ export default function SignUp() {
                 <h5>Role</h5>
                 <div>
                   <div>
-                    <input type="radio" value="student" name="role" onChange={handleRole}/> Student
+                    <input type="radio" value={2} name="role" onChange={handleRole}/> Student
                   </div>
                   <div>
-                    <input type="radio" value="teacher" name="role" onChange={handleRole}/> Teacher
+                    <input type="radio" value={1} name="role" onChange={handleRole}/> Teacher
                   </div>                
                 </div>
               </div>
