@@ -8,12 +8,16 @@ export default function SignUp() {
   const [isUsrFocus, setIsUsrFocus] = useState(false);
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
+  const [isRoleFocus, setIsRoleFocus] = useState(false);
+  const [isConfirmPassFocus, setIsConfirmPassFocus] = useState(false);
 
   const [userName, setUserName] = useState("");
+  const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [passwordError, setPasswordError] = useState(true);
 
   const clearInput = () => {
     setEmail("");
@@ -35,17 +39,64 @@ export default function SignUp() {
       .catch((err) => {
         switch (err.code) {
           case "auth/email-already-in-use":
+            ErrorMessage("Email already in use");
+            break;
           case "auth/invalid-email":
-            ErrorMessage(err.message);
+            ErrorMessage("Invalid email");
             break;
           case "auth/weak-password":
-            ErrorMessage(err.message);
+            ErrorMessage("Weak password");
             break;
+            case "auth/internal-error":
+              ErrorMessage("Password must have more than 8 characters and less than 20 characters");
+              break;
           default:
             ErrorMessage(err.message);
         }
       });
   };
+
+  //confirm password for future feature?
+  const checkConfirmPassValidation = (e) => {
+    const confirmPassword = e.target.value; 
+    if (password != confirmPassword) {
+      ErrorMessage("Confirm Password should be match with password");
+    } else {
+      SuccessMessage("Matched");
+      setConfirmPassword(confirmPassword);
+    }
+  }
+
+  //valid password
+  const checkPassValidation = (e) => {
+    const password = e.target.value;
+    if (password.length >= 8 && password.length < 20) {
+        setPassword(password);
+    }
+  }
+
+  //valid special characters in username
+  const checkUserNameValidation = (e) => {
+    const userName = e.target.value;
+    const special = ["<", ">", "/", "|", ":", "*", "?", '"',"\\"];
+    let result = false;
+    for (let i=0; i<special.length; i++) {
+      if (userName.includes(special[i])) {
+         result = true;
+         break;
+      }
+    }
+    if (result === true) {
+      ErrorMessage("Special characters are not allowed");
+    } else {
+      setUserName(userName);
+    }
+  }
+
+  //Select Role - Radio button onchange
+  const handleRole = (e) => {
+    setRole(e.target.value);
+  }
 
   return (
     <div className="signin">
@@ -64,7 +115,7 @@ export default function SignUp() {
                 </h5>
                 <input
                   onChange={(e) => {
-                    setUserName(e.target.value);
+                    checkUserNameValidation(e);
                   }}
                   type="text"
                   className="input"
@@ -78,9 +129,25 @@ export default function SignUp() {
                 />
               </div>
             </div>
-            <div className={`input-div pass ${isMailFocus ? "focus" : ""}`}>
+            <div className={`input-div pass ${isRoleFocus ? "focus" : ""}`}>
               <div className="i">
                 <i className="fas fa-user"></i>
+              </div>
+              <div className="div ">
+                <h5>Role</h5>
+                <div>
+                  <div>
+                    <input type="radio" value="student" name="role" onChange={handleRole}/> Student
+                  </div>
+                  <div>
+                    <input type="radio" value="teacher" name="role" onChange={handleRole}/> Teacher
+                  </div>                
+                </div>
+              </div>
+            </div>
+            <div className={`input-div pass ${isMailFocus ? "focus" : ""}`}>
+              <div className="i">
+                <i className="fas fa-envelope"></i>
               </div>
               <div className="div ">
                 <h5 className={`${email ? "hidden" : ""}`}>メール</h5>
@@ -108,7 +175,7 @@ export default function SignUp() {
                 <h5 className={`${password ? "hidden" : ""}`}>パスワード</h5>
                 <input
                   onChange={(e) => {
-                    setPassword(e.target.value);
+                    checkPassValidation(e);
                   }}
                   type="password"
                   className="input"
@@ -122,6 +189,28 @@ export default function SignUp() {
                 />
               </div>
             </div>
+            {/* <div className={`input-div pass ${isConfirmPassFocus ? "focus" : ""}`}>
+              <div className="i">
+                <i className="fas fa-lock"></i>
+              </div>
+              <div className="div">
+                <h5 className={`${confirmPassword ? "hidden" : ""}`}>パスワード認証</h5>
+                <input
+                  onChange={(e) => {
+                    checkConfirmPassValidation(e);
+                  }}
+                  type="password"
+                  className="input"
+                  required
+                  onFocus={() => {
+                    setIsConfirmPassFocus(true);
+                  }}
+                  onBlur={() => {
+                    setIsConfirmPassFocus(false);
+                  }}
+                />
+              </div>
+            </div> */}
             {/* <a href="#">Forgot Password?</a> */}
             <input
               onClick={(e) => {
@@ -136,5 +225,5 @@ export default function SignUp() {
         </div>
       </div>
     </div>
-  );
+    );
 }

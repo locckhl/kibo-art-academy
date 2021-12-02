@@ -39,6 +39,8 @@ export default function SignIn({ logIn }) {
       .catch((err) => {
         switch (err.code) {
           case "auth/invalid-email":
+            ErrorMessage("Invalid email");
+            break;
           case "auth/user-not-found":
             ErrorMessage("User not found");
             break;
