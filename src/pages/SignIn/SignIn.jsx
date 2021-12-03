@@ -33,13 +33,14 @@ export default function SignIn({ logIn }) {
     // const auth = getAuth();
     logIn(email, password)
       .then(() => {
-        window.localStorage.setItem("user", "true");
         SuccessMessage("サイイン成功");
         navigate(from, { replace: true });
       })
       .catch((err) => {
         switch (err.code) {
           case "auth/invalid-email":
+            ErrorMessage("Invalid email");
+            break;
           case "auth/user-not-found":
             ErrorMessage("User not found");
             break;
