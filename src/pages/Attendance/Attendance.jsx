@@ -2,18 +2,19 @@ import React from "react";
 import { useParams } from "react-router";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
 import { getAllTalentsByClassUID, getClassesLesson, Save } from "../../lib/attendance";
-import { getFirebaseItems } from "../../lib/firebase";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
+import { getFirebaseItemsWithCondition } from "../../lib/firebase";
+
 /**
  * 
  * @param {string} date 
  */
 const formatTime = (stringSeconds) => {
   const date = new Date(parseInt(stringSeconds)*1000)
-  return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+  return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
 }
 
-export default function Attendance() {
+export default function Attendance({user}) {
   const {classId} = useParams();
   const [talents, setTalents] = React.useState([])
   const [classUID, setClassesUID] = React.useState(classId)
@@ -43,7 +44,7 @@ export default function Attendance() {
 
   React.useEffect(() => {
     const getAllClasses = async() => {
-       await getFirebaseItems("Classes").then(data => setClassCollection([...data]));
+      await getFirebaseItemsWithCondition("Classes", ["teacherID", "==", user?.uid]).then(classes => setClassCollection(classes))
     }
     getAllClasses()
   }, [])

@@ -1,25 +1,42 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./index.scss";
-import { db } from "../../lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { db, getFirebaseItems, getFirebaseItemsWithCondition } from "../../lib/firebase";
 import { useState, useEffect} from "react";
+import { collection, getDocs } from "@firebase/firestore";
 
-function Home() {
+function Home({user, userInfo}) {
 const [classes, setClasses] = useState([]);
 const [titleColumns] = useState(['クラス名', '人数', 'クラス内容', '授業数', '主任教員', 'アクション'])
-const classesCollection = collection (db, "Classes")
-const usersCollection = collection (db, "Users")
 useEffect(() => {
   const getClasses = async () => {
-    const data = (await getDocs(classesCollection)).docs.map((doc) => ({ id: doc.id,...doc.data() }))
-    setClasses(data)
-    const users = (await getDocs(usersCollection)).docs.map((doc) => ({...doc.data()}))
-    const mapClasses = data.map(item => ({...item, ...users.find(user => user.userID === item.teacherID)}))
-    setClasses(mapClasses)
+    let classes = []
+    switch (parseInt(userInfo.role)) {
+      case 0: //admin
+        classes = await getFirebaseItems("Classes")
+        console.log(classes)
+        break;
+      case 1: //teacher
+        classes = await getFirebaseItemsWithCondition("Classes", ["teacherID", "==", userInfo.userID])
+        break;
+      default: //students
+        const classList = await getFirebaseItems("Classes")
+        let classTalents = []
+        for (let i = 0; i < classList.length; i++) {
+          let tmp = await getFirebaseItems("Classes", classList[i].id, "ClassTalents")
+          tmp = tmp[0]?.talentIDs
+          const index = tmp.findIndex((item) => item === userInfo.userID)
+          if (index > -1) {
+            classes.push(classList)
+          }
+        }
+        console.log(classes)
+        setClasses(classes)
+        break;
+    }
   }
   getClasses()
-},[])
+},[userInfo])
 return (
   <div className="flex flex-col home px-24">
     <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">

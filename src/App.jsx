@@ -20,12 +20,13 @@ import {
   signOut,
 } from "@firebase/auth";
 import { useEffect, useState } from "react";
-import { auth } from "./lib/firebase";
+import { auth, getFirebaseItemWithCondition } from "./lib/firebase";
 import { SuccessMessage, ErrorMessage } from "../src/utils/toastify";
 import RequireAuth from "./components/RequireAuth/RequireAuth";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [userInfo, setUserInfo] = useState({});
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const authListener = () => {
@@ -34,6 +35,7 @@ function App() {
         setUser(user);
         window.localStorage.setItem("user", "true");
         setIsLoggedIn("true");
+        getFirebaseItemWithCondition("Users", ["userID", "==", user?.uid]).then(info => setUserInfo(info))
       } else {
         setUser(null);
         window.localStorage.setItem("user", "false");
@@ -61,7 +63,6 @@ function App() {
         ErrorMessage(error);
       });
   };
-
   return (
     <Router>
       {/* 
@@ -75,7 +76,7 @@ function App() {
           path="/"
           element={
             <RequireAuth >
-              <Home user={user} />
+              <Home user={user}  userInfo={userInfo}/>
             </RequireAuth>
           }
         ></Route>
@@ -104,7 +105,7 @@ function App() {
           path="/attendance/:classId"
           element={
             <RequireAuth >
-              <Attendance user={user} />
+              <Attendance user={user} userInfo={userInfo} />
             </RequireAuth>
           }
         ></Route>

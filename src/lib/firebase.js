@@ -57,6 +57,20 @@ export const getFirebaseItemWithCondition = async (table, ...options) => {
   }
   return result
 }
+export const getFirebaseItemsWithCondition = async (table, ...options) => {
+  let result = []
+  const q = options.map((option) => where(...option))
+  try {
+    const response = await getDocs(query(collection(db, table), ...q, limit(1)))
+    response.forEach((doc) => {
+      console.log(result)
+      result.push({...doc.data(), id: doc.id })
+    })
+  } catch (error) {
+    console.log(error)
+  }
+  return result
+}
 
 /**
  *
