@@ -3,7 +3,6 @@ import { useParams } from "react-router";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
 import { getAllTalentsByClassUID, getClassesLesson, Save } from "../../lib/attendance";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
-import { getFirebaseItemsWithCondition } from "../../lib/firebase";
 
 /**
  * 
@@ -14,15 +13,14 @@ const formatTime = (stringSeconds) => {
   return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
 }
 
-export default function Attendance({user}) {
+export default function Attendance({user, userInfo, classes}) {
   const {classId} = useParams();
   const [talents, setTalents] = React.useState([])
   const [classUID, setClassesUID] = React.useState(classId)
   const [lessonList, setLessonList] = React.useState([])
   const [lesson, setLesson] = React.useState(-1)
   const [loading, setLoadding] = React.useState(false)
-  const [classesCollection, setClassCollection] = React.useState([])
-  const [disable, setDisable] = React.useState(false)
+  const [disable, setDisable] = React.useState(true)
 
   React.useEffect(() => {
     const getAllLessons = async () => {
@@ -42,13 +40,6 @@ export default function Attendance({user}) {
     }
   }, [classUID, lessonList, lesson])
 
-  React.useEffect(() => {
-    const getAllClasses = async() => {
-      await getFirebaseItemsWithCondition("Classes", ["teacherID", "==", user?.uid]).then(classes => setClassCollection(classes))
-    }
-    getAllClasses()
-  }, [])
-
   const handleClick = (index) => {
     if(talents[index].status) {
       talents[index].checked --
@@ -65,7 +56,7 @@ export default function Attendance({user}) {
       setLoadding(true)
       const isSuccess = await Save(classUID,lessonList[lesson].id,talents)
       if (isSuccess) {
-        SuccessMessage("Success")
+        SuccessMessage("完成しました")
       } else {
         ErrorMessage("Error")
       }
@@ -80,12 +71,12 @@ export default function Attendance({user}) {
     setLesson(-1);
   }
   React.useEffect(() => {
-    if (lesson > -1 && lessonList.length > 0) {
+    if (lesson > -1 && lessonList.length > 0 && userInfo.role !== 2) {
       const lessonSeccond = lessonList[lesson].date.seconds
       const timeNow = Date.now()/1000
       setDisable(() => (timeNow - lessonSeccond) > 7*24*60*60)
     }
-  }, [lessonList, lesson])
+  }, [lessonList, lesson, userInfo])
   return (
     <div className="container mt-40 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
@@ -173,7 +164,7 @@ export default function Attendance({user}) {
         </div>
         <div className="mx-10 class-right flex-auto">
           {/* <div className="flex jutify-end"> */}
-          <ClassInfo classInfo={classesCollection[classesCollection.findIndex(item => item.id === classUID)]} classes={classesCollection} changeClassId={changeClassId}/>
+          <ClassInfo classInfo={classes[classes.findIndex(item => item.id === classUID)]} classes={classes} changeClassId={changeClassId}/>
 
           {/* </div> */}
         </div>
