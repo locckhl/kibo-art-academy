@@ -1,11 +1,25 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./index.scss";
-import { useState } from "react";
+import { db } from "../../lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
+import { useState, useEffect} from "react";
 
-function Home({user, userInfo, classes}) {
+function Home() {
+const [classes, setClasses] = useState([]);
 const [titleColumns] = useState(['クラス名', '人数', 'クラス内容', '授業数', '主任教員', 'アクション'])
-
+const classesCollection = collection (db, "Classes")
+const usersCollection = collection (db, "Users")
+useEffect(() => {
+  const getClasses = async () => {
+    const data = (await getDocs(classesCollection)).docs.map((doc) => ({ id: doc.id,...doc.data() }))
+    setClasses(data)
+    const users = (await getDocs(usersCollection)).docs.map((doc) => ({...doc.data()}))
+    const mapClasses = data.map(item => ({...item, ...users.find(user => user.userID === item.teacherID)}))
+    setClasses(mapClasses)
+  }
+  getClasses()
+},[])
 return (
   <div className="flex flex-col home px-24">
     <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
