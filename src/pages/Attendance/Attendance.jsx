@@ -92,7 +92,7 @@ export default function Attendance() {
     }
   }, [lessonList, lesson, currentUser]);
   return (
-    <div className="container mt-40 px-20 flex flex-col">
+    <section className="container mt-40 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
         <div className="class-date">
           <label htmlFor="dates">日付け：</label>
@@ -217,6 +217,6 @@ export default function Attendance() {
           {/* </div> */}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
