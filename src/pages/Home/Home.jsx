@@ -3,20 +3,39 @@ import { Link } from "react-router-dom";
 import "./index.scss";
 import { db } from "../../lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import { useState, useEffect} from "react";
 
 function Home() {
-const [classes, setClasses] = useState([]);
 const [titleColumns] = useState(['クラス名', '人数', 'クラス内容', '授業数', '主任教員', 'アクション'])
+const [classes, setClasses] = useState([]);
 const classesCollection = collection (db, "Classes")
 const usersCollection = collection (db, "Users")
+const auth = getAuth()
 useEffect(() => {
   const getClasses = async () => {
-    const data = (await getDocs(classesCollection)).docs.map((doc) => ({ id: doc.id,...doc.data() }))
-    setClasses(data)
+    const res = (await getDocs(classesCollection)).docs.map((doc) => ({ id: doc.id,...doc.data() }))
+    let talents = []
+    for (let index = 0; index < res.length; index++) {
+      const element = res[index];
+      let talent = (await getDocs(collection (db,"Classes",element.id, "ClassTalents"))).docs.map((doc) => ({...doc.data()}))
+      talents.push({...element, talents: talent})
+    }
     const users = (await getDocs(usersCollection)).docs.map((doc) => ({...doc.data()}))
-    const mapClasses = data.map(item => ({...item, ...users.find(user => user.userID === item.teacherID)}))
-    setClasses(mapClasses)
+    const currentUserId = auth.currentUser.uid
+    const mapClassesTalent = talents.filter(item => item.talents[0].talentIDs.indexOf(currentUserId) !== -1)
+    const currentUser = users.filter(user => user.userID === currentUserId)[0]
+    const mapClasses = res.map(item => ({...item, ...users.find(user => user.userID === item.teacherID)}))
+    if (!currentUser.role) {
+      setClasses(mapClasses)
+    }
+    if (currentUser.role === 1) {
+      const classTeacher = mapClasses.filter(item => item.teacherID === currentUserId)
+      setClasses(classTeacher)
+    }
+    if (currentUser.role === 2) {
+      setClasses(mapClassesTalent)
+    }
   }
   getClasses()
 },[])
