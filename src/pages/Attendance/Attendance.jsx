@@ -2,49 +2,43 @@ import React from "react";
 import { useParams } from "react-router";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
 import { getAllTalentsByClassUID, getClassesLesson, Save } from "../../lib/attendance";
-import { getFirebaseItems } from "../../lib/firebase";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
+
 /**
  * 
  * @param {string} date 
  */
 const formatTime = (stringSeconds) => {
   const date = new Date(parseInt(stringSeconds)*1000)
-  return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+  return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
 }
 
-export default function Attendance() {
+export default function Attendance({user, userInfo, classes}) {
   const {classId} = useParams();
   const [talents, setTalents] = React.useState([])
   const [classUID, setClassesUID] = React.useState(classId)
   const [lessonList, setLessonList] = React.useState([])
   const [lesson, setLesson] = React.useState(-1)
   const [loading, setLoadding] = React.useState(false)
-  const [classesCollection, setClassCollection] = React.useState([])
+  const [disable, setDisable] = React.useState(true)
 
-  React.useState(() => {
+  React.useEffect(() => {
     const getAllLessons = async () => {
       await getClassesLesson(classUID)
-      .then(lessons => { setLessonList(lessons); setLesson(0)})
+      .then(lessons => { console.log(lessons); setLessonList(lessons); setLesson(0)})
     }
     getAllLessons()
   }, [classUID]);
 
   React.useEffect(()=>{
     const getAllStudent = async() => {
+      console.log(classUID, lessonList[lesson]?.id)
       await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(talents => { setTalents(() => [...talents]);})
     }
     if (lesson > -1) {
       getAllStudent();
     }
-  }, [classUID, lesson])
-
-  React.useEffect(() => {
-    const getAllClasses = async() => {
-       await getFirebaseItems("Classes").then(data => setClassCollection([...data]));
-    }
-    getAllClasses()
-  }, [])
+  }, [classUID, lessonList, lesson])
 
   const handleClick = (index) => {
     if(talents[index].status) {
@@ -58,19 +52,31 @@ export default function Attendance() {
   }
 
   const handleSubmit = async () => {
-    setLoadding(true)
-    const isSuccess = await Save(classUID,lessonList[lesson].id,talents)
-    if (isSuccess) {
-      SuccessMessage("Success")
-    } else {
+     if(!disable){
+      setLoadding(true)
+      const isSuccess = await Save(classUID,lessonList[lesson].id,talents)
+      if (isSuccess) {
+        SuccessMessage("完成しました")
+      } else {
+        ErrorMessage("Error")
+      }
+      setLoadding(false)
+     }else{
       ErrorMessage("Error")
-    }
-    setLoadding(false)
+     }
   }
 
   const changeClassId = (classId) => {
     setClassesUID(classId);
+    setLesson(-1);
   }
+  React.useEffect(() => {
+    if (lesson > -1 && lessonList.length > 0 && userInfo.role !== 2) {
+      const lessonSeccond = lessonList[lesson].date.seconds
+      const timeNow = Date.now()/1000
+      setDisable(() => (timeNow - lessonSeccond) > 7*24*60*60)
+    }
+  }, [lessonList, lesson, userInfo])
   return (
     <div className="container mt-40 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
@@ -140,7 +146,7 @@ export default function Attendance() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <input type="checkbox" className="mx-auto block" checked={talent.status} onChange={()=> handleClick(index)}/>
+                            <input type="checkbox" className="mx-auto block" checked={talent.status} disabled={disable} onChange={()=> handleClick(index)}/>
                           </td>
                         </tr>
                       ))}
@@ -151,14 +157,14 @@ export default function Attendance() {
             </div>
           </div>
           <div className="class-action mx-auto my-10">
-            <button className="btn" onClick={() => handleSubmit()} disabled={loading}>
+            <button className="btn" onClick={() => handleSubmit()} disabled={loading || disable}>
               <i className={`fas fa-circle-notch fa-spin `} style={{display:!loading?"none":"block"}}></i>
               {"更新保存"}</button>
           </div>
         </div>
         <div className="mx-10 class-right flex-auto">
           {/* <div className="flex jutify-end"> */}
-          <ClassInfo classInfo={classesCollection[classesCollection.findIndex(item => item.id === classUID)]} classes={classesCollection} changeClassId={changeClassId}/>
+          <ClassInfo classInfo={classes[classes.findIndex(item => item.id === classUID)]} classes={classes} changeClassId={changeClassId}/>
 
           {/* </div> */}
         </div>
