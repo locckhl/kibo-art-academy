@@ -1,27 +1,31 @@
 import React from "react";
 import "./index.scss";
 import logo from "../../assets/images/logo.png";
+import { useAuth } from "../../contexts/AuthContext";
+import { Link } from "react-router-dom";
 
-export default function Header({ isLoggedIn, handleLogout }) {
+export default function Header() {
+  console.log("Header");
+  const { currentUser, logOut } = useAuth();
   return (
-    isLoggedIn === "true" && (
+    currentUser && (
       <header>
         <div className="container px-10 mx-auto">
           <div className="flex items-center header-content">
             <div className="header-logo">
               <div>
-                <a href="/">
+                <Link to="/">
                   <img src={logo} alt="" />
-                </a>
+                </Link>
               </div>
             </div>
             <div className="header-navbar ">
               <dl className="flex text-xl">
                 <dd>
-                  <a href="/">ホーム</a>
+                  <Link to="/">ホーム</Link>
                 </dd>
                 <dd>
-                  <a href="/signup">アカウント追加</a>
+                  <Link to="/signup">アカウント追加</Link>
                 </dd>
               </dl>
             </div>
@@ -29,11 +33,11 @@ export default function Header({ isLoggedIn, handleLogout }) {
               <div className="flex justify-end ">
                 <div className="mr-2">Ryo 先生</div>
                 <div className="mr-2 flex items-center">
-                  {isLoggedIn ? (
+                  {currentUser? (
                     <div
                       onClick={(e) => {
                         e.preventDefault();
-                        handleLogout();
+                        logOut();
                       }}
                       className="btn"
                     >

@@ -1,120 +1,98 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./index.scss";
-import { db } from "../../lib/firebase";
-import { collection, getDocs } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { useState, useEffect} from "react";
+import { useState } from "react";
+import { useAuth } from "../../contexts/AuthContext";
 
 function Home() {
-const [titleColumns] = useState(['クラス名', '人数', 'クラス内容', '授業数', '主任教員', 'アクション'])
-const [classes, setClasses] = useState([]);
-const classesCollection = collection (db, "Classes")
-const usersCollection = collection (db, "Users")
-const auth = getAuth()
-useEffect(() => {
-  const getClasses = async () => {
-    const res = (await getDocs(classesCollection)).docs.map((doc) => ({ id: doc.id,...doc.data() }))
-    let talents = []
-    for (let index = 0; index < res.length; index++) {
-      const element = res[index];
-      let talent = (await getDocs(collection (db,"Classes",element.id, "ClassTalents"))).docs.map((doc) => ({...doc.data()}))
-      talents.push({...element, talents: talent})
-    }
-    const users = (await getDocs(usersCollection)).docs.map((doc) => ({...doc.data()}))
-    const currentUserId = auth.currentUser.uid
-    const mapClassesTalent = talents.filter(item => item.talents[0].talentIDs.indexOf(currentUserId) !== -1)
-    const currentUser = users.filter(user => user.userID === currentUserId)[0]
-    const mapClasses = res.map(item => ({...item, ...users.find(user => user.userID === item.teacherID)}))
-    if (!currentUser.role) {
-      setClasses(mapClasses)
-    }
-    if (currentUser.role === 1) {
-      const classTeacher = mapClasses.filter(item => item.teacherID === currentUserId)
-      setClasses(classTeacher)
-    }
-    if (currentUser.role === 2) {
-      setClasses(mapClassesTalent)
-    }
-  }
-  getClasses()
-},[])
-return (
-  <div className="flex flex-col home px-24">
-    <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-      <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-        <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                {titleColumns.map((title,index) => (
-                  <th
-                  key={index}
-                  scope="col"
-                  className="px-6 py-3 text-center text-lg font-medium text-gray-700 uppercase tracking-wider"
-                >
-                  {title}
-                </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {classes.map((item,idx) => (
-                <tr key={idx}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-center font-medium text-gray-600">
-                      {item.className}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-center font-medium text-gray-600">
-                      {item.numTalents}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-center font-medium text-gray-600">{item.summary}</div>
-                  </td>
-                  <td className="text-sm text-center font-medium text-gray-600">
-                    {item.numLessons}
-                  </td>
-                  <td className="text-sm text-center font-medium text-gray-600">
-                    {item.name}
-                  </td>
-                  <td className="px-6 py-4 flex whitespace-nowrap">
-                    <div className="flex-auto">
-                      {" "}
-                      <Link
-                        to={`/attendance/${item.id}`}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        出欠
-                      </Link>
-                    </div>
-                    <div className="flex-auto">
-                      <Link
-                        to={`/evaluation/${item.id}`}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        評価
-                      </Link>
-                    </div>
-                    <div className="flex-auto">
-                      <Link
-                        to={`/document/${item.id}`}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        資料
-                      </Link>
-                    </div>
-                  </td>
+  const [titleColumns] = useState([
+    "クラス名",
+    "人数",
+    "クラス内容",
+    "授業数",
+    "主任教員",
+    "アクション",
+  ]);
+  const {classes} = useAuth();
+  console.log("home");
+  return (
+    <div className="flex flex-col home px-24">
+      <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+          <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {titleColumns.map((title, index) => (
+                    <th
+                      key={index}
+                      scope="col"
+                      className="px-6 py-3 text-center text-lg font-medium text-gray-700 uppercase tracking-wider"
+                    >
+                      {title}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {classes.map((item, idx) => (
+                  <tr key={idx}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-center font-medium text-gray-600">
+                        {item.className}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-center font-medium text-gray-600">
+                        {item.numTalents}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-center font-medium text-gray-600">
+                        {item.summary}
+                      </div>
+                    </td>
+                    <td className="text-sm text-center font-medium text-gray-600">
+                      {item.numLessons}
+                    </td>
+                    <td className="text-sm text-center font-medium text-gray-600">
+                      {item.name}
+                    </td>
+                    <td className="px-6 py-4 flex whitespace-nowrap">
+                      <div className="flex-auto">
+                        {" "}
+                        <Link
+                          to={`/attendance/${item.id}`}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          出欠
+                        </Link>
+                      </div>
+                      <div className="flex-auto">
+                        <Link
+                          to={`/evaluation/${item.id}`}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          評価
+                        </Link>
+                      </div>
+                      <div className="flex-auto">
+                        <Link
+                          to={`/document/${item.id}`}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          資料
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 }
-export default Home
+export default Home;

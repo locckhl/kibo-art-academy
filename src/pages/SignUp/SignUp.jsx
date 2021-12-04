@@ -6,6 +6,8 @@ import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
 import { auth, db } from "../../lib/firebase";
 
 export default function SignUp() {
+  console.log("SignUp");
+
   const [isUsrFocus, setIsUsrFocus] = useState(false);
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);

@@ -25,6 +25,8 @@ const people = [
   // More people...
 ];
 export default function Document() {
+  console.log("doc");
+
   return (
     <div className="container mt-20 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
