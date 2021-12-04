@@ -14,7 +14,6 @@ export default function Evaluation() {
   const { classId } = useParams();
   const [state, setState] = useState({
     isEdit: false,
-    dataClasses: [],
     currentClass: [],
     classLessons: [],
     currentClassLesson: [],
@@ -22,7 +21,7 @@ export default function Evaluation() {
     classUID: classId,
     isLoading: false,
   });
-
+  const [dataClasses, setDataClasses] = useState([]);
   const formatTime = (stringSeconds) => {
     const date = new Date(parseInt(stringSeconds) * 1000)
     return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
@@ -32,7 +31,6 @@ export default function Evaluation() {
     //get all lessons
     const getAllLessons = async () => {
       await getClassesLesson(state.classUID).then((res) => {
-        console.log("res", res);
         setState({
           ...state,
           classLessons: res,
@@ -61,10 +59,7 @@ export default function Evaluation() {
   useEffect(() => {
     const getAllClasses = async () => {
       await getFirebaseItems("Classes").then((res) => {
-        setState({
-          ...state,
-          dataClasses: res,
-        });
+        setDataClasses(res)
       });
     }
     getAllClasses()
@@ -106,14 +101,13 @@ export default function Evaluation() {
   }
 
   const setLesson = (value) => {
-    console.log("value", value)
     setState({
       ...state,
       currentClassLesson: state.classLessons[value],
     })
   }
 
-  const { classUID, classLessons, classTalents, dataClasses } = state;
+  const { classUID, classLessons, classTalents } = state;
 
   return (
     <div className="container mt-20 px-20 flex flex-col">
@@ -176,7 +170,7 @@ export default function Evaluation() {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900">
                                 <input
-                                  style={{ 'width': "8%", 'padding-left': "0px" }}
+                                  style={{ 'width': "7%", 'padding-left': "0px" }}
                                   type="number"
                                   disabled={!state.isEdit}
                                   defaultValue={`${value.score}`}
@@ -192,7 +186,7 @@ export default function Evaluation() {
                                   style={{ width: "20%" }}
                                   type="text"
                                   disabled={true}
-                                  defaultValue={`/100`}
+                                  defaultValue={`/ 100`}
                                 />
                               </div>
                             </td>

@@ -8,7 +8,7 @@ export const updateAchievementsItem = async (classID, LessonID, talents) => {
   console.log("updateAchievementsItem", classID, LessonID, talents)
   const updateItem = (item) => {
     return new Promise((resovle, reject) => {
-      const newItem = { score: item.score }
+      const newItem = { score: item.score, maxScore: 100 }
       updateItemFireBase(
         newItem,
         "Classes",
