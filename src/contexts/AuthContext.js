@@ -1,7 +1,9 @@
 import { signInWithEmailAndPassword, signOut } from "@firebase/auth";
+import { collection, getDocs } from "@firebase/firestore";
 import React, { useContext, useState, useEffect } from "react";
 import {
   auth,
+  db,
   getFirebaseItems,
   getFirebaseItemsWithCondition,
   getFirebaseItemWithCondition,
@@ -42,7 +44,6 @@ export function AuthProvider({ children }) {
       getFirebaseItemWithCondition("Users", ["userID", "==", user?.uid]).then(
         (userInfo) => {
           setCurrentUser(userInfo);
-
           // Get classes
           (async function () {
             let classes = [];
@@ -77,7 +78,24 @@ export function AuthProvider({ children }) {
                 }
                 break;
             }
-            setClasses(classes);
+
+            // Get classes 's teacher 's name
+            const usersRef = (await getDocs(collection(db, "Users"))).docs;
+            const users = usersRef.map((user) => user.data());
+            const result = classes.map((kurasu) => {
+              let teacherName = "";
+              users.every((user) => {
+                if (user.userID === kurasu.teacherID) {
+                  teacherName = user.name;
+                  return false;
+                }
+                return true;
+              });
+
+              return { ...kurasu, teacherName };
+            });
+
+            setClasses(result);
             setLoading(false);
           })();
         }
