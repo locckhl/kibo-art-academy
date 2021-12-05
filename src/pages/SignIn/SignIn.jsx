@@ -2,9 +2,12 @@ import React, { useState } from "react";
 
 import "./index.scss";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
-import { useLocation, useNavigate } from "react-router";
+import { Navigate, useLocation, useNavigate } from "react-router";
+import { useAuth } from "../../contexts/AuthContext";
 
-export default function SignIn({ logIn }) {
+export default function SignIn() {
+  console.log("SignIn");
+  const { currentUser, logIn } = useAuth();
   let navigate = useNavigate();
   let location = useLocation();
   let from = location.state?.from?.pathname || "/";
@@ -14,22 +17,16 @@ export default function SignIn({ logIn }) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
 
   const clearInput = () => {
     setEmail("");
     setPassword("");
   };
 
-  const clearError = () => {
-    setEmailError("");
-    setPasswordError("");
-  };
+  if(currentUser) return <Navigate to="/"/>; 
 
   const handleLogin = () => {
     // clearInput();
-    clearError();
     // const auth = getAuth();
     logIn(email, password)
       .then(() => {
@@ -48,10 +45,13 @@ export default function SignIn({ logIn }) {
             ErrorMessage("Wrong password entered");
             break;
           default:
-            ErrorMessage("Something went wrong");
+            ErrorMessage("Password cannot be empty");
+            console.log(err.message)
         }
       });
   };
+
+
 
   return (
     <div className="signin">
@@ -105,7 +105,6 @@ export default function SignIn({ logIn }) {
               </div>
             </div>
             {/* <a href="#">Forgot Password?</a> */}
-            <p className="errorMsg">{passwordError}</p>
             <input
               onClick={(e) => {
                 e.preventDefault();

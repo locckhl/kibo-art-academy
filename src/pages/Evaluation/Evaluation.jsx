@@ -1,23 +1,70 @@
 import React from "react";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
 import { useState, useEffect } from "react";
+import { useParams } from "react-router";
 import {
   updateAchievementsItem,
-  getFirebaseItems,
+  getClassesLesson,
+  getAllTalentsByClassUID
 } from "./../../lib/evaluation";
+import { getFirebaseItems } from "../../lib/firebase";
+import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
 
 export default function Evaluation() {
+  const { classId } = useParams();
   const [state, setState] = useState({
     isEdit: false,
-    dataClasses: [],
-    talent: [
-      {
-        talentID: "",
-        score: 0,
-        maxScore: 0,
-      },
-    ],
+    currentClass: [],
+    classLessons: [],
+    currentClassLesson: [],
+    classTalents: [],
+    classUID: classId,
+    isLoading: false,
   });
+  const [dataClasses, setDataClasses] = useState([]);
+  const formatTime = (stringSeconds) => {
+    const date = new Date(parseInt(stringSeconds) * 1000)
+    return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
+  }
+
+  useEffect(() => {
+    //get all lessons
+    const getAllLessons = async () => {
+      await getClassesLesson(state.classUID).then((res) => {
+        setState({
+          ...state,
+          classLessons: res,
+          currentClassLesson: res[0],
+        });
+      });
+    }
+    getAllLessons()
+  }, []);
+
+  useEffect(() => {
+    //get all talents
+    const getAllTalents = async () => {
+      await getAllTalentsByClassUID(state.classUID, state.currentClassLesson?.id).then((res) => {
+        setState({
+          ...state,
+          classTalents: res,
+        });
+      });
+    }
+    if (state.classLessons.length > 0) {
+      getAllTalents()
+    }
+  }, [state.classUID, state.currentClassLesson]);
+
+  useEffect(() => {
+    const getAllClasses = async () => {
+      await getFirebaseItems("Classes").then((res) => {
+        setDataClasses(res)
+      });
+    }
+    getAllClasses()
+  }, [])
+
   const handleEdit = () => {
     setState({
       ...state,
@@ -25,58 +72,52 @@ export default function Evaluation() {
     });
   };
 
-  const dataClass = [];
-  useEffect(() => {
-    async function fetchData() {
-      const data = await getFirebaseItems(
-        "/Classes/97sxQMGJ5pQj80JnmodI/ClassLessons/yXhng4x1MPLSJj1D6z2w/Achievements"
-      );
-      data.forEach((doc) => {
-        dataClass.push(doc.data());
-      });
-      setState({
-        ...state,
-        dataClasses: dataClass,
-      });
-    }
-    fetchData();
-  }, []);
-
   const handleEditScore = (key, talentID, value) => {
-    const data = state.dataClasses;
+    const data = state.classTalents;
     let index = data.findIndex((item) => item.talentID === talentID);
-    data[index].score = parseInt(value.split("/")[0]);
-    data[index].maxScore = parseInt(value.split("/")[1]);
+    data[index].score = parseInt(value);
     setState({
       ...state,
-      dataClasses: data,
+      classTalents: data,
     });
   };
 
-  const save = () => {
+  const save = async () => {
+    state.isLoading = true;
+    const isSuccess = await updateAchievementsItem(state.classUID, state.classLessons[0]?.id, state.classTalents);
+    if (isSuccess) {
+      SuccessMessage("Success")
+    } else {
+      ErrorMessage("Error")
+    }
+    state.isLoading = false;
+  };
+
+  const changeClassId = (classId) => {
     setState({
       ...state,
-      isEdit: false,
+      classUID: classId,
     });
-    try {
-      state.dataClasses.forEach(async (item) => {
-        await updateAchievementsItem(item.talentID, item.score, item.maxScore);
-      });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-  const { dataClasses } = state;
+  }
+
+  const setLesson = (value) => {
+    setState({
+      ...state,
+      currentClassLesson: state.classLessons[value],
+    })
+  }
+
+  const { classUID, classLessons, classTalents } = state;
 
   return (
     <div className="container mt-20 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
         <div className="class-date">
           <label for="dates">日付け：</label>
-          <select name="dates" id="">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
+          <select name="dates" id="" onChange={(envet) => setLesson(envet.target.value)}>
+            {classLessons.map((item, index) => {
+              return <option value={index} selected={`${index === classLessons[0] ? "selected" : ""}`}>{formatTime(item.date.seconds)}</option>
+            })}
           </select>
         </div>
         <div className="class-function flex-1 flex justify-center text-3xl">
@@ -113,8 +154,8 @@ export default function Evaluation() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {dataClasses.length !== 0 &&
-                        dataClasses.map((value, key) => (
+                      {classTalents.length !== 0 &&
+                        classTalents.map((value, key) => (
                           <tr key={key}>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm font-medium text-gray-900">
@@ -123,15 +164,16 @@ export default function Evaluation() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900">
-                                {value.talentID}
+                                {value.name}
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900">
                                 <input
-                                  type="text"
+                                  style={{ 'width': "7%", 'padding-left': "0px" }}
+                                  type="number"
                                   disabled={!state.isEdit}
-                                  defaultValue={`${value.score}/${value.maxScore}`}
+                                  defaultValue={`${value.score}`}
                                   onChange={(e) =>
                                     handleEditScore(
                                       key,
@@ -139,6 +181,12 @@ export default function Evaluation() {
                                       e.target.value
                                     )
                                   }
+                                />
+                                <input
+                                  style={{ width: "20%" }}
+                                  type="text"
+                                  disabled={true}
+                                  defaultValue={`/ 100`}
                                 />
                               </div>
                             </td>
@@ -165,15 +213,7 @@ export default function Evaluation() {
         </div>
         <div className="mx-10 class-right flex-auto">
           {/* <div className="flex justify-end"> */}
-          <ClassInfo
-            classInfo={{}}
-            classes={[
-              { id: 1, name: "lop1" },
-              { id: 2, name: "lop2" },
-            ]}
-            changeClassId={() => alert("Đổi class id bằng cái hàm này")}
-          />
-
+          <ClassInfo classInfo={dataClasses[dataClasses.findIndex(item => item.id === classUID)]} classes={dataClasses} changeClassId={changeClassId} />
           {/* </div> */}
         </div>
       </div>

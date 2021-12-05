@@ -3,12 +3,13 @@ import ClassInfo from "../../components/ClassInfo/ClassInfo";
 import { db, storage } from '../../lib/firebase'
 import { useParams } from "react-router";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
+import { useAuth } from "../../contexts/AuthContext";
 //firebase imports
 import { collection, onSnapshot, query, orderBy, doc, addDoc, deleteDoc, serverTimestamp } from "@firebase/firestore";
 // import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { getDownloadURL, uploadBytesResumable, ref, deleteObject } from "@firebase/storage";
 
-export default function Document({ user, userInfo, classes }) {
+export default function Document() {
   const [fileItems, setfileItems] = useState(null)
   const { classId } = useParams()
   const [classUID, setClassesUID] = useState(classId)
@@ -19,10 +20,11 @@ export default function Document({ user, userInfo, classes }) {
   const [isCancelled, setisCancelled] = useState(false)
   let URL = ""
 
+  const { currentUser: userInfo, classes } = useAuth()
   /**
- * 
- * @param {string} date 
- */
+  * 
+  * @param {string} date 
+  */
   const formatTime = (stringSeconds) => {
     const date = new Date(parseInt(stringSeconds) * 1000)
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
@@ -128,7 +130,7 @@ export default function Document({ user, userInfo, classes }) {
     })
 
   }
-
+  //check role
   useEffect(() => {
     setIsTeacher(false)
     if (parseInt(userInfo.role) == 1) {

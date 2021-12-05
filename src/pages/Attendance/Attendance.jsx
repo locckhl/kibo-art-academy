@@ -1,95 +1,121 @@
 import React from "react";
 import { useParams } from "react-router";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
-import { getAllTalentsByClassUID, getClassesLesson, Save } from "../../lib/attendance";
+import { useAuth } from "../../contexts/AuthContext";
+import {
+  getAllTalentsByClassUID,
+  getClassesLesson,
+  Save,
+} from "../../lib/attendance";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
 
 /**
- * 
- * @param {string} date 
+ *
+ * @param {string} date
  */
 const formatTime = (stringSeconds) => {
-  const date = new Date(parseInt(stringSeconds)*1000)
-  return `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`
-}
+  const date = new Date(parseInt(stringSeconds) * 1000);
+  return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+};
 
-export default function Attendance({user, userInfo, classes}) {
-  const {classId} = useParams();
-  const [talents, setTalents] = React.useState([])
-  const [classUID, setClassesUID] = React.useState(classId)
-  const [lessonList, setLessonList] = React.useState([])
-  const [lesson, setLesson] = React.useState(-1)
-  const [loading, setLoadding] = React.useState(false)
-  const [disable, setDisable] = React.useState(true)
+export default function Attendance() {
+  const { classId } = useParams();
+  const [talents, setTalents] = React.useState([]);
+  const [classUID, setClassesUID] = React.useState(classId);
+  const [lessonList, setLessonList] = React.useState([]);
+  const [lesson, setLesson] = React.useState(-1);
+  const [loading, setLoadding] = React.useState(false);
+  const [disable, setDisable] = React.useState(true);
+
+  const { currentUser, classes } = useAuth();
+  console.log("Attendance");
 
   React.useEffect(() => {
     const getAllLessons = async () => {
-      await getClassesLesson(classUID)
-      .then(lessons => { console.log(lessons); setLessonList(lessons); setLesson(0)})
-    }
-    getAllLessons()
+      await getClassesLesson(classUID).then((lessons) => {
+        setLessonList(lessons);
+        setLesson(0);
+      });
+    };
+    getAllLessons();
   }, [classUID]);
 
-  React.useEffect(()=>{
-    const getAllStudent = async() => {
-      console.log(classUID, lessonList[lesson]?.id)
-      await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(talents => { setTalents(() => [...talents]);})
-    }
+  React.useEffect(() => {
+    const getAllStudent = async () => {
+      // console.log(classUID, lessonList[lesson]?.id)
+      await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(
+        (talents) => {
+          setTalents(() => [...talents]);
+        }
+      );
+    };
     if (lesson > -1) {
       getAllStudent();
     }
-  }, [classUID, lessonList, lesson])
+  }, [classUID, lessonList, lesson]);
 
   const handleClick = (index) => {
-    if(talents[index].status) {
-      talents[index].checked --
-    }else{
-      talents[index].checked ++
+    if (talents[index].status) {
+      talents[index].checked--;
+    } else {
+      talents[index].checked++;
     }
     talents[index].status = !talents[index].status;
-    
-    setTalents([...talents])
-  }
+
+    setTalents([...talents]);
+  };
 
   const handleSubmit = async () => {
-     if(!disable){
-      setLoadding(true)
-      const isSuccess = await Save(classUID,lessonList[lesson].id,talents)
+    if (!disable) {
+      setLoadding(true);
+      const isSuccess = await Save(classUID, lessonList[lesson].id, talents);
       if (isSuccess) {
-        SuccessMessage("完成しました")
+        SuccessMessage("完成しました");
       } else {
-        ErrorMessage("Error")
+        ErrorMessage("Error");
       }
-      setLoadding(false)
-     }else{
-      ErrorMessage("Error")
-     }
-  }
+      setLoadding(false);
+    } else {
+      ErrorMessage("Error");
+    }
+  };
 
   const changeClassId = (classId) => {
     setClassesUID(classId);
     setLesson(-1);
-  }
+  };
   React.useEffect(() => {
-    if (lesson > -1 && lessonList.length > 0 && userInfo.role !== 2) {
-      const lessonSeccond = lessonList[lesson].date.seconds
-      const timeNow = Date.now()/1000
-      setDisable(() => (timeNow - lessonSeccond) > 7*24*60*60)
+    if (lesson > -1 && lessonList.length > 0 && currentUser.role !== 2) {
+      const lessonSeccond = lessonList[lesson].date.seconds;
+      const timeNow = Date.now() / 1000;
+      setDisable(() => timeNow - lessonSeccond > 7 * 24 * 60 * 60);
     }
-  }, [lessonList, lesson, userInfo])
+  }, [lessonList, lesson, currentUser]);
   return (
-    <div className="container mt-40 px-20 flex flex-col">
+    <section className="container mt-40 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
         <div className="class-date">
-          <label for="dates">日付け：</label>
-          <select name="dates" id="" onChange={(envet) => setLesson(envet.target.value)}>
+          <label htmlFor="dates">日付け：</label>
+          <select
+            name="dates"
+            id=""
+            onChange={(envet) => setLesson(envet.target.value)}
+          >
             {lessonList.map((item, index) => {
-              return <option value={index} selected={`${index === lesson? "selected":""}`}>{formatTime(item.date.seconds)}</option>
+              return (
+                <option
+                  key={item.id}
+                  value={index}
+                  selected={`${index === lesson ? "selected" : ""}`}
+                >
+                  {formatTime(item.date.seconds)}
+                </option>
+              );
             })}
           </select>
         </div>
         <div className="class-function flex-1 flex justify-center text-3xl">
-            出欠
+          出欠
         </div>
       </div>
       <div className="class-center flex">
@@ -142,11 +168,19 @@ export default function Attendance({user, userInfo, classes}) {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                              {Math.round(talent.checked/talent.totalLessons * 100)}
+                              {Math.round(
+                                (talent.checked / talent.totalLessons) * 100
+                              )}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <input type="checkbox" className="mx-auto block" checked={talent.status} disabled={disable} onChange={()=> handleClick(index)}/>
+                            <input
+                              type="checkbox"
+                              className="mx-auto block"
+                              checked={talent.status}
+                              disabled={disable}
+                              onChange={() => handleClick(index)}
+                            />
                           </td>
                         </tr>
                       ))}
@@ -157,18 +191,32 @@ export default function Attendance({user, userInfo, classes}) {
             </div>
           </div>
           <div className="class-action mx-auto my-10">
-            <button className="btn" onClick={() => handleSubmit()} disabled={loading || disable}>
-              <i className={`fas fa-circle-notch fa-spin `} style={{display:!loading?"none":"block"}}></i>
-              {"更新保存"}</button>
+            <button
+              className="btn"
+              onClick={() => handleSubmit()}
+              disabled={loading || disable}
+            >
+              <i
+                className={`fas fa-circle-notch fa-spin `}
+                style={{ display: !loading ? "none" : "block" }}
+              ></i>
+              {"更新保存"}
+            </button>
           </div>
         </div>
         <div className="mx-10 class-right flex-auto">
           {/* <div className="flex jutify-end"> */}
-          <ClassInfo classInfo={classes[classes.findIndex(item => item.id === classUID)]} classes={classes} changeClassId={changeClassId}/>
+          <ClassInfo
+            classInfo={
+              classes[classes.findIndex((item) => item.id === classUID)]
+            }
+            classes={classes}
+            changeClassId={changeClassId}
+          />
 
           {/* </div> */}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
