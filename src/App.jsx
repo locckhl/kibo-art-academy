@@ -151,7 +151,7 @@ function App() {
           path="/document/:classId"
           element={
             <RequireAuth >
-              <Document user={user} />
+              <Document user={user} userInfo={userInfo} classes={classes}/>
             </RequireAuth>
           }
         ></Route>
