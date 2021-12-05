@@ -4,33 +4,9 @@ import { db, storage } from '../../lib/firebase'
 import { useParams } from "react-router";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
 //firebase imports
-import { collection, onSnapshot, query, where, orderBy, doc, addDoc, deleteDoc, serverTimestamp } from "@firebase/firestore";
+import { collection, onSnapshot, query, orderBy, doc, addDoc, deleteDoc, serverTimestamp } from "@firebase/firestore";
 // import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
 import { getDownloadURL, uploadBytesResumable, ref, deleteObject } from "@firebase/storage";
-const people = [
-  {
-    title: "日本語5",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語6",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  {
-    title: "日本語7",
-    ninzuu: "36",
-    info: "JLPT (聴解・会話)",
-    numberOfLessons: "25",
-    tantousha: "Viet Thi Thu Huyen",
-  },
-  // More people...
-];
 
 export default function Document({ user, userInfo, classes }) {
   const [fileItems, setfileItems] = useState(null)
