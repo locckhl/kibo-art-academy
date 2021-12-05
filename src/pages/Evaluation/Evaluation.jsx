@@ -2,68 +2,54 @@ import React from "react";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
+import { useAuth } from "../../contexts/AuthContext";
+
 import {
   updateAchievementsItem,
   getClassesLesson,
   getAllTalentsByClassUID
 } from "./../../lib/evaluation";
-import { getFirebaseItems } from "../../lib/firebase";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
 
 export default function Evaluation() {
   const { classId } = useParams();
   const [state, setState] = useState({
     isEdit: false,
-    currentClass: [],
-    classLessons: [],
-    currentClassLesson: [],
-    classTalents: [],
-    classUID: classId,
     isLoading: false,
   });
-  const [dataClasses, setDataClasses] = useState([]);
+  const [classUID, setClassesUID] = React.useState(classId);
+  const { classes } = useAuth();
+  const [lessonList, setLessonList] = React.useState([]);
+  const [lesson, setLesson] = React.useState(-1);
+  const [talents, setTalents] = React.useState([]);
+
   const formatTime = (stringSeconds) => {
-    const date = new Date(parseInt(stringSeconds) * 1000)
-    return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`
-  }
+    const date = new Date(parseInt(stringSeconds) * 1000);
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  };
 
   useEffect(() => {
-    //get all lessons
     const getAllLessons = async () => {
-      await getClassesLesson(state.classUID).then((res) => {
-        setState({
-          ...state,
-          classLessons: res,
-          currentClassLesson: res[0],
-        });
+      await getClassesLesson(classUID).then((lessons) => {
+        setLessonList(lessons);
+        setLesson(0);
       });
-    }
-    getAllLessons()
-  }, []);
+    };
+    getAllLessons();
+  }, [classUID]);
 
   useEffect(() => {
-    //get all talents
-    const getAllTalents = async () => {
-      await getAllTalentsByClassUID(state.classUID, state.currentClassLesson?.id).then((res) => {
-        setState({
-          ...state,
-          classTalents: res,
-        });
-      });
+    const getAllStudent = async () => {
+      await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(
+        (talents) => {
+          setTalents(() => [...talents]);
+        }
+      );
+    };
+    if (lesson > -1) {
+      getAllStudent();
     }
-    if (state.classLessons.length > 0) {
-      getAllTalents()
-    }
-  }, [state.classUID, state.currentClassLesson]);
-
-  useEffect(() => {
-    const getAllClasses = async () => {
-      await getFirebaseItems("Classes").then((res) => {
-        setDataClasses(res)
-      });
-    }
-    getAllClasses()
-  }, [])
+  }, [classUID, lessonList, lesson]);
 
   const handleEdit = () => {
     setState({
@@ -73,19 +59,28 @@ export default function Evaluation() {
   };
 
   const handleEditScore = (key, talentID, value) => {
-    const data = state.classTalents;
+    if (value > 100) {
+      ErrorMessage("スコアは0〜100の間でなければなりません");
+      value = 100;
+    } else if (value < 0 || value === "") {
+      ErrorMessage("スコアは0〜100の間でなければなりません");
+      value = 0;
+    }
+    const data = talents;
     let index = data.findIndex((item) => item.talentID === talentID);
     data[index].score = parseInt(value);
-    setState({
-      ...state,
-      classTalents: data,
-    });
+    setTalents(data);
   };
 
   const save = async () => {
     state.isLoading = true;
-    const isSuccess = await updateAchievementsItem(state.classUID, state.classLessons[0]?.id, state.classTalents);
+    const isSuccess = await updateAchievementsItem(classUID, lessonList[lesson].id, talents);
     if (isSuccess) {
+      setState({
+        ...state,
+        isEdit: false,
+        isLoading: false,
+      });
       SuccessMessage("Success")
     } else {
       ErrorMessage("Error")
@@ -94,29 +89,29 @@ export default function Evaluation() {
   };
 
   const changeClassId = (classId) => {
-    setState({
-      ...state,
-      classUID: classId,
-    });
+    setClassesUID(classId);
   }
-
-  const setLesson = (value) => {
-    setState({
-      ...state,
-      currentClassLesson: state.classLessons[value],
-    })
-  }
-
-  const { classUID, classLessons, classTalents } = state;
 
   return (
     <div className="container mt-20 px-20 flex flex-col">
       <div className="class-top mb-10 flex">
         <div className="class-date">
           <label for="dates">日付け：</label>
-          <select name="dates" id="" onChange={(envet) => setLesson(envet.target.value)}>
-            {classLessons.map((item, index) => {
-              return <option value={index} selected={`${index === classLessons[0] ? "selected" : ""}`}>{formatTime(item.date.seconds)}</option>
+          <select
+            name="dates"
+            id=""
+            onChange={(envet) => setLesson(envet.target.value)}
+          >
+            {lessonList.map((item, index) => {
+              return (
+                <option
+                  key={item.id}
+                  value={index}
+                  selected={`${index === lesson ? "selected" : ""}`}
+                >
+                  {formatTime(item.date.seconds)}
+                </option>
+              );
             })}
           </select>
         </div>
@@ -154,8 +149,8 @@ export default function Evaluation() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {classTalents.length !== 0 &&
-                        classTalents.map((value, key) => (
+                      {talents.length !== 0 &&
+                        talents.map((value, key) => (
                           <tr key={key}>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm font-medium text-gray-900">
@@ -170,8 +165,9 @@ export default function Evaluation() {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900">
                                 <input
-                                  style={{ 'width': "7%", 'padding-left': "0px" }}
+                                  style={{ 'width': "8%", 'padding-left': "0px" }}
                                   type="number"
+                                  max={100}
                                   disabled={!state.isEdit}
                                   defaultValue={`${value.score}`}
                                   onChange={(e) =>
@@ -213,7 +209,13 @@ export default function Evaluation() {
         </div>
         <div className="mx-10 class-right flex-auto">
           {/* <div className="flex justify-end"> */}
-          <ClassInfo classInfo={dataClasses[dataClasses.findIndex(item => item.id === classUID)]} classes={dataClasses} changeClassId={changeClassId} />
+          <ClassInfo
+            classInfo={
+              classes[classes.findIndex((item) => item.id === classUID)]
+            }
+            classes={classes}
+            changeClassId={changeClassId}
+          />
           {/* </div> */}
         </div>
       </div>
