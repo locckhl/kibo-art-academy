@@ -25,7 +25,7 @@ export default function Header() {
                   <Link to="/">ホーム</Link>
                 </dd>
                 <dd>
-                  <Link to="/signup">アカウント追加</Link>
+                {currentUser.role === 0 ? (<Link to="/signup">アカウント追加</Link>) : ""}
                 </dd>
               </dl>
             </div>

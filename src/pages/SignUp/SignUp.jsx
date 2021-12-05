@@ -4,10 +4,12 @@ import { doc, setDoc } from "firebase/firestore";
 import "./index.scss";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
 import { auth, db } from "../../lib/firebase";
+import { useAuth } from "../../contexts/AuthContext";
+import { Navigate } from "react-router";
 
 export default function SignUp() {
   console.log("SignUp");
-
+  const { currentUser } = useAuth();
   const [isUsrFocus, setIsUsrFocus] = useState(false);
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
@@ -120,6 +122,8 @@ export default function SignUp() {
   const handleRole = (e) => {
     setRole(parseInt(e.target.value));
   };
+
+  if (currentUser.role !== 0) return <Navigate to="/" />;
 
   return (
     <div className="signin">
