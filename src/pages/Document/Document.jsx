@@ -6,7 +6,7 @@ import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
 //firebase imports
 import { collection, onSnapshot, query, where, orderBy, doc, addDoc, deleteDoc, serverTimestamp } from "@firebase/firestore";
 // import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
-import { getDownloadURL, uploadBytesResumable, ref } from "@firebase/storage";
+import { getDownloadURL, uploadBytesResumable, ref, deleteObject } from "@firebase/storage";
 const people = [
   {
     title: "日本語5",
@@ -41,7 +41,7 @@ export default function Document({ user, userInfo, classes }) {
   const [error, seterror] = useState(null)
   const [isPending, setisPending] = useState(false)
   const [isCancelled, setisCancelled] = useState(false)
-
+  let URL = ""
 
   /**
  * 
@@ -50,6 +50,10 @@ export default function Document({ user, userInfo, classes }) {
   const formatTime = (stringSeconds) => {
     const date = new Date(parseInt(stringSeconds) * 1000)
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`
+  }
+
+  const changeClassId = (classId) => {
+    setClassesUID(classId);
   }
 
   const uploadFileHandler = (e) => {
@@ -79,36 +83,40 @@ export default function Document({ user, userInfo, classes }) {
       },
       (error) => console.log(error),
       () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log("File available at", downloadURL);
+        getDownloadURL(uploadTask.snapshot.ref).then((download_URL) => {
+          URL = download_URL
+          //add data to firestore
+          const refer = collection(db, 'Classes', classUID, "Files")
+
+          try {
+            addDoc(refer, {
+              classID: classUID,
+              teacherID: userInfo.userID,
+              fileName: file.name,
+              downloadURL: URL,
+              createdAt: serverTimestamp()
+            }).then(() => {
+              if (!isCancelled) {
+                seterror(null)
+                setisPending(false)
+              }
+              SuccessMessage("アップロード成功")
+            })
+          } catch (err) {
+            console.log(err.message)
+            if (!isCancelled) {
+              seterror(err.message)
+              setisPending(false)
+            }
+          }
         })
       }
     )
-    //add data to firestore
-    const refer = collection(db, 'Classes', classId, "Files")
 
-    try {
-      await addDoc(refer, {
-        classID: classUID,
-        teacherID: userInfo.userID,
-        fileName: file.name,
-        createdAt: serverTimestamp()
-      })
-      if (!isCancelled) {
-        seterror(null)
-        setisPending(true)
-      }
-    } catch (err) {
-      console.log(err.message)
-      if (!isCancelled) {
-        seterror(err.message)
-        setisPending(false)
-      }
-    }
   }
   // get file list
   useEffect(() => {
-    let refer = collection(db, "Classes", classId, "Files")
+    let refer = collection(db, "Classes", classUID, "Files")
     refer = query(refer, orderBy("createdAt", "desc"))
 
     const unsub = onSnapshot(refer, (snapshot) => {
@@ -119,7 +127,6 @@ export default function Document({ user, userInfo, classes }) {
 
       // update state
       setfileItems(results)
-      console.log(results)
       seterror(null)
     }, (err) => {
       console.log(err)
@@ -128,13 +135,22 @@ export default function Document({ user, userInfo, classes }) {
 
     // unsubscribe on unmount
     return () => unsub()
-  }, [classId])
+  }, [classUID])
 
   //delete file
-  const deleteFile = async (id) => {
-    const refer = doc(db, 'Classes', classId, "Files", id)
-    await deleteDoc(refer)
-    SuccessMessage("削除しました")
+  const deleteFile = (id, fileName) => {
+    const desertRef = ref(storage, fileName)
+    deleteObject(desertRef).then(() => {
+      const refer = doc(db, 'Classes', classUID, "Files", id)
+      deleteDoc(refer).then(() => {
+        SuccessMessage("削除しました")
+      }).catch((err) => {
+        ErrorMessage("エラーがある")
+      })
+    }).catch((err) => {
+      ErrorMessage("エラーがある")
+    })
+
   }
 
   useEffect(() => {
@@ -197,12 +213,12 @@ export default function Document({ user, userInfo, classes }) {
                               {!!fileItem.createdAt && formatTime(fileItem.createdAt.seconds)}
                             </div>
                             <div className="text-sm text-gray-500">
-                              ダウンロード
+                              <a target="_blank" rel="noopener noreferrer" href={fileItem.downloadURL}>ダウンロード</a>
                             </div>
                           </td>
                           {isTeacher && <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex justify-center">
                             <span
-                              onClick={() => deleteFile(fileItem.id)}
+                              onClick={() => deleteFile(fileItem.id, fileItem.fileName)}
                               className="px-4 py-2 inline-flex text-xs leading-5 font-semibold rounded-xl bg-red-600 text-white text-xl cursor-pointer ">
                               削除
                             </span>
@@ -247,7 +263,10 @@ export default function Document({ user, userInfo, classes }) {
             </form>
           }
           {!isTeacher &&
-            <form onSubmit={() => ErrorMessage("サプミットできない")}>
+            <form onSubmit={(e) => {
+              e.preventDefault()
+              ErrorMessage("サプミットできない")
+            }}>
               <div className="class-action my-10 flex flex-col justify-around">
                 <div>
                   <div className="text-center">資料をアップロード</div>
@@ -274,15 +293,8 @@ export default function Document({ user, userInfo, classes }) {
 
         </div>
         <div className="mx-10 class-right flex-auto">
-          {/* <div className="flex justify-end"> */}
-          <ClassInfo
-            classInfo={{}}
-            classes={[
-              { id: 1, name: "lop1" },
-              { id: 2, name: "lop2" },
-            ]}
-            changeClassId={() => alert("Đổi class id bằng cái hàm này")}
-          />
+          {/* <div className="flex jutify-end"> */}
+          <ClassInfo classInfo={classes[classes.findIndex(item => item.id === classUID)]} classes={classes} changeClassId={changeClassId} />
 
           {/* </div> */}
         </div>
