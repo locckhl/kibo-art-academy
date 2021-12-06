@@ -7,18 +7,18 @@ import { useAuth } from "../../contexts/AuthContext";
 import {
   updateAchievementsItem,
   getClassesLesson,
-  getAllTalentsByClassUID
+  getAllTalentsByClassUID,
 } from "./../../lib/evaluation";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
 
 export default function Evaluation() {
+  const { currentUser, classes } = useAuth();
   const { classId } = useParams();
   const [state, setState] = useState({
     isEdit: false,
     isLoading: false,
   });
   const [classUID, setClassesUID] = React.useState(classId);
-  const { classes } = useAuth();
   const [lessonList, setLessonList] = React.useState([]);
   const [lesson, setLesson] = React.useState(-1);
   const [talents, setTalents] = React.useState([]);
@@ -73,24 +73,35 @@ export default function Evaluation() {
   };
 
   const save = async () => {
+    const lessonSeccond = lessonList[lesson].date.seconds;
+    const timeNow = Date.now() / 1000;
+    if (timeNow - lessonSeccond > 14 * 24 * 60 * 60) {
+      ErrorMessage("2週間を超えたため、編集できない");
+      return;
+    }
+
     state.isLoading = true;
-    const isSuccess = await updateAchievementsItem(classUID, lessonList[lesson].id, talents);
+    const isSuccess = await updateAchievementsItem(
+      classUID,
+      lessonList[lesson].id,
+      talents
+    );
     if (isSuccess) {
       setState({
         ...state,
         isEdit: false,
         isLoading: false,
       });
-      SuccessMessage("Success")
+      SuccessMessage("Success");
     } else {
-      ErrorMessage("Error")
+      ErrorMessage("Error");
     }
     state.isLoading = false;
   };
 
   const changeClassId = (classId) => {
     setClassesUID(classId);
-  }
+  };
 
   return (
     <div className="container mt-20 px-20 flex flex-col">
@@ -165,7 +176,7 @@ export default function Evaluation() {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900">
                                 <input
-                                  style={{ 'width': "8%", 'padding-left': "0px" }}
+                                  style={{ width: "8%", "padding-left": "0px" }}
                                   type="number"
                                   max={100}
                                   disabled={!state.isEdit}
@@ -195,16 +206,26 @@ export default function Evaluation() {
             </div>
           </div>
           <div className="class-action my-10 flex justify-around">
-            <div>
-              <button className=" btn " onClick={save}>
-                更新保存
-              </button>
-            </div>
-            <div>
-              <button className=" btn " onClick={handleEdit}>
-                修正
-              </button>
-            </div>
+            {currentUser &&
+            currentUser.role === 1 &&
+            currentUser.userID ===
+              classes[classes.findIndex((item) => item.id === classUID)]
+                .teacherID ? (
+              <React.Fragment>
+                <div>
+                  <button className=" btn " onClick={save}>
+                    更新保存
+                  </button>
+                </div>
+                <div>
+                  <button className=" btn " onClick={handleEdit}>
+                    修正
+                  </button>
+                </div>
+              </React.Fragment>
+            ) : (
+              ""
+            )}
           </div>
         </div>
         <div className="mx-10 class-right flex-auto">
