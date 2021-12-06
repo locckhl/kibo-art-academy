@@ -56,7 +56,7 @@ function Home() {
                       {item.numLessons}
                     </td>
                     <td className="text-sm text-center font-medium text-gray-600">
-                      {item.name}
+                      {item.teacherName}
                     </td>
                     <td className="px-6 py-4 flex whitespace-nowrap">
                       <div className="flex-auto">
