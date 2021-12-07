@@ -9,7 +9,7 @@ import { Navigate } from "react-router";
 
 export default function SignUp() {
   console.log("SignUp");
-  const { currentUser } = useAuth();
+  const { currentUser, user } = useAuth();
   const [isUsrFocus, setIsUsrFocus] = useState(false);
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
@@ -43,6 +43,7 @@ export default function SignUp() {
           userID: data.user.uid,
         });
         // window.location.href = "/";
+        auth.updateCurrentUser(user)
         setTimeout(function () {
           window.location.href = "/";
         }, 1000);
