@@ -23,8 +23,6 @@ export default function SignIn() {
     setPassword("");
   };
 
-  if(currentUser) return <Navigate to="/"/>; 
-
   const handleLogin = () => {
     // clearInput();
     // const auth = getAuth();
@@ -46,13 +44,16 @@ export default function SignIn() {
             break;
           default:
             ErrorMessage("Password cannot be empty");
-            console.log(err.message)
+            console.log(err.message);
         }
       });
   };
 
+  // Authorized user
+  if (currentUser && Object.keys(currentUser).length !== 0)
+    return <Navigate to="/" />;
 
-
+  // Unauthorized user
   return (
     <div className="signin">
       <div className="container">
