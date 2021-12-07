@@ -40,6 +40,16 @@ input[type="file"] {
   display: none;
 }
 
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 section{
-  min-height: calc(100vh - $header-height*2 - 54px);
+  margin-top: 120px;
+}
+
+footer {
+  margin-top: auto;
 }

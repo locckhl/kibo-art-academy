@@ -104,7 +104,7 @@ export default function Evaluation() {
   };
 
   return (
-    <div className="container mt-20 px-20 flex flex-col">
+    <section className="container px-20 flex flex-col">
       <div className="class-top mb-10 flex">
         <div className="class-date">
           <label for="dates">日付け：</label>
@@ -130,7 +130,7 @@ export default function Evaluation() {
           評価
         </div>
       </div>
-      <div className="class-center flex">
+      <div className="class-center flex flex-col md:flex-row">
         <div className="class-left flex flex-col flex-auto">
           <div className="class-table">
             <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -240,6 +240,6 @@ export default function Evaluation() {
           {/* </div> */}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

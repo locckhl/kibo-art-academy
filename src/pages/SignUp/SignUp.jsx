@@ -127,7 +127,7 @@ export default function SignUp() {
   if (currentUser.role !== 0) return <Navigate to="/" />;
 
   return (
-    <div className="signin">
+    <section className="signin">
       <div className="container">
         <div className="img">{/* <img src="img/bg.svg" /> */}</div>
         <div className="login-content">
@@ -154,6 +154,7 @@ export default function SignUp() {
                   onBlur={() => {
                     setIsUsrFocus(false);
                   }}
+                  name="name"
                 />
               </div>
             </div>
@@ -204,6 +205,7 @@ export default function SignUp() {
                   onBlur={() => {
                     setIsMailFocus(false);
                   }}
+                  name="email"
                 />
               </div>
             </div>
@@ -226,6 +228,7 @@ export default function SignUp() {
                   onBlur={() => {
                     setIsPassFocus(false);
                   }}
+                  name="password"
                 />
               </div>
             </div>
@@ -264,6 +267,6 @@ export default function SignUp() {
           </form>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
