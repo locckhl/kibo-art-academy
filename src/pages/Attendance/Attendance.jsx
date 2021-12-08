@@ -92,7 +92,7 @@ export default function Attendance() {
     }
   }, [lessonList, lesson, currentUser]);
   return (
-    <section className="container mt-40 px-20 flex flex-col">
+    <section className="container px-20 flex flex-col">
       <div className="class-top mb-10 flex">
         <div className="class-date">
           <label htmlFor="dates">日付け：</label>
@@ -100,13 +100,13 @@ export default function Attendance() {
             name="dates"
             id=""
             onChange={(envet) => setLesson(envet.target.value)}
+            defaultValue={lesson}
           >
             {lessonList.map((item, index) => {
               return (
                 <option
                   key={item.id}
                   value={index}
-                  selected={`${index === lesson ? "selected" : ""}`}
                 >
                   {formatTime(item.date.seconds)}
                 </option>

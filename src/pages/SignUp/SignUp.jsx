@@ -9,7 +9,7 @@ import { Navigate } from "react-router";
 
 export default function SignUp() {
   console.log("SignUp");
-  const { currentUser } = useAuth();
+  const { currentUser, user } = useAuth();
   const [isUsrFocus, setIsUsrFocus] = useState(false);
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
@@ -43,6 +43,7 @@ export default function SignUp() {
           userID: data.user.uid,
         });
         // window.location.href = "/";
+        auth.updateCurrentUser(user)
         setTimeout(function () {
           window.location.href = "/";
         }, 1000);
@@ -126,7 +127,7 @@ export default function SignUp() {
   if (currentUser.role !== 0) return <Navigate to="/" />;
 
   return (
-    <div className="signin">
+    <section className="signin">
       <div className="container">
         <div className="img">{/* <img src="img/bg.svg" /> */}</div>
         <div className="login-content">
@@ -153,6 +154,7 @@ export default function SignUp() {
                   onBlur={() => {
                     setIsUsrFocus(false);
                   }}
+                  name="name"
                 />
               </div>
             </div>
@@ -203,6 +205,7 @@ export default function SignUp() {
                   onBlur={() => {
                     setIsMailFocus(false);
                   }}
+                  name="email"
                 />
               </div>
             </div>
@@ -225,6 +228,7 @@ export default function SignUp() {
                   onBlur={() => {
                     setIsPassFocus(false);
                   }}
+                  name="password"
                 />
               </div>
             </div>
@@ -263,6 +267,6 @@ export default function SignUp() {
           </form>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

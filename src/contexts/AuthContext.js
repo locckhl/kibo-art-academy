@@ -58,7 +58,7 @@ export function AuthProvider({ children }) {
                   userInfo.userID,
                 ]);
                 break;
-              default:
+              case 2: // talent
                 //students
                 console.log("nani");
                 const classList = await getFirebaseItems("Classes");
@@ -76,6 +76,8 @@ export function AuthProvider({ children }) {
                     classes.push(classList[i]);
                   }
                 }
+                break;
+              default:
                 break;
             }
 

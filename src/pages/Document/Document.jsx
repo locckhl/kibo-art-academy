@@ -182,7 +182,7 @@ export default function Document() {
   }, []);
 
   return (
-    <div className="container mt-20 px-20 flex flex-col">
+    <section className="container px-20 flex flex-col">
       <div className="class-top mb-10 flex">
         <div className="class-function flex-1 flex justify-center text-3xl">
           資料
@@ -338,6 +338,6 @@ export default function Document() {
           {/* </div> */}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
