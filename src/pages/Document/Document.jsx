@@ -32,7 +32,8 @@ export default function Document() {
   const [error, seterror] = useState(null);
   const [isPending, setisPending] = useState(false);
   const [isCancelled, setisCancelled] = useState(false);
-  let URL = "";
+  const [fileName, setFileName] = useState("");
+  let url = "";
 
   const { currentUser: userInfo, classes } = useAuth();
   /**
@@ -49,18 +50,26 @@ export default function Document() {
   };
 
   const checkNameOfTheFile = (newFileName) => {
-    var checkNameArray = fileItems.map(fileItem => {
+    var checkNameArray = fileItems.map((fileItem) => {
       return fileItem.fileName;
     });
-    if (checkNameArray.includes(newFileName)){
+    if (checkNameArray.includes(newFileName)) {
       var suffixes = 1;
-      while (checkNameArray.includes(`${newFileName.split('.')[0]}_${suffixes}.${newFileName.split('.')[1]}`)){
+      while (
+        checkNameArray.includes(
+          `${newFileName.split(".")[0]}_${suffixes}.${
+            newFileName.split(".")[1]
+          }`
+        )
+      ) {
         suffixes += 1;
       }
-      newFileName = `${newFileName.split('.')[0]}_${suffixes}.${newFileName.split('.')[1]}`;
+      newFileName = `${newFileName.split(".")[0]}_${suffixes}.${
+        newFileName.split(".")[1]
+      }`;
     }
     return newFileName;
-};
+  };
   const uploadFileHandler = (e) => {
     e.preventDefault();
     const file = e.target[0].files[0];
@@ -92,7 +101,7 @@ export default function Document() {
       (error) => console.log(error),
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((download_URL) => {
-          URL = download_URL;
+          url = download_URL;
           //add data to firestore
           const refer = collection(db, "Classes", classUID, "Files");
 
@@ -102,7 +111,7 @@ export default function Document() {
               teacherID: userInfo.userID,
               fileName: checkNameOfTheFile(file.name),
               fileNameInDB: file.name,
-              downloadURL: URL,
+              downloadURL: url,
               createdAt: serverTimestamp(),
             }).then(() => {
               if (!isCancelled) {
@@ -243,7 +252,11 @@ export default function Document() {
                                   onClick={() => {
                                     if (!window.confirm("本当に削除しますか？"))
                                       return false;
-                                    deleteFile(fileItem.id, fileItem.fileName, fileItem.fileNameInDB);
+                                    deleteFile(
+                                      fileItem.id,
+                                      fileItem.fileName,
+                                      fileItem.fileNameInDB
+                                    );
                                   }}
                                   className="px-4 py-2 inline-flex text-xs leading-5 font-semibold rounded-xl bg-red-600 text-white text-xl cursor-pointer "
                                 >
@@ -278,11 +291,18 @@ export default function Document() {
                     <div>
                       <label htmlFor="document_file" className="btn">
                         <i className="fas fa-cloud-upload-alt mr-2"></i>{" "}
-                        アップロード
+                        アップロード <br />
                       </label>
-                      <input type="file" id="document_file" />
+                      <input
+                        type="file"
+                        id="document_file"
+                        onChange={(e) => {
+                          setFileName(e.target.files[0].name);
+                        }}
+                      />
                     </div>
                   </div>
+                  <div className="text-center">{fileName}</div>
                 </div>
                 <div className="my-10">
                   <div className="flex justify-center">
