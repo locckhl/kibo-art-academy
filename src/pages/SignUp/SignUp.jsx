@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import "./index.scss";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
 import { auth, db, getFirebaseItems } from "../../lib/firebase";
@@ -38,86 +38,99 @@ export default function SignUp() {
     if (!checkPassValidation()) {
       return;
     }
-    try {
-      const data = await createUserWithEmailAndPassword(auth, email, password);
-      // Add user to collection users
-      await setDoc(doc(db, "Users", email), {
-        email: email,
-        name: userName,
-        role: role,
-        userID: data.user.uid,
-      });
-
-      //If users is talent add talent to classes
-      if (role === 2 && classes.length !== "0") {
-        // debugger;
-        // Each class add talent
-        const promises = classes.map(async (classu) => {
-          const lessons = await getClassesLesson(classu.value);
-          console.log("lessons", lessons);
-
-          // Each class lesson add achivements
-          const promises2 = lessons.map(async (lesson) => {
-            await setDoc(
-              doc(
-                db,
-                `/Classes/${classu.value}/ClassLessons/${lesson.id}/Achievements`,
-                email
-              ),
-              {
-                score: 0,
-                talentID: data.user.uid,
-              }
-            );
-          });
-
-          // Each class lesson add  attendance
-          const promises3 = lessons.map(async (lesson) => {
-            await setDoc(
-              doc(
-                db,
-                `/Classes/${classu.value}/ClassLessons/${lesson.id}/Attendances`,
-                email
-              ),
-              {
-                status: false,
-                talentID: data.user.uid,
-              }
-            );
-          });
-          await Promise.all(promises2);
-          await Promise.all(promises3);
+    await createUserWithEmailAndPassword(auth, email, password)
+      .then(async (data) => {
+        // Add user to collection users
+        await setDoc(doc(db, "Users", email), {
+          email: email,
+          name: userName,
+          role: role,
+          userID: data.user.uid,
         });
 
-        await Promise.all(promises);
-        debugger;
-      }
+        //If users is talent add talent to classes
+        if (role === 2 && newClasses.length !== 0) {
+          // Each class add talent
+          const promises = newClasses.map(async (classu) => {
+            const lessons = await getClassesLesson(classu);
 
-      SuccessMessage("登録成功");
+            const talentIDs = await getFirebaseItems(
+              "Classes",
+              classu,
+              "ClassTalents"
+            );
+            const ref = doc(
+              db,
+              `/Classes/${classu}/ClassTalents/${talentIDs[0].id}`
+            );
 
-      await auth.updateCurrentUser(user);
-      // setTimeout(function () {
-      //   window.location.href = "/";
-      // }, 1000);
-    } catch (err) {
-      switch (err.code) {
-        case "auth/email-already-in-use":
-          ErrorMessage("Email already in use");
-          break;
-        case "auth/missing-email":
-          ErrorMessage("Missing email");
-          break;
-        case "auth/invalid-email":
-          ErrorMessage("Invalid email");
-          break;
-        case "auth/weak-password":
-          ErrorMessage("Weak password");
-          break;
-        default:
-          ErrorMessage(err);
-          console.log(JSON.stringify(err, null, 2));
-      }
-    }
+            await updateDoc(ref, {
+              talentIDs: arrayUnion(data.user.uid),
+            });
+
+            // Each class lesson add achivements
+            const promises2 = lessons.map(async (lesson) => {
+              await setDoc(
+                doc(
+                  db,
+                  `/Classes/${classu}/ClassLessons/${lesson.id}/Achievements`,
+                  email
+                ),
+                {
+                  score: 0,
+                  talentID: data.user.uid,
+                }
+              );
+            });
+
+            // Each class lesson add  attendance
+            const promises3 = lessons.map(async (lesson) => {
+              await setDoc(
+                doc(
+                  db,
+                  `/Classes/${classu}/ClassLessons/${lesson.id}/Attendances`,
+                  email
+                ),
+                {
+                  status: false,
+                  talentID: data.user.uid,
+                }
+              );
+            });
+
+            await Promise.all(promises2);
+            await Promise.all(promises3);
+          });
+
+          await Promise.all(promises);
+        }
+
+        SuccessMessage("登録成功");
+
+        await auth.updateCurrentUser(user);
+        // setTimeout(function () {
+        window.location.href = "/";
+        // }, 1000);
+      })
+      .catch((err) => {
+        switch (err.code) {
+          case "auth/email-already-in-use":
+            ErrorMessage("Email already in use");
+            break;
+          case "auth/missing-email":
+            ErrorMessage("Missing email");
+            break;
+          case "auth/invalid-email":
+            ErrorMessage("Invalid email");
+            break;
+          case "auth/weak-password":
+            ErrorMessage("Weak password");
+            break;
+          default:
+            ErrorMessage(err);
+            console.log(JSON.stringify(err, null, 2));
+        }
+      });
   };
 
   //confirm password for future feature?
