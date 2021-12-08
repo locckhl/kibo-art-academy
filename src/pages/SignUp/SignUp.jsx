@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, updateDoc } from "firebase/firestore";
 import "./index.scss";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
-import { auth, db } from "../../lib/firebase";
+import { auth, db, getFirebaseItems } from "../../lib/firebase";
 import { useAuth } from "../../contexts/AuthContext";
 import { Navigate } from "react-router";
+import Select from "react-select";
+import { getClassesLesson } from "../../lib/attendance";
 
 export default function SignUp() {
   console.log("SignUp");
@@ -14,15 +16,19 @@ export default function SignUp() {
   const [isMailFocus, setIsMailFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
   const [isRoleFocus, setIsRoleFocus] = useState(false);
+  const [isClassFocus, setIsClassFocus] = useState(false);
+  const [classes, setClasses] = useState([]);
   // const [isConfirmPassFocus, setIsConfirmPassFocus] = useState(false);
 
   const [userName, setUserName] = useState("");
   const [role, setRole] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  //  classes of talent after create account
+  const [newClasses, setNewClasses] = useState("");
   // const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!checkUserNameValidation()) {
       return;
     }
@@ -32,42 +38,86 @@ export default function SignUp() {
     if (!checkPassValidation()) {
       return;
     }
-    createUserWithEmailAndPassword(auth, email, password)
-      .then((data) => {
-        console.log(data.user.uid);
-        SuccessMessage("登録成功");
-        setDoc(doc(db, "Users", email), {
-          email: email,
-          name: userName,
-          role: role,
-          userID: data.user.uid,
-        });
-        // window.location.href = "/";
-        auth.updateCurrentUser(user)
-        setTimeout(function () {
-          window.location.href = "/";
-        }, 1000);
-      })
-      .catch((err) => {
-        switch (err.code) {
-          case "auth/email-already-in-use":
-            ErrorMessage("Email already in use");
-            break;
-          case "auth/missing-email":
-            ErrorMessage("Missing email");
-            break;
-          case "auth/invalid-email":
-            ErrorMessage("Invalid email");
-            break;
-          case "auth/weak-password":
-            ErrorMessage("Weak password");
-            break;
-          default:
-            ErrorMessage("Something went wrong");
-            console.log(JSON.stringify(err, null, 2));
-        }
+    try {
+      const data = await createUserWithEmailAndPassword(auth, email, password);
+      // Add user to collection users
+      await setDoc(doc(db, "Users", email), {
+        email: email,
+        name: userName,
+        role: role,
+        userID: data.user.uid,
       });
-    // window.location.href = "/";
+
+      //If users is talent add talent to classes
+      if (role === 2 && classes.length !== "0") {
+        // debugger;
+        // Each class add talent
+        const promises = classes.map(async (classu) => {
+          const lessons = await getClassesLesson(classu.value);
+          console.log("lessons", lessons);
+
+          // Each class lesson add achivements
+          const promises2 = lessons.map(async (lesson) => {
+            await setDoc(
+              doc(
+                db,
+                `/Classes/${classu.value}/ClassLessons/${lesson.id}/Achievements`,
+                email
+              ),
+              {
+                score: 0,
+                talentID: data.user.uid,
+              }
+            );
+          });
+
+          // Each class lesson add  attendance
+          const promises3 = lessons.map(async (lesson) => {
+            await setDoc(
+              doc(
+                db,
+                `/Classes/${classu.value}/ClassLessons/${lesson.id}/Attendances`,
+                email
+              ),
+              {
+                status: false,
+                talentID: data.user.uid,
+              }
+            );
+          });
+          await Promise.all(promises2);
+          await Promise.all(promises3);
+        });
+
+        await Promise.all(promises);
+        debugger;
+      }
+
+      SuccessMessage("登録成功");
+
+      await auth.updateCurrentUser(user);
+      // setTimeout(function () {
+      //   window.location.href = "/";
+      // }, 1000);
+    } catch (err) {
+      switch (err.code) {
+        case "auth/email-already-in-use":
+          ErrorMessage("Email already in use");
+          break;
+        case "auth/missing-email":
+          ErrorMessage("Missing email");
+          break;
+        case "auth/invalid-email":
+          ErrorMessage("Invalid email");
+          break;
+        case "auth/weak-password":
+          ErrorMessage("Weak password");
+          break;
+        default:
+          ErrorMessage(err);
+          console.log(JSON.stringify(err, null, 2));
+      }
+    }
   };
 
   //confirm password for future feature?
@@ -119,10 +169,22 @@ export default function SignUp() {
     return true;
   };
 
-  //Select Role - Radio button onchange
+  //Select Role - Select onchange
   const handleRole = (e) => {
     setRole(parseInt(e.target.value));
   };
+
+  const getClasses = async () => {
+    const classesRes = await getFirebaseItems("Classes");
+    const temp = classesRes.map((classu) => {
+      return { value: classu.id, label: classu.className };
+    });
+    setClasses(temp);
+  };
+
+  useEffect(async () => {
+    getClasses();
+  }, []);
 
   if (currentUser.role !== 0) return <Navigate to="/" />;
 
@@ -160,32 +222,43 @@ export default function SignUp() {
             </div>
             <div className={`input-div pass ${isRoleFocus ? "focus" : ""}`}>
               <div className="i">
-                <i className="fas fa-user"></i>
+                <i class="fas fa-users-cog"></i>
               </div>
               <div className="div ">
-                <h5>Role</h5>
-                <div>
-                  <div>
-                    <input
-                      type="radio"
-                      value={2}
-                      name="role"
-                      onChange={handleRole}
-                    />{" "}
-                    Student
-                  </div>
-                  <div>
-                    <input
-                      type="radio"
-                      value={1}
-                      name="role"
-                      onChange={handleRole}
-                    />{" "}
-                    Teacher
-                  </div>
-                </div>
+                　<h5 className="hidden">役割</h5>
+                <select
+                  name="role"
+                  id="role"
+                  defaultValue={"0"}
+                  onFocus={() => {
+                    setIsRoleFocus(true);
+                  }}
+                  onBlur={() => {
+                    setIsRoleFocus(false);
+                  }}
+                  onChange={handleRole}
+                >
+                  <option value="0" disabled>
+                    役割
+                  </option>
+                  <option value="2">タレント</option>
+                  <option value="1">先生</option>
+                </select>
               </div>
             </div>
+
+            {role === 2 ? (
+              <Select
+                isMulti
+                options={classes}
+                onChange={(options) => {
+                  setNewClasses(options.map((option) => option.value));
+                }}
+              />
+            ) : (
+              ""
+            )}
+
             <div className={`input-div pass ${isMailFocus ? "focus" : ""}`}>
               <div className="i">
                 <i className="fas fa-envelope"></i>
