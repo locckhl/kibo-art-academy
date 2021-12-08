@@ -58,21 +58,26 @@ export default function Evaluation() {
     });
   };
 
-  const handleEditScore = (key, talentID, value) => {
-    if (value > 100) {
-      ErrorMessage("スコアは0〜100の間でなければなりません");
-      value = 100;
-    } else if (value < 0 || value === "") {
-      ErrorMessage("スコアは0〜100の間でなければなりません");
-      value = 0;
-    }
-    const data = talents;
-    let index = data.findIndex((item) => item.talentID === talentID);
-    data[index].score = parseInt(value);
+  const handleEditScore = (key, value) => {
+    const data = [...talents];
+    data[key].score = parseInt(value);
     setTalents(data);
   };
 
+  const checkValid = () => {
+    // Check if at least 1 input is wrong then return false
+    return talents.every((talent) => {
+      if (talent.score > 100 || talent.score < 0 || isNaN(talent.score)) {
+        ErrorMessage("スコアは0〜100の間でなければなりません");
+        return false;
+      }
+      return true;
+    });
+  };
+
   const save = async () => {
+    if (!checkValid()) return;
+
     const lessonSeccond = lessonList[lesson].date.seconds;
     const timeNow = Date.now() / 1000;
     if (timeNow - lessonSeccond > 14 * 24 * 60 * 60) {
@@ -112,14 +117,11 @@ export default function Evaluation() {
             name="dates"
             id=""
             onChange={(envet) => setLesson(envet.target.value)}
+            defaultValue={lesson}
           >
             {lessonList.map((item, index) => {
               return (
-                <option
-                  key={item.id}
-                  value={index}
-                  selected={`${index === lesson ? "selected" : ""}`}
-                >
+                <option key={item.id} value={index}>
                   {formatTime(item.date.seconds)}
                 </option>
               );
@@ -176,18 +178,16 @@ export default function Evaluation() {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900">
                                 <input
-                                  style={{ width: "8%", "padding-left": "0px" }}
+                                  style={{
+                                    width: "12%",
+                                    "padding-left": "0px",
+                                  }}
                                   type="number"
                                   max={100}
                                   disabled={!state.isEdit}
-                                  key={value.score}
-                                  defaultValue={`${value.score}`}
+                                  value={value.score}
                                   onChange={(e) =>
-                                    handleEditScore(
-                                      key,
-                                      value.talentID,
-                                      e.target.value
-                                    )
+                                    handleEditScore(key, e.target.value)
                                   }
                                 />
                                 <input

@@ -37,9 +37,9 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
                   <div className="text-sm font-medium text-gray-900 flex flex-col">
                     <div className="class-list mx-auto my-2">
                       <label for="dates">クラスリスト：</label>
-                      <select onChange={(event)=> {setClassId(event.target.value)}} name="dates" id="">
+                      <select defaultValue={classInfo.id} onChange={(event)=> {setClassId(event.target.value)}} name="dates" id="">
                         {classes.map((item,idx) => (
-                        <option key={idx} value={item.id}>{item.className}</option>))}
+                        <option  key={idx} value={item.id}>{item.className}</option>))}
                       </select>
                     </div>
                     <div className="class-action mx-auto ">

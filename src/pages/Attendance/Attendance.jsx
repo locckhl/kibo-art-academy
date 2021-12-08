@@ -100,13 +100,13 @@ export default function Attendance() {
             name="dates"
             id=""
             onChange={(envet) => setLesson(envet.target.value)}
+            defaultValue={lesson}
           >
             {lessonList.map((item, index) => {
               return (
                 <option
                   key={item.id}
                   value={index}
-                  selected={`${index === lesson ? "selected" : ""}`}
                 >
                   {formatTime(item.date.seconds)}
                 </option>
