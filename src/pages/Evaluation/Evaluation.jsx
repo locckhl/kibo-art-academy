@@ -180,6 +180,7 @@ export default function Evaluation() {
                                   type="number"
                                   max={100}
                                   disabled={!state.isEdit}
+                                  key={value.score}
                                   defaultValue={`${value.score}`}
                                   onChange={(e) =>
                                     handleEditScore(

@@ -2,7 +2,7 @@ import React from "react";
 import { useState} from "react";
 
 export default function ClassInfo({ classInfo, classes, changeClassId }) {
-  const [classId, setClassId] = useState(0)
+  const [classId, setClassId] = useState(classInfo.id);
   return (
     <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
       <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
