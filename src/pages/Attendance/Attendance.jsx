@@ -93,21 +93,18 @@ export default function Attendance() {
   }, [lessonList, lesson, currentUser]);
   return (
     <section className="container px-20 flex flex-col">
-      <div className="class-top mb-10 flex">
-        <div className="class-date">
+      <div className="class-top mb-10 relative">
+        <div className="class-date absolute">
           <label htmlFor="dates">日付け：</label>
           <select
             name="dates"
             id=""
-            onChange={(envet) => setLesson(envet.target.value)}
+            onChange={(event) => {setLesson(event.target.value)}}
             defaultValue={lesson}
           >
             {lessonList.map((item, index) => {
               return (
-                <option
-                  key={item.id}
-                  value={index}
-                >
+                <option key={item.id} value={index}>
                   {formatTime(item.date.seconds)}
                 </option>
               );
@@ -118,8 +115,8 @@ export default function Attendance() {
           出欠
         </div>
       </div>
-      <div className="class-center flex">
-        <div className="class-left flex flex-col flex-auto">
+      <div className="class-center flex flex-col md:flex-row">
+        <div className="class-left flex flex-col flex-auto ">
           <div className="class-table">
             <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
               <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -129,7 +126,7 @@ export default function Attendance() {
                       <tr>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
                         >
                           番号
                         </th>
@@ -141,7 +138,7 @@ export default function Attendance() {
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
                         >
                           出席率
                         </th>
@@ -157,7 +154,7 @@ export default function Attendance() {
                       {talents.map((talent, index) => (
                         <tr key={talent.userID}>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 text-center">
                               {index + 1}
                             </div>
                           </td>
@@ -167,20 +164,30 @@ export default function Attendance() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {Math.round(
-                                (talent.checked / talent.totalLessons) * 100
+                            <div className="text-sm text-gray-900 text-center">
+                              {loading ? (
+                                <i
+                                  className={`fas fa-circle-notch fa-spin `}
+                                ></i>
+                              ) : (
+                                Math.round(
+                                  (talent.checked / talent.totalLessons) * 100
+                                ) + "%"
                               )}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <input
-                              type="checkbox"
-                              className="mx-auto block"
-                              checked={talent.status}
-                              disabled={disable}
-                              onChange={() => handleClick(index)}
-                            />
+                            {loading ? (
+                              <i className={`fas fa-circle-notch fa-spin `}></i>
+                            ) : (
+                              <input
+                                type="checkbox"
+                                className="mx-auto block"
+                                checked={talent.status}
+                                disabled={disable}
+                                onChange={() => handleClick(index)}
+                              />
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -204,7 +211,7 @@ export default function Attendance() {
             </button>
           </div>
         </div>
-        <div className="mx-10 class-right flex-auto">
+        <div className="mx-10 class-right flex-auto w-80 flex-grow-0">
           {/* <div className="flex jutify-end"> */}
           <ClassInfo
             classInfo={

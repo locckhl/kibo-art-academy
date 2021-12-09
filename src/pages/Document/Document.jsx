@@ -197,7 +197,7 @@ export default function Document() {
           資料
         </div>
       </div>
-      <div className="class-center flex">
+      <div className="class-center flex flex-col md:flex-row">
         <div className="class-left flex flex-col flex-auto">
           <div className="class-table relative">
             <div className="absolute bottom-full mb-1">既存のドキュメント</div>
@@ -345,7 +345,7 @@ export default function Document() {
             </form>
           )}
         </div>
-        <div className="mx-10 class-right flex-auto">
+        <div className="mx-10 class-right flex-auto w-80 flex-grow-0">
           {/* <div className="flex jutify-end"> */}
           <ClassInfo
             classInfo={

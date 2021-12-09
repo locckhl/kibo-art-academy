@@ -110,8 +110,8 @@ export default function Evaluation() {
 
   return (
     <section className="container px-20 flex flex-col">
-      <div className="class-top mb-10 flex">
-        <div className="class-date">
+      <div className="class-top mb-10 relative">
+        <div className="class-date absolute">
           <label for="dates">日付け：</label>
           <select
             name="dates"
@@ -143,7 +143,7 @@ export default function Evaluation() {
                       <tr>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
                         >
                           番号
                         </th>
@@ -155,9 +155,9 @@ export default function Evaluation() {
                         </th>
                         <th
                           scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
                         >
-                          点数
+                          点数/100
                         </th>
                       </tr>
                     </thead>
@@ -166,7 +166,7 @@ export default function Evaluation() {
                         talents.map((value, key) => (
                           <tr key={key}>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900 text-center">
                                 {key + 1}
                               </div>
                             </td>
@@ -176,25 +176,20 @@ export default function Evaluation() {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">
+                              <div className="text-sm text-gray-900 text-center">
                                 <input
                                   style={{
-                                    width: "12%",
-                                    "padding-left": "0px",
+                                    width: "3em",
+                                    "padding-left": "1em",
                                   }}
                                   type="number"
                                   max={100}
+                                  size="5"
                                   disabled={!state.isEdit}
                                   value={value.score}
                                   onChange={(e) =>
                                     handleEditScore(key, e.target.value)
                                   }
-                                />
-                                <input
-                                  style={{ width: "20%" }}
-                                  type="text"
-                                  disabled={true}
-                                  defaultValue={`/ 100`}
                                 />
                               </div>
                             </td>
@@ -229,7 +224,7 @@ export default function Evaluation() {
             )}
           </div>
         </div>
-        <div className="mx-10 class-right flex-auto">
+        <div className="mx-10 class-right flex-auto w-80 flex-grow-0">
           {/* <div className="flex justify-end"> */}
           <ClassInfo
             classInfo={

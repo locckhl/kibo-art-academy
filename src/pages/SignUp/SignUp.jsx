@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
 import "./index.scss";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
 import { auth, db, getFirebaseItems } from "../../lib/firebase";
@@ -49,7 +49,7 @@ export default function SignUp() {
         });
 
         //If users is talent add talent to classes
-        if (role === 2 && newClasses.length !== 0) {
+        if (parseInt(role) === 2 && newClasses.length !== 0) {
           // Each class add talent
           const promises = newClasses.map(async (classu) => {
             const lessons = await getClassesLesson(classu);
@@ -66,6 +66,18 @@ export default function SignUp() {
 
             await updateDoc(ref, {
               talentIDs: arrayUnion(data.user.uid),
+            });
+
+            // Update number of talents in class
+
+            const classRef = doc(db, `/Classes/${classu}`);
+            const oldClass = await (await getDoc(classRef)).data();
+            debugger;
+            const numTalents = oldClass.numTalents;
+            console.log("numTalents", numTalents);
+
+            await updateDoc(classRef, {
+              numTalents: parseInt(numTalents) + 1,
             });
 
             // Each class lesson add achivements
