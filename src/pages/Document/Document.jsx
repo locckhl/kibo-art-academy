@@ -264,16 +264,6 @@ export default function Document() {
                                 </span>
                               </td>
                             )}
-                            {!isTeacher && (
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex justify-center">
-                                <span
-                                  onClick={() => ErrorMessage("削除できない！")}
-                                  className="px-4 py-2 inline-flex text-xs leading-5 font-semibold rounded-xl bg-red-600 text-white text-xl cursor-pointer "
-                                >
-                                  削除
-                                </span>
-                              </td>
-                            )}
                           </tr>
                         ))}
                     </tbody>
@@ -303,36 +293,6 @@ export default function Document() {
                     </div>
                   </div>
                   <div className="text-center">{fileName}</div>
-                </div>
-                <div className="my-10">
-                  <div className="flex justify-center">
-                    <div>
-                      <button className=" btn ">サプミット</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </form>
-          )}
-          {!isTeacher && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                ErrorMessage("サプミットできない");
-              }}
-            >
-              <div className="class-action my-10 flex flex-col justify-around">
-                <div>
-                  <div className="text-center">資料をアップロード</div>
-                  <div className="flex justify-center">
-                    <div>
-                      <label htmlFor="document_file" className="btn">
-                        <i className="fas fa-cloud-upload-alt mr-2"></i>{" "}
-                        アップロード
-                      </label>
-                      <input type="file" id="document_file" />
-                    </div>
-                  </div>
                 </div>
                 <div className="my-10">
                   <div className="flex justify-center">

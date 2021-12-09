@@ -179,8 +179,9 @@ export default function Evaluation() {
                               <div className="text-sm text-gray-900 text-center">
                                 <input
                                   style={{
-                                    width: "3em",
-                                    "padding-left": "1em",
+                                    width: "3.5em",
+                                    paddingLeft: "1em",
+                                    textAlign: "center",
                                   }}
                                   type="number"
                                   max={100}

@@ -8,6 +8,8 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Navigate } from "react-router";
 import Select from "react-select";
 import { getClassesLesson } from "../../lib/attendance";
+import wave from "../../assets/images/wave.png";
+import bg from "../../assets/images/bg.svg";
 
 export default function SignUp() {
   console.log("SignUp");
@@ -213,8 +215,9 @@ export default function SignUp() {
 
   return (
     <section className="signin">
+      {<img className="wave" src={wave} alt="background" />}
       <div className="container">
-        <div className="img">{/* <img src="img/bg.svg" /> */}</div>
+        <div className="img">{<img src={bg} alt="background" />}</div>
         <div className="login-content">
           <form action="index.html">
             <h2 className="title">アカウント追加</h2>

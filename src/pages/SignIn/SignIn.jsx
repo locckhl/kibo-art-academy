@@ -4,6 +4,8 @@ import "./index.scss";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
 import { Navigate, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../../contexts/AuthContext";
+import wave from "../../assets/images/wave.png";
+import bg from "../../assets/images/bg.svg";
 
 export default function SignIn() {
   console.log("SignIn");
@@ -56,8 +58,9 @@ export default function SignIn() {
   // Unauthorized user
   return (
     <section className="signin">
+      {<img className="wave" src={wave} alt="background" />}
       <div className="container">
-        <div className="img">{/* <img src="img/bg.svg" /> */}</div>
+        <div className="img">{<img src={bg} alt="background" />}</div>
         <div className="login-content">
           <form>
             <h2 className="title">ようこそ</h2>

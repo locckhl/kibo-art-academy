@@ -99,7 +99,9 @@ export default function Attendance() {
           <select
             name="dates"
             id=""
-            onChange={(event) => {setLesson(event.target.value)}}
+            onChange={(event) => {
+              setLesson(event.target.value);
+            }}
             defaultValue={lesson}
           >
             {lessonList.map((item, index) => {
@@ -198,17 +200,21 @@ export default function Attendance() {
             </div>
           </div>
           <div className="class-action mx-auto my-10">
-            <button
-              className="btn"
-              onClick={() => handleSubmit()}
-              disabled={loading || disable}
-            >
-              <i
-                className={`fas fa-circle-notch fa-spin `}
-                style={{ display: !loading ? "none" : "block" }}
-              ></i>
-              {"更新保存"}
-            </button>
+            {parseInt(currentUser.role) === 1 ? (
+              <button
+                className="btn"
+                onClick={() => handleSubmit()}
+                disabled={loading || disable}
+              >
+                <i
+                  className={`fas fa-circle-notch fa-spin `}
+                  style={{ display: !loading ? "none" : "block" }}
+                ></i>
+                {"更新保存"}
+              </button>
+            ) : (
+              ""
+            )}
           </div>
         </div>
         <div className="mx-10 class-right flex-auto w-80 flex-grow-0">
