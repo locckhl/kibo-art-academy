@@ -72,9 +72,7 @@ export default function SignUp() {
 
             const classRef = doc(db, `/Classes/${classu}`);
             const oldClass = await (await getDoc(classRef)).data();
-            debugger;
             const numTalents = oldClass.numTalents;
-            console.log("numTalents", numTalents);
 
             await updateDoc(classRef, {
               numTalents: parseInt(numTalents) + 1,
