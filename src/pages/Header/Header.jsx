@@ -36,11 +36,18 @@ export default function Header() {
             </div>
             <div className="header-user flex-1 ">
               <div className="flex justify-end ">
-                <div className="mr-2">
-                  {currentUser.name}
-                  {currentUser.role === 0 ? " ( 管理者 )" : ""}
-                  {currentUser.role === 1 ? " ( 先生 )" : ""}
-                  {currentUser.role === 2 ? " ( タレント ) " : ""}
+                <div className="mr-2 cursor-pointer">
+                  {currentUser.role === 0
+                    ? ` ${currentUser.name} ( 管理者 )`
+                    : ""}
+                  {currentUser.role === 1
+                    ? ` ${currentUser.name} ( 先生 )`
+                    : ""}
+                  {currentUser.role === 2 ? (
+                    <Link to="/profile/userId">{currentUser.name} ( タレント )</Link>
+                  ) : (
+                    ""
+                  )}
                 </div>
                 <div className="mr-2 flex items-center">
                   {currentUser ? (

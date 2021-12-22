@@ -1,15 +1,16 @@
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "./App.scss";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Header from "./pages/Header/Header";
-import Footer from "./pages/Footer/Footer";
-import SignIn from "./pages/SignIn/SignIn";
-import Home from "./pages/Home/Home";
-import SignUp from "./pages/SignUp/SignUp";
-import Attendance from "./pages/Attendance/Attendance";
-import Evaluation from "./pages/Evaluation/Evaluation";
-import Document from "./pages/Document/Document";
 import RequireAuth from "./components/RequireAuth/RequireAuth";
 import { AuthProvider } from "./contexts/AuthContext";
+import Attendance from "./pages/Attendance/Attendance";
+import Document from "./pages/Document/Document";
+import Evaluation from "./pages/Evaluation/Evaluation";
+import Footer from "./pages/Footer/Footer";
+import Header from "./pages/Header/Header";
+import Home from "./pages/Home/Home";
+import Profile from "./pages/Profile/Profile";
+import SignIn from "./pages/SignIn/SignIn";
+import SignUp from "./pages/SignUp/SignUp";
 
 function App() {
   return (
@@ -73,6 +74,14 @@ function App() {
             element={
               <RequireAuth>
                 <Document />
+              </RequireAuth>
+            }
+          ></Route>
+          <Route
+            path="/profile/:userId"
+            element={
+              <RequireAuth>
+                <Profile />
               </RequireAuth>
             }
           ></Route>
