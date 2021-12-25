@@ -18,10 +18,10 @@ export default function Profile() {
       url = await uploadImage("talent", valueInputFile);
       const isSuccess = await updateItemFireBase({...newData, imageUrl: url}, "Users", currentUser.id);
       if (isSuccess) {
-        toast.success("Upload Image Success")
+        toast.success("アップデート成功")
         setCurrentUser({...currentUser, imageUrl: url})
       }else {
-        toast.error("Error");
+        toast.error("エラー");
       }
       callback(null);
     }
@@ -30,12 +30,12 @@ export default function Profile() {
         try {
           const user = await getAuth() 
           await updatePassword(user.currentUser, password);
-          toast.success("Update Password Success");
+          toast.success("アップデート成功");
         } catch (error) {
           console.error(error);
         }
       } else {
-        toast.error("error")
+        toast.error("エラー")
       }
     }
     setOpen(false);
