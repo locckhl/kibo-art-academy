@@ -5,44 +5,53 @@ import { useAuth } from "../../contexts/AuthContext";
 import "./index.scss";
 import { updateItemFireBase, uploadImage } from "../../lib/firebase";
 import { toast } from "react-toastify";
-import { getAuth, updatePassword } from "@firebase/auth"
+import { getAuth, updatePassword } from "@firebase/auth";
 
 export default function Profile() {
   const [open, setOpen] = useState(false);
   const { currentUser, classes, setCurrentUser } = useAuth();
-  const onSubmit = async(data, callback) => {
-    const {password, cfPassword, valueInputFile} = data;
+  const onSubmit = async (data, callback) => {
+    const { password, cfPassword, valueInputFile } = data;
     let url = "";
     let newData = currentUser;
-    if(valueInputFile) {
+    if (valueInputFile) {
       url = await uploadImage("talent", valueInputFile);
-      const isSuccess = await updateItemFireBase({...newData, imageUrl: url}, "Users", currentUser.id);
+      const isSuccess = await updateItemFireBase(
+        { ...newData, imageUrl: url },
+        "Users",
+        currentUser.id
+      );
       if (isSuccess) {
-        toast.success("アップデート成功")
-        setCurrentUser({...currentUser, imageUrl: url})
-      }else {
+        toast.success("アバター編集ト成功");
+        setCurrentUser({ ...currentUser, imageUrl: url });
+      } else {
         toast.error("エラー");
       }
       callback(null);
     }
-    if (password && cfPassword){
-      if (password === cfPassword){
+    if (password && cfPassword) {
+      if (password === cfPassword) {
         try {
-          const user = await getAuth() 
+          const user = await getAuth();
           await updatePassword(user.currentUser, password);
-          toast.success("アップデート成功");
+          toast.success("パスワード編集成功");
         } catch (error) {
           console.error(error);
         }
       } else {
-        toast.error("エラー")
+        toast.error("エラー");
       }
     }
     setOpen(false);
-  }
+  };
   return (
     <div className="container mt-32 flex flex-col">
-      <ProfileEdit data={currentUser} open={open} setOpen={setOpen} onUpdate={onSubmit}/>
+      <ProfileEdit
+        data={currentUser}
+        open={open}
+        setOpen={setOpen}
+        onUpdate={onSubmit}
+      />
       <div className="profile-header text-center text-3xl">
         <b>プロフィール</b>
       </div>
@@ -71,7 +80,8 @@ export default function Profile() {
         </div>
         <div className="profile-content__right w-1/2 leading-10">
           <div>
-            <b>名前: </b>{currentUser?.name}
+            <b>名前: </b>
+            {currentUser?.name}
           </div>
           <div>
             <b>メール: </b> {currentUser?.email}
@@ -80,9 +90,9 @@ export default function Profile() {
             <b>受講科目「クラス名」</b>
           </div>
           <ul>
-            {classes.map((item, idx)=>
+            {classes.map((item, idx) => (
               <li key={idx}>{item.className}</li>
-            )}
+            ))}
           </ul>
         </div>
       </div>
