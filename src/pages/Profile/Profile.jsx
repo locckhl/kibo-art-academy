@@ -3,13 +3,55 @@ import defaultAvatar from "../../assets/images/user.png";
 import ProfileEdit from "../../components/ProfileEdit/ProfileEdit";
 import { useAuth } from "../../contexts/AuthContext";
 import "./index.scss";
+import { updateItemFireBase, uploadImage } from "../../lib/firebase";
+import { toast } from "react-toastify";
+import { getAuth, updatePassword } from "@firebase/auth";
 
 export default function Profile() {
   const [open, setOpen] = useState(false);
-  const { currentUser } = useAuth();
+  const { currentUser, classes, setCurrentUser } = useAuth();
+  const onSubmit = async (data, callback) => {
+    const { password, cfPassword, valueInputFile } = data;
+    let url = "";
+    let newData = currentUser;
+    if (valueInputFile) {
+      url = await uploadImage("talent", valueInputFile);
+      const isSuccess = await updateItemFireBase(
+        { ...newData, imageUrl: url },
+        "Users",
+        currentUser.id
+      );
+      if (isSuccess) {
+        toast.success("アバター編集ト成功");
+        setCurrentUser({ ...currentUser, imageUrl: url });
+      } else {
+        toast.error("エラー");
+      }
+      callback(null);
+    }
+    if (password && cfPassword) {
+      if (password === cfPassword) {
+        try {
+          const user = await getAuth();
+          await updatePassword(user.currentUser, password);
+          toast.success("パスワード編集成功");
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        toast.error("エラー");
+      }
+    }
+    setOpen(false);
+  };
   return (
     <div className="container mt-32 flex flex-col">
-      <ProfileEdit open={open} setOpen={setOpen} />
+      <ProfileEdit
+        data={currentUser}
+        open={open}
+        setOpen={setOpen}
+        onUpdate={onSubmit}
+      />
       <div className="profile-header text-center text-3xl">
         <b>プロフィール</b>
       </div>
@@ -18,10 +60,10 @@ export default function Profile() {
           <div className="flex flex-col float-right">
             <div className="avatar ">
               <div className="avatar-container">
-                <img src={defaultAvatar} alt="" />
+                <img src={currentUser?.imageUrl || defaultAvatar} alt="" />
               </div>
             </div>
-
+            <br />
             {currentUser.role === 2 && (
               <div className="edit-btn">
                 <div
@@ -38,17 +80,19 @@ export default function Profile() {
         </div>
         <div className="profile-content__right w-1/2 leading-10">
           <div>
-            <b>名前:</b>　ABC
+            <b>名前: </b>
+            {currentUser?.name}
           </div>
           <div>
-            <b>メール:</b> abc@gmail.com
+            <b>メール: </b> {currentUser?.email}
           </div>
           <div>
             <b>受講科目「クラス名」</b>
           </div>
           <ul>
-            <li>ポップ</li>
-            <li>ダンダンス</li>
+            {classes.map((item, idx) => (
+              <li key={idx}>{item.className}</li>
+            ))}
           </ul>
         </div>
       </div>
