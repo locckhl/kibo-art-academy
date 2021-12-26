@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 
 function Home() {
+  const { currentUser } = useAuth();
   const [titleColumns] = useState([
     "クラス名",
     "人数",
@@ -13,12 +14,16 @@ function Home() {
     "主任教員",
     "アクション",
   ]);
-  const {classes} = useAuth();
+  const { classes } = useAuth();
   console.log("home");
   return (
     <section className="flex flex-col home px-24">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+          {currentUser.role === 1 && (
+            <div className="text-green-700">*緑は自分が管理しているクラスです</div>
+          )}
+          <br />
           <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -36,7 +41,14 @@ function Home() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {classes.map((item, idx) => (
-                  <tr key={idx}>
+                  <tr
+                    key={idx}
+                    className={`${
+                      item.teacherID === currentUser.userID
+                        ? "bg-green-100"
+                        : ""
+                    }`}
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-center font-medium text-gray-600">
                         {item.className}
