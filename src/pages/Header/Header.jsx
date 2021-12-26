@@ -44,7 +44,9 @@ export default function Header() {
                     ? ` ${currentUser.name} ( 先生 )`
                     : ""}
                   {currentUser.role === 2 ? (
-                    <Link to="/profile/userId">{currentUser.name} ( タレント )</Link>
+                    <Link to={`/profile/${currentUser.userID}`}>
+                      {currentUser.name} ( タレント )
+                    </Link>
                   ) : (
                     ""
                   )}

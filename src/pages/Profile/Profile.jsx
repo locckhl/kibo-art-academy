@@ -1,15 +1,24 @@
-import React, { useState } from "react";
+import { getAuth, updatePassword } from "@firebase/auth";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router";
+import { toast } from "react-toastify";
 import defaultAvatar from "../../assets/images/user.png";
 import ProfileEdit from "../../components/ProfileEdit/ProfileEdit";
 import { useAuth } from "../../contexts/AuthContext";
+import {
+  getFirebaseItems,
+  getFirebaseItemWithCondition,
+  updateItemFireBase,
+  uploadImage,
+} from "../../lib/firebase";
 import "./index.scss";
-import { updateItemFireBase, uploadImage } from "../../lib/firebase";
-import { toast } from "react-toastify";
-import { getAuth, updatePassword } from "@firebase/auth";
 
 export default function Profile() {
   const [open, setOpen] = useState(false);
-  const { currentUser, classes, setCurrentUser } = useAuth();
+  const { currentUser, setCurrentUser } = useAuth();
+  const [talent, setTalent] = useState(null);
+  const [classes, setClasses] = useState(null);
+  const { userId: talentId } = useParams();
   const onSubmit = async (data, callback) => {
     const { password, cfPassword, valueInputFile } = data;
     let url = "";
@@ -44,58 +53,93 @@ export default function Profile() {
     }
     setOpen(false);
   };
+
+  const getTalentData = async () => {
+    const talentRes = await getFirebaseItemWithCondition("Users", [
+      "userID",
+      "==",
+      talentId,
+    ]);
+    setTalent(talentRes);
+
+    let classes = [];
+
+    console.log("nani");
+    const classList = await getFirebaseItems("Classes");
+    for (let i = 0; i < classList.length; i++) {
+      let tmp = await getFirebaseItems(
+        "Classes",
+        classList[i].id,
+        "ClassTalents"
+      );
+      tmp = tmp[0]?.talentIDs;
+      const index = tmp.findIndex((item) => item === talentId);
+      if (index > -1) {
+        classes.push(classList[i]);
+      }
+    }
+
+    setClasses(classes);
+  };
+
+  useEffect(() => {
+    getTalentData();
+  }, []);
   return (
-    <div className="container mt-32 flex flex-col">
-      <ProfileEdit
-        data={currentUser}
-        open={open}
-        setOpen={setOpen}
-        onUpdate={onSubmit}
-      />
-      <div className="profile-header text-center text-3xl">
-        <b>プロフィール</b>
-      </div>
-      <div className="profile-content flex mt-16 gap-10">
-        <div className="profile-content__left w-1/2">
-          <div className="flex flex-col float-right">
-            <div className="avatar ">
-              <div className="avatar-container">
-                <img src={currentUser?.imageUrl || defaultAvatar} alt="" />
-              </div>
-            </div>
-            <br />
-            {currentUser.role === 2 && (
-              <div className="edit-btn">
-                <div
-                  className="btn"
-                  onClick={() => {
-                    setOpen(true);
-                  }}
-                >
-                  プロフィール編集
+    talent &&
+    classes && (
+      <div className="container mt-32 flex flex-col">
+        <ProfileEdit
+          data={talent}
+          open={open}
+          setOpen={setOpen}
+          onUpdate={onSubmit}
+        />
+        <div className="profile-header text-center text-3xl">
+          <b>プロフィール</b>
+        </div>
+        <div className="profile-content flex mt-16 gap-10">
+          <div className="profile-content__left w-1/2">
+            <div className="flex flex-col float-right">
+              <div className="avatar ">
+                <div className="avatar-container">
+                  <img src={talent?.imageUrl || defaultAvatar} alt="" />
                 </div>
               </div>
-            )}
+              <br />
+              {currentUser.role === 2 && currentUser.userID === talentId && (
+                <div className="edit-btn">
+                  <div
+                    className="btn"
+                    onClick={() => {
+                      setOpen(true);
+                    }}
+                  >
+                    プロフィール編集
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        <div className="profile-content__right w-1/2 leading-10">
-          <div>
-            <b>名前: </b>
-            {currentUser?.name}
+          <div className="profile-content__right w-1/2 leading-10">
+            <div>
+              <b>名前: </b>
+              {talent?.name}
+            </div>
+            <div>
+              <b>メール: </b> {talent?.email}
+            </div>
+            <div>
+              <b>受講科目「クラス名」</b>
+            </div>
+            <ul>
+              {classes.map((item, idx) => (
+                <li key={idx}>{item.className}</li>
+              ))}
+            </ul>
           </div>
-          <div>
-            <b>メール: </b> {currentUser?.email}
-          </div>
-          <div>
-            <b>受講科目「クラス名」</b>
-          </div>
-          <ul>
-            {classes.map((item, idx) => (
-              <li key={idx}>{item.className}</li>
-            ))}
-          </ul>
         </div>
       </div>
-    </div>
+    )
   );
 }
