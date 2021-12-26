@@ -22,6 +22,7 @@ export default function Evaluation() {
   const [lessonList, setLessonList] = React.useState([]);
   const [lesson, setLesson] = React.useState(-1);
   const [talents, setTalents] = React.useState([]);
+  const [isFinalScoreMode, setIsFinalScoreMode] = React.useState(false);
 
   const formatTime = (stringSeconds) => {
     const date = new Date(parseInt(stringSeconds) * 1000);
@@ -39,6 +40,7 @@ export default function Evaluation() {
   }, [classUID]);
 
   useEffect(() => {
+    setIsFinalScoreMode(false);
     const getAllStudent = async () => {
       await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(
         (talents) => {
@@ -108,6 +110,41 @@ export default function Evaluation() {
     setClassesUID(classId);
   };
 
+  const showFinalScore = async () => {
+    setIsFinalScoreMode(true);
+    let allClasses = [];
+    let sumScore = new Array(talents.length).fill(0);
+    await lessonList.forEach(value => {
+      console.log(value.id);
+      getAllTalentsByClassUID(classUID, value.id).then(
+        (talents) => {
+          allClasses.push(talents);
+          for (let i = 0; i < talents.length; i++) {
+          sumScore[i] = sumScore[i] + talents[i].score;
+          const data = [...talents];
+          data[i].score = parseInt(sumScore[i] / lessonList.length);
+          setTalents(data);
+          }
+        }
+      );
+    });
+  };
+
+  const showLessonScore = () => {
+    setIsFinalScoreMode(false);
+    const getAllStudent = async () => {
+      await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(
+        (talents) => {
+          setTalents(() => [...talents]);
+        }
+      );
+    };
+    if (lesson > -1) {
+      getAllStudent();
+    }
+  }
+
+
   return (
     <section className="container px-20 flex flex-col">
       <div className="class-top mb-10 relative">
@@ -116,7 +153,7 @@ export default function Evaluation() {
           <select
             name="dates"
             id=""
-            onChange={(envet) => setLesson(envet.target.value)}
+            onChange={(event) => setLesson(event.target.value)}
             defaultValue={lesson}
           >
             {lessonList.map((item, index) => {
@@ -128,6 +165,25 @@ export default function Evaluation() {
             })}
           </select>
         </div>
+        {currentUser &&
+            currentUser.role === 1 &&
+            currentUser.userID ===
+              classes[classes.findIndex((item) => item.id === classUID)]
+                .teacherID ? (
+                <div className="text-sm font-medium text-gray-900 flex flex-col" style={{width: "70%"}} >
+                  <div className="class-action mx-auto ">
+                    <button
+                      className="btn"
+                      onClick={()=> { !isFinalScoreMode ? showFinalScore() : showLessonScore()
+                      }}
+                    >
+                      {!isFinalScoreMode ? '最終成績' : 'レッスンに応じた成績'}
+                    </button>
+                  </div>
+                </div>
+        ) : (
+          ""
+        )}
         <div className="class-function flex-1 flex justify-center text-3xl">
           評価
         </div>
@@ -210,12 +266,12 @@ export default function Evaluation() {
                 .teacherID ? (
               <React.Fragment>
                 <div>
-                  <button className=" btn " onClick={save}>
+                  <button className=" btn " onClick={save} style={ isFinalScoreMode ? { display:'none'} : {}} >
                     更新保存
                   </button>
                 </div>
                 <div>
-                  <button className=" btn " onClick={handleEdit}>
+                  <button  className=" btn " onClick={handleEdit} style={ isFinalScoreMode ? { display:'none'} : {}}>
                     修正
                   </button>
                 </div>
