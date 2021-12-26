@@ -17,7 +17,6 @@ export default function Evaluation() {
   const [state, setState] = useState({
     isEdit: false,
     isLoading: false,
-    isFinalScoreMode: false,
   });
   const [classUID, setClassesUID] = React.useState(classId);
   const [lessonList, setLessonList] = React.useState([]);
