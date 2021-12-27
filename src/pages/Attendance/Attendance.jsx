@@ -1,4 +1,5 @@
 import React from "react";
+import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router";
 import ClassInfo from "../../components/ClassInfo/ClassInfo";
 import { useAuth } from "../../contexts/AuthContext";
@@ -20,7 +21,7 @@ const formatTime = (stringSeconds) => {
 
 export default function Attendance() {
   const { classId } = useParams();
-  const [talents, setTalents] = React.useState([]);
+  const [talents, setTalents] = React.useState(null);
   const [classUID, setClassesUID] = React.useState(classId);
   const [lessonList, setLessonList] = React.useState([]);
   const [lesson, setLesson] = React.useState(-1);
@@ -41,6 +42,7 @@ export default function Attendance() {
   }, [classUID]);
 
   React.useEffect(() => {
+    setTalents(null)
     const getAllStudent = async () => {
       // console.log(classUID, lessonList[lesson]?.id)
       await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(
@@ -91,6 +93,7 @@ export default function Attendance() {
       setDisable(() => timeNow - lessonSeccond > 7 * 24 * 60 * 60);
     }
   }, [lessonList, lesson, currentUser]);
+
   return (
     <section className="container px-20 flex flex-col">
       <div className="class-top mb-10 relative">
@@ -120,84 +123,90 @@ export default function Attendance() {
       <div className="class-center flex flex-col md:flex-row">
         <div className="class-left flex flex-col flex-auto ">
           <div className="class-table">
-            <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-              <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
-                        >
-                          番号
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          名前
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
-                        >
-                          出席率
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
-                        >
-                          出席
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {talents.map((talent, index) => (
-                        <tr key={talent.userID}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900 text-center">
-                              {index + 1}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {talent.name}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900 text-center">
+            {talents ? (
+              <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                  <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
+                          >
+                            番号
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            名前
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
+                          >
+                            出席率
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center"
+                          >
+                            出席
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {talents?.map((talent, index) => (
+                          <tr key={talent.userID}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900 text-center">
+                                {index + 1}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">
+                                {talent.name}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900 text-center">
+                                {loading ? (
+                                  <i
+                                    className={`fas fa-circle-notch fa-spin `}
+                                  ></i>
+                                ) : (
+                                  Math.round(
+                                    (talent.checked / talent.totalLessons) * 100
+                                  ) + "%"
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {loading ? (
                                 <i
                                   className={`fas fa-circle-notch fa-spin `}
                                 ></i>
                               ) : (
-                                Math.round(
-                                  (talent.checked / talent.totalLessons) * 100
-                                ) + "%"
+                                <input
+                                  type="checkbox"
+                                  className="mx-auto block"
+                                  checked={talent.status}
+                                  disabled={disable}
+                                  onChange={() => handleClick(index)}
+                                />
                               )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {loading ? (
-                              <i className={`fas fa-circle-notch fa-spin `}></i>
-                            ) : (
-                              <input
-                                type="checkbox"
-                                className="mx-auto block"
-                                checked={talent.status}
-                                disabled={disable}
-                                onChange={() => handleClick(index)}
-                              />
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <Skeleton count={10} />
+            )}
           </div>
           <div className="class-action mx-auto my-10">
             {parseInt(currentUser.role) === 1 ? (

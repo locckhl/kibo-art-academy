@@ -11,6 +11,7 @@ import Home from "./pages/Home/Home";
 import Profile from "./pages/Profile/Profile";
 import SignIn from "./pages/SignIn/SignIn";
 import SignUp from "./pages/SignUp/SignUp";
+import 'react-loading-skeleton/dist/skeleton.css'
 
 function App() {
   return (

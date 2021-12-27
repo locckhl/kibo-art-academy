@@ -1,5 +1,6 @@
 import { getAuth, updatePassword } from "@firebase/auth";
 import React, { useEffect, useState } from "react";
+import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router";
 import { toast } from "react-toastify";
 import defaultAvatar from "../../assets/images/user.png";
@@ -85,19 +86,20 @@ export default function Profile() {
   useEffect(() => {
     getTalentData();
   }, []);
+
   return (
-    talent &&
-    classes && (
-      <div className="container mt-32 flex flex-col">
-        <ProfileEdit
-          data={talent}
-          open={open}
-          setOpen={setOpen}
-          onUpdate={onSubmit}
-        />
-        <div className="profile-header text-center text-3xl">
-          <b>プロフィール</b>
-        </div>
+    <div className="container mt-32 flex flex-col">
+      <ProfileEdit
+        data={talent}
+        open={open}
+        setOpen={setOpen}
+        onUpdate={onSubmit}
+      />
+      <div className="profile-header text-center text-3xl">
+        <b>プロフィール</b>
+      </div>
+
+      {talent && classes ? (
         <div className="profile-content flex mt-16 gap-10">
           <div className="profile-content__left w-1/2">
             <div className="flex flex-col float-right">
@@ -139,7 +141,13 @@ export default function Profile() {
             </ul>
           </div>
         </div>
-      </div>
-    )
+      ) : (
+        <Skeleton
+          count={15}
+          width="50%"
+          style={{ transform: "translateX(50%)" }}
+        />
+      )}
+    </div>
   );
 }
