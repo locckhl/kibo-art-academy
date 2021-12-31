@@ -53,7 +53,7 @@ export default function Document() {
     var checkNameArray = fileItems.map(fileItem => {
       return fileItem.fileName;
     })
-    console.log(checkNameArray);
+    // console.log(checkNameArray);
     if (checkNameArray.includes(newFileName)) {
       return 1;
     }
@@ -66,6 +66,8 @@ export default function Document() {
   };
 
   const uploadFiles = async (file) => {
+    // Get the file input element
+    var theFile = document.getElementById('document_file');
     seterror(null);
     setisPending(true);
 
@@ -112,8 +114,11 @@ export default function Document() {
               if (!isCancelled) {
                 seterror(null);
                 setisPending(false);
-                setFileUpload('');
-                console.log('fileUpload: ', fileUpload);
+                // console.log(theFile.value);
+                theFile.value = null;
+                setFileUpload("");
+                // console.log('fileUpload: ', fileUpload);
+                // console.log(theFile);
               }
               SuccessMessage("アップロード成功");
             });
@@ -122,8 +127,11 @@ export default function Document() {
             if (!isCancelled) {
               seterror(err.message);
               setisPending(false);
-              setFileUpload('');
+              console.log(theFile.value);
+              theFile.value = null;
+              setFileUpload("");
               console.log('fileUpload: ', fileUpload);
+              console.log(theFile);
             }
           }
         });
@@ -167,19 +175,25 @@ export default function Document() {
     const desertRef = ref(storage, storagePath);
     deleteObject(desertRef)
       .then(() => {
+        // console.log("File in Storage deleted");
         const refer = doc(db, "Classes", classUID, "Files", id);
         deleteDoc(refer)
           .then(() => {
+            // console.log("File in Firestore deleted");
             if (isDuplicated === 0) {
               SuccessMessage("削除しました");
+              return;
             }
+            return;
           })
           .catch((err) => {
             ErrorMessage("Firestote: エラーがある");
+            return;
           });
       })
       .catch((err) => {
         ErrorMessage("Storage: エラーがある");
+        return;
       });
   };
   //check role
