@@ -49,15 +49,10 @@ export function AuthProvider({ children }) {
             let classes = [];
             switch (parseInt(userInfo.role)) {
               case 0: //admin
+              case 1: //teacher
                 classes = await getFirebaseItems("Classes");
                 break;
-              case 1: //teacher
-                classes = await getFirebaseItemsWithCondition("Classes", [
-                  "teacherID",
-                  "==",
-                  userInfo.userID,
-                ]);
-                break;
+
               case 2: // talent
                 //students
                 console.log("nani");
@@ -113,6 +108,7 @@ export function AuthProvider({ children }) {
     classes,
     logIn,
     logOut,
+    setCurrentUser,
   };
 
   return (

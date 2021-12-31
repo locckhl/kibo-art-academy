@@ -10,8 +10,8 @@ import {
   limit,
   updateDoc,
 } from "firebase/firestore"
-import { getAuth } from "@firebase/auth";
-import { getStorage } from "firebase/storage"
+import { getAuth } from "@firebase/auth"
+import { getStorage, uploadBytes, ref, getDownloadURL } from "firebase/storage"
 
 const firebaseConfig = {
   apiKey: "AIzaSyAsqAL18hjTKzpYNPW3q6lSKaejYO1TuDc",
@@ -22,9 +22,9 @@ const firebaseConfig = {
   appId: "1:182717419459:web:c9090ca49ad66aa7c8b776",
 }
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth();
-export const db = getFirestore(app);
+const app = initializeApp(firebaseConfig)
+export const auth = getAuth()
+export const db = getFirestore(app)
 export const storage = getStorage(app)
 
 // Test function for reading data
@@ -66,7 +66,7 @@ export const getFirebaseItemsWithCondition = async (table, ...options) => {
     const response = await getDocs(query(collection(db, table), ...q))
     response.forEach((doc) => {
       console.log(result)
-      result.push({...doc.data(), id: doc.id })
+      result.push({ ...doc.data(), id: doc.id })
     })
   } catch (error) {
     console.log(error)
@@ -101,4 +101,16 @@ export const updateItemFireBase = async (item, ...args) => {
     console.error(error)
   }
   return isSuccess
+}
+
+export const uploadImage = async (path, image) => {
+  const refImage = ref(storage, `/${path}/${Date.now() + image.name}`)
+  let url = ""
+  try {
+    const response = await uploadBytes(refImage, image)
+    url = await getDownloadURL(response.ref)
+  } catch (err) {
+    throw new Error(err)
+  }
+  return url
 }

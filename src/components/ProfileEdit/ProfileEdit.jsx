@@ -4,14 +4,32 @@ import { Dialog, Transition } from "@headlessui/react";
 import defaultAvatar from "../../assets/images/user.png";
 import "./index.scss";
 
-export default function ProfileEdit({ open, setOpen }) {
+export default function ProfileEdit({ data, open, setOpen, onUpdate }) {
   const [password, setPassword] = useState("");
   const [cfPassword, setCfPassword] = useState("");
 
   const [isPassFocus, setIsPassFocus] = useState(false);
   const [isCfPassFocus, setIsCFPassFocus] = useState(false);
+  const [imageUrl, setImageUrl] = useState(data?.imageUrl || null);
+  const [valueInputFile, setvalueInputFile] = useState(null);
 
   const cancelButtonRef = useRef(null);
+  
+  const onSubmit = () => {
+    onUpdate({password, cfPassword, valueInputFile}, setvalueInputFile)
+  }
+  
+  const onChange = (e) => {
+    setvalueInputFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        setImageUrl(e.target.result)
+      };
+  
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  }
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -61,18 +79,19 @@ export default function ProfileEdit({ open, setOpen }) {
                       プロフィール編集
                     </Dialog.Title>
                     <div className="mt-2">
-                      <form>
+                      <form id="form">
                         <div className="flex flex-col w-1/2">
                           <div className="avatar ">
                             <div className="avatar-container">
-                              <img src={defaultAvatar} alt="" />
+                              <img src={imageUrl||defaultAvatar} alt=""/>
                             </div>
                           </div>
+                          <br />
                           <label htmlFor="avatar-file" className="btn">
                             <i className="fas fa-cloud-upload-alt mr-2"></i>{" "}
                             アバター編集 <br />
                           </label>
-                          <input type="file" id="avatar-file" />
+                          <input type="file" id="avatar-file"  onChange={(e) => onChange(e)}/>
                         </div>
 
                         <div
@@ -118,7 +137,7 @@ export default function ProfileEdit({ open, setOpen }) {
                             </h5>
                             <input
                               onChange={(e) => {
-                                setPassword(e.target.value);
+                                setCfPassword(e.target.value);
                               }}
                               type="password"
                               className="input"
@@ -140,9 +159,9 @@ export default function ProfileEdit({ open, setOpen }) {
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
-                  type="button"
+                  type="submit"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => setOpen(false)}
+                  onClick={() => {onSubmit()}}
                 >
                   編集
                 </button>
