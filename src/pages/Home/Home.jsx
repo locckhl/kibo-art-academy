@@ -4,9 +4,11 @@ import "./index.scss";
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import Skeleton from "react-loading-skeleton";
+import { useNavigate } from "react-router";
 
 function Home() {
   const { currentUser } = useAuth();
+  const naviagate = useNavigate();
   const [titleColumns] = useState(
     currentUser.role === 2
       ? [
@@ -51,13 +53,17 @@ function Home() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {classes.map((item, idx) => (
+                  // <Link to={`/classInfo/${item.id}`}>
                   <tr
                     key={idx}
                     className={`${
                       item.teacherID === currentUser.userID
-                        ? "bg-green-100"
-                        : ""
+                        ? "cursor-pointer bg-green-100"
+                        : "cursor-pointer "
                     }`}
+                    onClick={() => {
+                      naviagate(`/classInfo/${item.id}`)
+                    }}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-center font-medium text-gray-600">
@@ -165,6 +171,7 @@ function Home() {
                       </>
                     )}
                   </tr>
+                  // </Link>
                 ))}
               </tbody>
             </table>

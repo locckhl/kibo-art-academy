@@ -75,7 +75,7 @@ export function AuthProvider({ children }) {
                     const { totalAttendance, totalAchivement } =
                       await getTalentInfoByClass(
                         classList[i].id,
-                        currentUser.email
+                        userInfo.email
                       );
                     classList[i].totalAttendance = totalAttendance;
                     classList[i].totalAchivement = totalAchivement;
