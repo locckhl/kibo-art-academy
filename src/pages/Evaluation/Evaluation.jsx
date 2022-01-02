@@ -42,7 +42,6 @@ export default function Evaluation() {
 
   useEffect(() => {
     setTalents(null);
-    setIsFinalScoreMode(false);
     const getAllStudent = async () => {
       await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(
         (talents) => {
@@ -112,13 +111,36 @@ export default function Evaluation() {
     setClassesUID(classId);
   };
 
-  const showFinalScore = async () => {
+  // const showLessonScore = () => {
+  //   setTalents(null);
+  //   setIsFinalScoreMode(false);
+  //   const getAllStudent = async () => {
+  //     await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(
+  //       (talents) => {
+  //         setTalents(() => [...talents]);
+  //       }
+  //     );
+  //   };
+  //   if (lesson > -1) {
+  //     getAllStudent();
+  //   }
+  // };
+  const handleChangeLesson = (value) => {
+    if(parseInt(value) === lessonList.length){
+      setLesson(value);
+      showFinalScore();
+    } else {
+      setIsFinalScoreMode(false);
+      setLesson(value);
+    }
+  };
+
+  async function showFinalScore () {
     setIsFinalScoreMode(true);
     let allClasses = [];
     let sumScore = new Array(talents.length).fill(0);
     setTalents(null);
     await lessonList.forEach((value) => {
-      console.log(value.id);
       getAllTalentsByClassUID(classUID, value.id).then((talents) => {
         allClasses.push(talents);
         for (let i = 0; i < talents.length; i++) {
@@ -131,21 +153,6 @@ export default function Evaluation() {
     });
   };
 
-  const showLessonScore = () => {
-    setTalents(null);
-    setIsFinalScoreMode(false);
-    const getAllStudent = async () => {
-      await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(
-        (talents) => {
-          setTalents(() => [...talents]);
-        }
-      );
-    };
-    if (lesson > -1) {
-      getAllStudent();
-    }
-  };
-
   return (
     <section className="container px-20 flex flex-col">
       <div className="class-top mb-10 relative">
@@ -154,7 +161,7 @@ export default function Evaluation() {
           <select
             name="dates"
             id=""
-            onChange={(event) => setLesson(event.target.value)}
+            onChange={(event) => handleChangeLesson(event.target.value)}
             defaultValue={lesson}
           >
             {lessonList.map((item, index) => {
@@ -164,9 +171,21 @@ export default function Evaluation() {
                 </option>
               );
             })}
+            {currentUser &&
+            currentUser.role === 1 &&
+            currentUser.userID ===
+              classes[classes.findIndex((item) => item.id === classUID)]
+                .teacherID ? (
+              <option key={lessonList.length} value={lessonList.length}>
+                {"最終成績"}
+              </option>
+            ) : (
+              ""
+            )}
+            
           </select>
         </div>
-        {currentUser &&
+        {/* {currentUser &&
         currentUser.role === 1 &&
         currentUser.userID ===
           classes[classes.findIndex((item) => item.id === classUID)]
@@ -188,7 +207,7 @@ export default function Evaluation() {
           </div>
         ) : (
           ""
-        )}
+        )} */}
         <div className="class-function flex-1 flex justify-center text-3xl">
           評価
         </div>
