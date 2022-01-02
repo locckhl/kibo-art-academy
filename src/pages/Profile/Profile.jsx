@@ -1,4 +1,6 @@
 import { getAuth, updatePassword } from "@firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../lib/firebase";
 import React, { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router";
@@ -44,6 +46,10 @@ export default function Profile() {
         try {
           const user = await getAuth();
           await updatePassword(user.currentUser, password);
+          await setDoc(doc(db, "Users", user.currentUser.email),
+            { password: password },
+            { merge: true },
+          );
           toast.success("パスワード編集成功");
         } catch (error) {
           console.error(error);
