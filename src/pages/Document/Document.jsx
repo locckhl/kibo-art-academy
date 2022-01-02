@@ -32,7 +32,7 @@ export default function Document() {
   const [error, seterror] = useState(null);
   const [isPending, setisPending] = useState(false);
   const [isCancelled, setisCancelled] = useState(false);
-  const [fileName, setFileName] = useState("");
+  const [fileUpload, setFileUpload] = useState("");
   let url = "";
 
   const { currentUser: userInfo, classes } = useAuth();
@@ -50,25 +50,14 @@ export default function Document() {
   };
 
   const checkNameOfTheFile = (newFileName) => {
-    var checkNameArray = fileItems.map((fileItem) => {
+    var checkNameArray = fileItems.map(fileItem => {
       return fileItem.fileName;
-    });
+    })
+    // console.log(checkNameArray);
     if (checkNameArray.includes(newFileName)) {
-      var suffixes = 1;
-      while (
-        checkNameArray.includes(
-          `${newFileName.split(".")[0]}_${suffixes}.${
-            newFileName.split(".")[1]
-          }`
-        )
-      ) {
-        suffixes += 1;
-      }
-      newFileName = `${newFileName.split(".")[0]}_${suffixes}.${
-        newFileName.split(".")[1]
-      }`;
+      return 1;
     }
-    return newFileName;
+    return 0;
   };
   const uploadFileHandler = (e) => {
     e.preventDefault();
@@ -77,14 +66,23 @@ export default function Document() {
   };
 
   const uploadFiles = async (file) => {
+    // Get the file input element
+    var theFile = document.getElementById('document_file');
     seterror(null);
     setisPending(true);
 
     if (!file) return;
     //upload file to storage
 
+    //check if name duplicated
+    if (checkNameOfTheFile(file.name)) {
+      const duplicatedFile = fileItems.filter(fileItem => {
+        return fileItem.fileName === file.name
+      });
+      deleteFile(duplicatedFile[0].id, duplicatedFile[0].fileName, 1);
+    }
     //Ex: cat.png/cat.pnd; cat_1.png/cat.png
-    let storagePath = `/${checkNameOfTheFile(file.name)}/${file.name}`;
+    let storagePath = `/${classUID}/${file.name}`;
     const storageRef = ref(storage, storagePath);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -109,14 +107,18 @@ export default function Document() {
             addDoc(refer, {
               classID: classUID,
               teacherID: userInfo.userID,
-              fileName: checkNameOfTheFile(file.name),
-              fileNameInDB: file.name,
+              fileName: file.name,
               downloadURL: url,
               createdAt: serverTimestamp(),
             }).then(() => {
               if (!isCancelled) {
                 seterror(null);
                 setisPending(false);
+                // console.log(theFile.value);
+                theFile.value = null;
+                setFileUpload("");
+                // console.log('fileUpload: ', fileUpload);
+                // console.log(theFile);
               }
               SuccessMessage("アップロード成功");
             });
@@ -125,6 +127,11 @@ export default function Document() {
             if (!isCancelled) {
               seterror(err.message);
               setisPending(false);
+              console.log(theFile.value);
+              theFile.value = null;
+              setFileUpload("");
+              console.log('fileUpload: ', fileUpload);
+              console.log(theFile);
             }
           }
         });
@@ -145,12 +152,16 @@ export default function Document() {
         });
 
         // update state
-        setfileItems(results);
-        seterror(null);
+        if (!isCancelled) {
+          setfileItems(results);
+          seterror(null);
+        }
       },
       (err) => {
-        console.log(err);
-        seterror("could not fetch the data");
+        if (!isCancelled) {
+          console.log(err);
+          seterror("could not fetch the data");
+        }
       }
     );
 
@@ -159,22 +170,30 @@ export default function Document() {
   }, [classUID]);
 
   //delete file
-  const deleteFile = (id, fileName, fileNameInDB) => {
-    let storagePath = `/${fileName}/${fileNameInDB}`;
+  const deleteFile = (id, fileName, isDuplicated) => {
+    let storagePath = `/${classUID}/${fileName}`;
     const desertRef = ref(storage, storagePath);
     deleteObject(desertRef)
       .then(() => {
+        // console.log("File in Storage deleted");
         const refer = doc(db, "Classes", classUID, "Files", id);
         deleteDoc(refer)
           .then(() => {
-            SuccessMessage("削除しました");
+            // console.log("File in Firestore deleted");
+            if (isDuplicated === 0) {
+              SuccessMessage("削除しました");
+              return;
+            }
+            return;
           })
           .catch((err) => {
             ErrorMessage("Firestote: エラーがある");
+            return;
           });
       })
       .catch((err) => {
         ErrorMessage("Storage: エラーがある");
+        return;
       });
   };
   //check role
@@ -187,7 +206,10 @@ export default function Document() {
 
   //clean up function
   useEffect(() => {
-    return () => setisCancelled(true);
+    return () => {
+      setisCancelled(true);
+      setFileUpload('');
+    }
   }, []);
 
   return (
@@ -255,7 +277,7 @@ export default function Document() {
                                     deleteFile(
                                       fileItem.id,
                                       fileItem.fileName,
-                                      fileItem.fileNameInDB
+                                      0
                                     );
                                   }}
                                   className="px-4 py-2 inline-flex text-xs leading-5 font-semibold rounded-xl bg-red-600 text-white text-xl cursor-pointer "
@@ -287,12 +309,14 @@ export default function Document() {
                         type="file"
                         id="document_file"
                         onChange={(e) => {
-                          setFileName(e.target.files[0].name);
+                          if (e.target.files[0] != null) {
+                            setFileUpload(e.target.files[0].name);
+                          }
                         }}
                       />
                     </div>
                   </div>
-                  <div className="text-center">{fileName}</div>
+                  <div className="text-center">{fileUpload}</div>
                 </div>
                 <div className="my-10">
                   <div className="flex justify-center">
