@@ -15,11 +15,13 @@ import {
 import "./index.scss";
 
 export default function Profile() {
+
   const [open, setOpen] = useState(false);
   const { currentUser, setCurrentUser } = useAuth();
   const [talent, setTalent] = useState(null);
   const [classes, setClasses] = useState(null);
   const { userId: talentId } = useParams();
+
   const onSubmit = async (data, callback) => {
     const { password, cfPassword, valueInputFile } = data;
     let url = "";
@@ -33,7 +35,7 @@ export default function Profile() {
       );
       if (isSuccess) {
         toast.success("アバター編集ト成功");
-        setCurrentUser({ ...currentUser, imageUrl: url });
+        setTalent({...talent, imageUrl: url})
       } else {
         toast.error("エラー");
       }
@@ -65,7 +67,6 @@ export default function Profile() {
 
     let classes = [];
 
-    console.log("nani");
     const classList = await getFirebaseItems("Classes");
     for (let i = 0; i < classList.length; i++) {
       let tmp = await getFirebaseItems(
@@ -89,12 +90,12 @@ export default function Profile() {
 
   return (
     <div className="container mt-32 flex flex-col">
-      <ProfileEdit
+      {talent && <ProfileEdit
         data={talent}
         open={open}
         setOpen={setOpen}
         onUpdate={onSubmit}
-      />
+      />}
       <div className="profile-header text-center text-3xl">
         <b>プロフィール</b>
       </div>
