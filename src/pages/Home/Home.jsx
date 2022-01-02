@@ -53,7 +53,6 @@ function Home() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {classes.map((item, idx) => (
-                  // <Link to={`/classInfo/${item.id}`}>
                   <tr
                     key={idx}
                     className={`${
@@ -61,8 +60,8 @@ function Home() {
                         ? "cursor-pointer bg-green-100"
                         : "cursor-pointer "
                     }`}
-                    onClick={() => {
-                      naviagate(`/classInfo/${item.id}`)
+                    onClick={(e) => {
+                      naviagate(`/classDetail/${item.id}`);
                     }}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -95,6 +94,7 @@ function Home() {
                           <Link
                             to={`/attendance/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             出欠
                           </Link>
@@ -103,6 +103,7 @@ function Home() {
                           <Link
                             to={`/evaluation/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             評価
                           </Link>
@@ -111,6 +112,7 @@ function Home() {
                           <Link
                             to={`/document/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             資料
                           </Link>
@@ -126,6 +128,7 @@ function Home() {
                           <Link
                             to={`/attendance/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             出欠
                           </Link>
@@ -134,6 +137,7 @@ function Home() {
                           <Link
                             to={`/evaluation/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             評価
                           </Link>
@@ -142,6 +146,7 @@ function Home() {
                           <Link
                             to={`/document/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             資料
                           </Link>
@@ -163,6 +168,7 @@ function Home() {
                             <Link
                               to={`/document/${item.id}`}
                               className="text-indigo-600 hover:text-indigo-900"
+                              onClick={(e) => e.stopPropagation()}
                             >
                               資料
                             </Link>
@@ -171,7 +177,6 @@ function Home() {
                       </>
                     )}
                   </tr>
-                  // </Link>
                 ))}
               </tbody>
             </table>

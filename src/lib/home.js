@@ -41,8 +41,6 @@ export const getTalentInfoByClass = async (classID, talentId) => {
     return total;
   }, 0);
 
-  debugger;
-
   totalAchivement = totalAchivement / achivements.length;
   totalAttendance = totalAttendance / attendances.length;
   return { totalAttendance, totalAchivement };
