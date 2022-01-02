@@ -1,6 +1,7 @@
 import { signInWithEmailAndPassword, signOut } from "@firebase/auth";
 import { collection, getDocs } from "@firebase/firestore";
 import React, { useContext, useState, useEffect } from "react";
+import { getClassesLesson } from "../lib/evaluation";
 import {
   auth,
   db,
@@ -8,6 +9,7 @@ import {
   getFirebaseItemsWithCondition,
   getFirebaseItemWithCondition,
 } from "../lib/firebase";
+import { getTalentInfoByClass } from "../lib/home";
 import { ErrorMessage, SuccessMessage } from "../utils/toastify";
 
 const AuthContext = React.createContext();
@@ -68,6 +70,15 @@ export function AuthProvider({ children }) {
                     (item) => item === userInfo.userID
                   );
                   if (index > -1) {
+
+                    // Get total attendance and total achivement
+                    const { totalAttendance, totalAchivement } =
+                      await getTalentInfoByClass(
+                        classList[i].id,
+                        currentUser.email
+                      );
+                    classList[i].totalAttendance = totalAttendance;
+                    classList[i].totalAchivement = totalAchivement;
                     classes.push(classList[i]);
                   }
                 }
