@@ -90,7 +90,7 @@ function App() {
           ></Route>
 
           <Route
-            path="/classInfo/:classId"
+            path="/classDetail/:classId"
             element={
               <RequireAuth>
                 <ClassDetail />
@@ -98,7 +98,7 @@ function App() {
             }
           ></Route>
 
-<Route
+          <Route
             path="/addClass"
             element={
               <RequireAuth>
