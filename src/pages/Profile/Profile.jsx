@@ -26,13 +26,13 @@ export default function Profile() {
   const onSubmit = async (data, callback) => {
     const { password, cfPassword, valueInputFile } = data;
     let url = "";
-    let newData = talent;
+    let newData = currentUser;
     if (valueInputFile) {
       url = await uploadImage("talent", valueInputFile);
       const isSuccess = await updateItemFireBase(
         { ...newData, imageUrl: url },
         "Users",
-        talent.id
+        currentUser.id
       );
       if (isSuccess) {
         toast.success("アバター編集ト成功");
