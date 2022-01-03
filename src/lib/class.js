@@ -1,5 +1,5 @@
 import { collection, doc, setDoc } from "@firebase/firestore";
-import { db } from "./firebase";
+import { auth, db, getFirebaseItemWithCondition } from "./firebase";
 
 export const createClass = async ({
   title,
@@ -9,6 +9,7 @@ export const createClass = async ({
   dateEnd,
   teacher,
   talents,
+  user
 }) => {
   await setDoc(doc(collection(db, "Classes")), {
     className: title,
@@ -17,14 +18,23 @@ export const createClass = async ({
     dateEnd: dateEnd,
     numTalents: talents.length,
     summary: summary,
-    teacherId: teacher,
-    talents,
+    teacherID: teacher,
   })
     .then(async (data) => {
-      // await setDoc(doc(collection(db, `Classes/${data.id}/ClassTalents`)), {
-      //     talentIDs:talents
-      // })
-      // collection().
+      const createdClass = await getFirebaseItemWithCondition("Classes", [
+        "className",
+        "==",
+        title,
+      ]);
+      await setDoc(
+        doc(collection(db, `Classes/${createdClass.id}/ClassTalents`)),
+        {
+          talentIDs: talents,
+        }
+      );
+
+      await auth.updateCurrentUser(user);
+      window.location.href = "/";
     })
     .catch((err) => {
       throw err;

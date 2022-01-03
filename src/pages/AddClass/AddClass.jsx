@@ -70,15 +70,16 @@ export default function AddClass() {
       dateEnd,
       teacher,
       talents:classTalents,
+      user
     }).then(()=>{
 
         SuccessMessage("追加成功");
     }
     )
-    // .catch((err)=>{
-    //     ErrorMessage("追加失敗");
-    //     console.log(err);
-    // })
+    .catch((err)=>{
+        ErrorMessage("追加失敗");
+        console.log(err);
+    })
 
     
     ;
