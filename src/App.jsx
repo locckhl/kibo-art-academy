@@ -11,7 +11,9 @@ import Home from "./pages/Home/Home";
 import Profile from "./pages/Profile/Profile";
 import SignIn from "./pages/SignIn/SignIn";
 import SignUp from "./pages/SignUp/SignUp";
-import 'react-loading-skeleton/dist/skeleton.css'
+import "react-loading-skeleton/dist/skeleton.css";
+import ClassDetail from "./pages/ClassDetail/ClassDetail";
+import AddClass from "./pages/AddClass/AddClass";
 
 function App() {
   return (
@@ -83,6 +85,24 @@ function App() {
             element={
               <RequireAuth>
                 <Profile />
+              </RequireAuth>
+            }
+          ></Route>
+
+          <Route
+            path="/classDetail/:classId"
+            element={
+              <RequireAuth>
+                <ClassDetail />
+              </RequireAuth>
+            }
+          ></Route>
+
+          <Route
+            path="/addClass"
+            element={
+              <RequireAuth>
+                <AddClass />
               </RequireAuth>
             }
           ></Route>

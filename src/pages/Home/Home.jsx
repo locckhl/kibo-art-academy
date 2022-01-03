@@ -4,17 +4,25 @@ import "./index.scss";
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import Skeleton from "react-loading-skeleton";
+import { useNavigate } from "react-router";
 
 function Home() {
   const { currentUser } = useAuth();
-  const [titleColumns] = useState([
-    "クラス名",
-    "人数",
-    "クラス内容",
-    "授業数",
-    "主任教員",
-    "アクション",
-  ]);
+  const naviagate = useNavigate();
+  const [titleColumns] = useState(
+    currentUser.role === 2
+      ? [
+          "クラス名",
+          "人数",
+          "クラス内容",
+          "授業数",
+          "主任教員",
+          "出席率",
+          "最終成績",
+          "アクション",
+        ]
+      : ["クラス名", "人数", "クラス内容", "授業数", "主任教員", "アクション"]
+  );
   const { classes } = useAuth();
   console.log("home");
   if (!currentUser || !classes) return <Skeleton count={20} />;
@@ -49,9 +57,12 @@ function Home() {
                     key={idx}
                     className={`${
                       item.teacherID === currentUser.userID
-                        ? "bg-green-100"
-                        : ""
+                        ? "cursor-pointer bg-green-100"
+                        : "cursor-pointer "
                     }`}
+                    onClick={(e) => {
+                      naviagate(`/classDetail/${item.id}`);
+                    }}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-center font-medium text-gray-600">
@@ -83,6 +94,7 @@ function Home() {
                           <Link
                             to={`/attendance/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             出欠
                           </Link>
@@ -91,6 +103,7 @@ function Home() {
                           <Link
                             to={`/evaluation/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             評価
                           </Link>
@@ -99,6 +112,7 @@ function Home() {
                           <Link
                             to={`/document/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             資料
                           </Link>
@@ -114,6 +128,7 @@ function Home() {
                           <Link
                             to={`/attendance/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             出欠
                           </Link>
@@ -122,6 +137,7 @@ function Home() {
                           <Link
                             to={`/evaluation/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             評価
                           </Link>
@@ -130,6 +146,7 @@ function Home() {
                           <Link
                             to={`/document/${item.id}`}
                             className="text-indigo-600 hover:text-indigo-900"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             資料
                           </Link>
@@ -139,16 +156,25 @@ function Home() {
 
                     {/* Talent  */}
                     {currentUser.role === 2 && (
-                      <td className="px-6 py-4 flex whitespace-nowrap">
-                        <div className="flex-auto text-center">
-                          <Link
-                            to={`/document/${item.id}`}
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            資料
-                          </Link>
-                        </div>{" "}
-                      </td>
+                      <>
+                        <td className="text-sm text-center font-medium text-gray-600">
+                          {Number.parseFloat(item.totalAttendance) * 100} %
+                        </td>
+                        <td className="text-sm text-center font-medium text-gray-600">
+                          {item.totalAchivement}
+                        </td>
+                        <td className="px-6 py-4 flex whitespace-nowrap">
+                          <div className="flex-auto text-center">
+                            <Link
+                              to={`/document/${item.id}`}
+                              className="text-indigo-600 hover:text-indigo-900"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              資料
+                            </Link>
+                          </div>{" "}
+                        </td>
+                      </>
                     )}
                   </tr>
                 ))}

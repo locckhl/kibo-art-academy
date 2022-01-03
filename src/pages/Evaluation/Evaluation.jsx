@@ -11,6 +11,7 @@ import {
 } from "./../../lib/evaluation";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
 import Skeleton from "react-loading-skeleton";
+import { useNavigate } from "react-router";
 
 export default function Evaluation() {
   const { currentUser, classes } = useAuth();
@@ -24,6 +25,7 @@ export default function Evaluation() {
   const [lesson, setLesson] = React.useState(-1);
   const [talents, setTalents] = React.useState(null);
   const [isFinalScoreMode, setIsFinalScoreMode] = React.useState(false);
+  const naviagate = useNavigate();
 
   const formatTime = (stringSeconds) => {
     const date = new Date(parseInt(stringSeconds) * 1000);
@@ -126,7 +128,7 @@ export default function Evaluation() {
   //   }
   // };
   const handleChangeLesson = (value) => {
-    if(parseInt(value) === lessonList.length){
+    if (parseInt(value) === lessonList.length) {
       setLesson(value);
       showFinalScore();
     } else {
@@ -135,7 +137,7 @@ export default function Evaluation() {
     }
   };
 
-  async function showFinalScore () {
+  async function showFinalScore() {
     setIsFinalScoreMode(true);
     let allClasses = [];
     let sumScore = new Array(talents.length).fill(0);
@@ -151,7 +153,7 @@ export default function Evaluation() {
         }
       });
     });
-  };
+  }
 
   return (
     <section className="container px-20 flex flex-col">
@@ -182,7 +184,6 @@ export default function Evaluation() {
             ) : (
               ""
             )}
-            
           </select>
         </div>
         {/* {currentUser &&
@@ -245,7 +246,13 @@ export default function Evaluation() {
                       <tbody className="bg-white divide-y divide-gray-200">
                         {talents.length !== 0 &&
                           talents.map((value, key) => (
-                            <tr key={key}>
+                            <tr
+                              key={key}
+                              className="cursor-pointer"
+                              onClick={(e) => {
+                                naviagate(`/profile/${value.userID}`);
+                              }}
+                            >
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm font-medium text-gray-900 text-center">
                                   {key + 1}

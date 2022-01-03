@@ -9,6 +9,7 @@ import {
   Save,
 } from "../../lib/attendance";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
+import { useNavigate } from "react-router";
 
 /**
  *
@@ -27,6 +28,7 @@ export default function Attendance() {
   const [lesson, setLesson] = React.useState(-1);
   const [loading, setLoadding] = React.useState(false);
   const [disable, setDisable] = React.useState(true);
+  const naviagate = useNavigate();
 
   const { currentUser, classes } = useAuth();
   console.log("Attendance");
@@ -158,7 +160,9 @@ export default function Attendance() {
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {talents?.map((talent, index) => (
-                          <tr key={talent.userID}>
+                          <tr key={talent.userID} className="cursor-pointer" onClick={(e)=>{
+                            naviagate(`/profile/${talent.userID}`);
+                          }}>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm font-medium text-gray-900 text-center">
                                 {index + 1}

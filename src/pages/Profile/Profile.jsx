@@ -1,4 +1,6 @@
 import { getAuth, updatePassword } from "@firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../lib/firebase";
 import React, { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router";
@@ -15,7 +17,6 @@ import {
 import "./index.scss";
 
 export default function Profile() {
-
   const [open, setOpen] = useState(false);
   const { currentUser, setCurrentUser } = useAuth();
   const [talent, setTalent] = useState(null);
@@ -35,7 +36,7 @@ export default function Profile() {
       );
       if (isSuccess) {
         toast.success("アバター編集ト成功");
-        setTalent({...talent, imageUrl: url})
+        setTalent({ ...talent, imageUrl: url });
       } else {
         toast.error("エラー");
       }
@@ -46,6 +47,11 @@ export default function Profile() {
         try {
           const user = await getAuth();
           await updatePassword(user.currentUser, password);
+          await setDoc(
+            doc(db, "Users", user.currentUser.email),
+            { password: password },
+            { merge: true }
+          );
           toast.success("パスワード編集成功");
         } catch (error) {
           console.error(error);
@@ -90,13 +96,14 @@ export default function Profile() {
 
   return (
     <div className="container mt-32 flex flex-col">
-      {talent && <ProfileEdit
-        data={talent}
-        open={open}
-        setOpen={setOpen}
-        onUpdate={onSubmit}
-        
-      />}
+      {talent && (
+        <ProfileEdit
+          data={talent}
+          open={open}
+          setOpen={setOpen}
+          onUpdate={onSubmit}
+        />
+      )}
       <div className="profile-header text-center text-3xl">
         <b>プロフィール</b>
       </div>
@@ -133,14 +140,17 @@ export default function Profile() {
             <div>
               <b>メール: </b> {talent?.email}
             </div>
-            <div>
-              <b>受講科目「クラス名」</b>
+            <div className="flex">
+              <div>
+                <b>受講科目「クラス名」</b>
+              </div>
+
+              <ul className="ml-5 mt-7">
+                {classes.map((item, idx) => (
+                  <li key={idx} style={{listStyle:"initial"}}>{item.className}</li>
+                ))}
+              </ul>
             </div>
-            <ul>
-              {classes.map((item, idx) => (
-                <li key={idx}>{item.className}</li>
-              ))}
-            </ul>
           </div>
         </div>
       ) : (
