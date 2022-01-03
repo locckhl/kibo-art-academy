@@ -25,13 +25,18 @@ export default function Header() {
                 <dd>
                   <Link to="/">ホーム</Link>
                 </dd>
-                <dd>
-                  {currentUser.role === 0 ? (
-                    <Link to="/signup">アカウント追加</Link>
-                  ) : (
-                    ""
-                  )}
-                </dd>
+                {currentUser.role === 0 ? (
+                  <>
+                    <dd>
+                      <Link to="/signup">アカウント追加</Link>
+                    </dd>
+                    <dd>
+                      <Link to="/addClass">クラス追加</Link>
+                    </dd>
+                  </>
+                ) : (
+                  ""
+                )}
               </dl>
             </div>
             <div className="header-user flex-1 ">
