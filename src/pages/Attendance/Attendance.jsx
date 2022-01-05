@@ -10,6 +10,8 @@ import {
 } from "../../lib/attendance";
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
 import { useNavigate } from "react-router";
+import { getClasses } from "../../lib/class";
+import { useQuery } from "react-query";
 
 /**
  *
@@ -30,7 +32,14 @@ export default function Attendance() {
   const [disable, setDisable] = React.useState(true);
   const naviagate = useNavigate();
 
-  const { currentUser, classes } = useAuth();
+  const { currentUser } = useAuth();
+  const { data: classes, isLoading } = useQuery(
+    ['getClasses', { currentUser:currentUser }],
+    getClasses,
+    {
+      enabled: !!currentUser
+    }
+  );
   console.log("Attendance");
 
   React.useEffect(() => {
@@ -95,6 +104,8 @@ export default function Attendance() {
       setDisable(() => timeNow - lessonSeccond > 7 * 24 * 60 * 60);
     }
   }, [lessonList, lesson, currentUser]);
+
+  if ( isLoading) return <Skeleton count={20} />;
 
   return (
     <section className="container px-20 flex flex-col">

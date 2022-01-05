@@ -8,6 +8,9 @@ import {
   collection,
   getDocs
 } from "@firebase/firestore";
+import { useQuery } from "react-query";
+import { getClasses } from "../../lib/class";
+import Skeleton from "react-loading-skeleton";
 
 export default function ClassDetail() {
     const { classId } = useParams();
@@ -15,7 +18,14 @@ export default function ClassDetail() {
     const [lessonsInfo, setLessonsInfo] = useState(null);
     const [isTeacher, setIsTeacher] = useState(false);
 
-    const { currentUser: userInfo, classes } = useAuth();
+    const { currentUser: userInfo } = useAuth();
+    const { data: classes, isLoading } = useQuery(
+      ['getClasses', { currentUser:userInfo }],
+      getClasses,
+      {
+        enabled: !!userInfo
+      }
+    );
     /**
      *
      * @param {string} date
@@ -42,6 +52,9 @@ export default function ClassDetail() {
         setIsTeacher(true);
         }
     }, [userInfo]);
+
+  if ( isLoading) return <Skeleton count={20} />;
+
     return (
         <section className="container px-20 flex flex-col">
       <div className="class-top mb-10 flex">

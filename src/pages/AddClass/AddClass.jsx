@@ -1,22 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
-import "./index.scss";
-import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
-import {
-  auth,
-  db,
-  getFirebaseItems,
-  getFirebaseItemsWithCondition,
-  getFirebaseItemWithCondition,
-} from "../../lib/firebase";
-import { useAuth } from "../../contexts/AuthContext";
 import { Navigate } from "react-router";
 import Select from "react-select";
-import { getClassesLesson } from "../../lib/attendance";
-import wave from "../../assets/images/wave.png";
 import bg from "../../assets/images/bg.svg";
+import wave from "../../assets/images/wave.png";
+import { useAuth } from "../../contexts/AuthContext";
 import { createClass } from "../../lib/class";
+import {
+  getFirebaseItemsWithCondition
+} from "../../lib/firebase";
+import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
+import "./index.scss";
 
 export default function AddClass() {
   console.log("SignUp");

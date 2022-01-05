@@ -12,9 +12,18 @@ import {
 import { SuccessMessage, ErrorMessage } from "../../utils/toastify";
 import Skeleton from "react-loading-skeleton";
 import { useNavigate } from "react-router";
+import { useQuery } from "react-query";
+import { getClasses } from "../../lib/class";
 
 export default function Evaluation() {
-  const { currentUser, classes } = useAuth();
+  const { currentUser } = useAuth();
+  const { data: classes, isLoading } = useQuery(
+    ['getClasses', { currentUser:currentUser }],
+    getClasses,
+    {
+      enabled: !!currentUser
+    }
+  );
   const { classId } = useParams();
   const [state, setState] = useState({
     isEdit: false,
@@ -154,6 +163,8 @@ export default function Evaluation() {
       });
     });
   }
+
+  if ( isLoading) return <Skeleton count={20} />;
 
   return (
     <section className="container px-20 flex flex-col">

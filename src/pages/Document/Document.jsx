@@ -22,6 +22,9 @@ import {
   ref,
   deleteObject,
 } from "@firebase/storage";
+import { useQuery } from "react-query";
+import { getClasses } from "../../lib/class";
+import Skeleton from "react-loading-skeleton";
 
 export default function Document() {
   const [fileItems, setfileItems] = useState(null);
@@ -35,7 +38,14 @@ export default function Document() {
   const [fileUpload, setFileUpload] = useState("");
   let url = "";
 
-  const { currentUser: userInfo, classes } = useAuth();
+  const { currentUser: userInfo } = useAuth();
+  const { data: classes, isLoading } = useQuery(
+    ['getClasses', { currentUser:userInfo }],
+    getClasses,
+    {
+      enabled: !!userInfo
+    }
+  );
   /**
    *
    * @param {string} date
@@ -211,6 +221,8 @@ export default function Document() {
       setFileUpload('');
     }
   }, []);
+
+  if ( isLoading) return <Skeleton count={20} />;
 
   return (
     <section className="container px-20 flex flex-col">

@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import Skeleton from "react-loading-skeleton";
 import { useNavigate } from "react-router";
+import { getClasses } from "../../lib/class";
+import { useQuery } from "react-query";
 
 function Home() {
   const { currentUser } = useAuth();
@@ -23,10 +25,17 @@ function Home() {
         ]
       : ["クラス名", "人数", "クラス内容", "授業数", "主任教員", "アクション"]
   );
-  const { classes } = useAuth();
+  const { data: classes, isLoading } = useQuery(
+    ['getClasses', { currentUser:currentUser }],
+    getClasses,
+    {
+      enabled: !!currentUser
+    }
+  );
+
   console.log("home");
-  if (!currentUser || !classes) return <Skeleton count={20} />;
-  return (
+  if ( isLoading) return <Skeleton count={20} />;
+  return classes && (
     <section className="flex flex-col home px-24">
       <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
