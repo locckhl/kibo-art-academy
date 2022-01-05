@@ -42,6 +42,6 @@ export const getTalentInfoByClass = async (classID, talentId) => {
   }, 0);
 
   totalAchivement = totalAchivement / achivements.length;
-  totalAttendance = totalAttendance / attendances.length;
+  totalAttendance = `${totalAttendance}/${attendances.length}`;
   return { totalAttendance, totalAchivement };
 };

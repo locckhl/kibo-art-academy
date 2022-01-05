@@ -274,7 +274,7 @@ export default function Evaluation() {
                                   {value.name}
                                 </div>
                               </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
+                              <td className="px-6 py-4 whitespace-nowrap"  onClick={(e)=>e.stopPropagation()}>
                                 <div className="text-sm text-gray-900 text-center">
                                   <input
                                     style={{
@@ -290,6 +290,7 @@ export default function Evaluation() {
                                     onChange={(e) =>
                                       handleEditScore(key, e.target.value)
                                     }
+                                    
                                   />
                                 </div>
                               </td>

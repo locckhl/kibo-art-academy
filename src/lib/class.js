@@ -74,7 +74,7 @@ export const getClasses = async ({ queryKey }) => {
           const { totalAttendance, totalAchivement } =
             await getTalentInfoByClass(classList[i].id, userInfo.email);
           classList[i].totalAttendance = totalAttendance;
-          classList[i].totalAchivement = totalAchivement;
+          classList[i].totalAchivement = Math.round(totalAchivement);
           classes.push(classList[i]);
         }
       }

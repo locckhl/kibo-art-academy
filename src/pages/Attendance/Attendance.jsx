@@ -34,10 +34,10 @@ export default function Attendance() {
 
   const { currentUser } = useAuth();
   const { data: classes, isLoading } = useQuery(
-    ['getClasses', { currentUser:currentUser }],
+    ["getClasses", { currentUser: currentUser }],
     getClasses,
     {
-      enabled: !!currentUser
+      enabled: !!currentUser,
     }
   );
   console.log("Attendance");
@@ -53,7 +53,7 @@ export default function Attendance() {
   }, [classUID]);
 
   React.useEffect(() => {
-    setTalents(null)
+    setTalents(null);
     const getAllStudent = async () => {
       // console.log(classUID, lessonList[lesson]?.id)
       await getAllTalentsByClassUID(classUID, lessonList[lesson]?.id).then(
@@ -105,7 +105,7 @@ export default function Attendance() {
     }
   }, [lessonList, lesson, currentUser]);
 
-  if ( isLoading) return <Skeleton count={20} />;
+  if (isLoading) return <Skeleton count={20} />;
 
   return (
     <section className="container px-20 flex flex-col">
@@ -171,9 +171,13 @@ export default function Attendance() {
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {talents?.map((talent, index) => (
-                          <tr key={talent.userID} className="cursor-pointer" onClick={(e)=>{
-                            naviagate(`/profile/${talent.userID}`);
-                          }}>
+                          <tr
+                            key={talent.userID}
+                            className="cursor-pointer"
+                            onClick={(e) => {
+                              naviagate(`/profile/${talent.userID}`);
+                            }}
+                          >
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm font-medium text-gray-900 text-center">
                                 {index + 1}
@@ -197,7 +201,11 @@ export default function Attendance() {
                                 )}
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+
+                            <td
+                              className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               {loading ? (
                                 <i
                                   className={`fas fa-circle-notch fa-spin `}

@@ -5,9 +5,7 @@ import bg from "../../assets/images/bg.svg";
 import wave from "../../assets/images/wave.png";
 import { useAuth } from "../../contexts/AuthContext";
 import { createClass } from "../../lib/class";
-import {
-  getFirebaseItemsWithCondition
-} from "../../lib/firebase";
+import { getFirebaseItemsWithCondition } from "../../lib/firebase";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
 import "./index.scss";
 
@@ -28,7 +26,7 @@ export default function AddClass() {
   const [dateEnd, setDateEnd] = useState("");
   const [teacher, setTeacher] = useState("");
   const [classTalents, setClassTalents] = useState("");
-  
+
   const [talents, setTalents] = useState("");
   const [teachers, setTeachers] = useState("");
 
@@ -62,20 +60,16 @@ export default function AddClass() {
       dateBegin,
       dateEnd,
       teacher,
-      talents:classTalents,
-      user
-    }).then(()=>{
-
+      talents: classTalents,
+      user,
+    })
+      .then(() => {
         SuccessMessage("追加成功");
-    }
-    )
-    .catch((err)=>{
+      })
+      .catch((err) => {
         ErrorMessage("追加失敗");
         console.log(err);
-    })
-
-    
-    ;
+      });
   };
 
   const checkTitle = () => {
@@ -184,7 +178,7 @@ export default function AddClass() {
 
               <div className={`input-div one ${isTitleFocus ? "focus" : ""}`}>
                 <div className="i">
-                  <i className="fas fa-user"></i>
+                  <i class="fas fa-file-alt"></i>
                 </div>
                 <div className="div ">
                   <h5 className={`${title ? "hidden" : ""}`}>クラスタイトル</h5>
@@ -208,7 +202,7 @@ export default function AddClass() {
 
               <div className={`input-div one ${isSummaryFocus ? "focus" : ""}`}>
                 <div className="i">
-                  <i className="fas fa-user"></i>
+                  <i class="fas fa-align-right"></i>
                 </div>
                 <div className="div ">
                   <h5 className={`${summary ? "hidden" : ""}`}>クラス内容</h5>
@@ -234,7 +228,7 @@ export default function AddClass() {
                 className={`input-div one ${isNumLessonsFocus ? "focus" : ""}`}
               >
                 <div className="i">
-                  <i className="fas fa-user"></i>
+                  <i class="fas fa-sort-numeric-up-alt"></i>
                 </div>
                 <div className="div ">
                   <h5 className={`${numLessons ? "hidden" : ""}`}>授業数</h5>
@@ -255,15 +249,17 @@ export default function AddClass() {
                   />
                 </div>
               </div>
-
+              <div className="text-left mt-5" style={{ color: "#999" }}>
+                開始日
+              </div>
               <div
                 className={`input-div pass ${isDateBeginFocus ? "focus" : ""}`}
+                style={{ margin: 0 }}
               >
                 <div className="i">
-                  <i className="fas fa-envelope"></i>
+                  <i class="fas fa-calendar-alt"></i>
                 </div>
                 <div className="div ">
-                  <h5 className={`${dateBegin ? "hidden" : ""}`}>開始日</h5>
                   <input
                     onChange={(e) => {
                       setDateBegin(e.target.value);
@@ -281,15 +277,17 @@ export default function AddClass() {
                   />
                 </div>
               </div>
-
+              <div className="text-left mt-5" style={{ color: "#999" }}>
+                終了日
+              </div>
               <div
                 className={`input-div pass ${isDateEndFocus ? "focus" : ""}`}
+                style={{ margin: 0 }}
               >
                 <div className="i">
-                  <i className="fas fa-envelope"></i>
+                  <i class="fas fa-calendar-alt"></i>
                 </div>
                 <div className="div ">
-                  <h5 className={`${dateEnd ? "hidden" : ""}`}>終了日</h5>
                   <input
                     onChange={(e) => {
                       setDateEnd(e.target.value);

@@ -1,12 +1,11 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import "./index.scss";
-import { useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import React, { useState } from "react";
 import Skeleton from "react-loading-skeleton";
-import { useNavigate } from "react-router";
-import { getClasses } from "../../lib/class";
 import { useQuery } from "react-query";
+import { useNavigate } from "react-router";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { getClasses } from "../../lib/class";
+import "./index.scss";
 
 function Home() {
   const { currentUser } = useAuth();
@@ -95,8 +94,8 @@ function Home() {
                       {item.teacherName}
                     </td>
 
-                    {/* Admin */}
-                    {currentUser.role === 0 && (
+                    {/* Admin && Teacher */} 
+                    {(currentUser.role === 0 || currentUser.role === 1)  && (
                       <td className="px-6 py-4 flex whitespace-nowrap">
                         <div className="flex-auto">
                           {" "}
@@ -129,48 +128,16 @@ function Home() {
                       </td>
                     )}
 
-                    {/* Teacher */}
-                    {item.teacherID === currentUser.userID && (
-                      <td className="px-6 py-4 flex whitespace-nowrap">
-                        <div className="flex-auto">
-                          {" "}
-                          <Link
-                            to={`/attendance/${item.id}`}
-                            className="text-indigo-600 hover:text-indigo-900"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            出欠
-                          </Link>
-                        </div>
-                        <div className="flex-auto">
-                          <Link
-                            to={`/evaluation/${item.id}`}
-                            className="text-indigo-600 hover:text-indigo-900"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            評価
-                          </Link>
-                        </div>
-                        <div className="flex-auto">
-                          <Link
-                            to={`/document/${item.id}`}
-                            className="text-indigo-600 hover:text-indigo-900"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            資料
-                          </Link>
-                        </div>
-                      </td>
-                    )}
+                    
 
                     {/* Talent  */}
                     {currentUser.role === 2 && (
                       <>
                         <td className="text-sm text-center font-medium text-gray-600">
-                          {Number.parseFloat(item.totalAttendance) * 100} %
+                          {item.totalAttendance} 
                         </td>
                         <td className="text-sm text-center font-medium text-gray-600">
-                          {item.totalAchivement}
+                          {item.totalAchivement}/100
                         </td>
                         <td className="px-6 py-4 flex whitespace-nowrap">
                           <div className="flex-auto text-center">
