@@ -1,6 +1,7 @@
-import { getAuth, updatePassword } from "@firebase/auth";
+import {
+  EmailAuthProvider, getAuth, reauthenticateWithCredential, updatePassword
+} from "@firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { db } from "../../lib/firebase";
 import React, { useEffect, useState } from "react";
 import Skeleton from "react-loading-skeleton";
 import { useParams } from "react-router";
@@ -9,22 +10,48 @@ import defaultAvatar from "../../assets/images/user.png";
 import ProfileEdit from "../../components/ProfileEdit/ProfileEdit";
 import { useAuth } from "../../contexts/AuthContext";
 import {
+  auth,
+  db,
   getFirebaseItems,
   getFirebaseItemWithCondition,
   updateItemFireBase,
-  uploadImage,
+  uploadImage
 } from "../../lib/firebase";
+import { ErrorMessage } from "../../utils/toastify";
 import "./index.scss";
 
 export default function Profile() {
   const [open, setOpen] = useState(false);
-  const { currentUser, setCurrentUser } = useAuth();
+  const { currentUser } = useAuth();
   const [talent, setTalent] = useState(null);
   const [classes, setClasses] = useState(null);
   const { userId: talentId } = useParams();
 
+  const checkCurrentPass = async (oldPass) => {
+    let result = true;
+    try {
+      console.log(auth.currentUser.email, oldPass);
+      const response = await reauthenticateWithCredential(
+        auth.currentUser,
+        EmailAuthProvider.credential(auth.currentUser.email, oldPass)
+      );
+      console.log(response, "response");
+    } catch (error) {
+      switch (error.code) {
+        case "auth/wrong-password":
+          ErrorMessage("Wrong old password entered");
+          break;
+        default:
+          ErrorMessage("パスワード編集失敗");
+          console.log(error.message);
+          result = false;
+      }
+    }
+    return result;
+  };
+
   const onSubmit = async (data, callback) => {
-    const { password, cfPassword, valueInputFile } = data;
+    const { password, cfPassword, valueInputFile, oldPass } = data;
     let url = "";
     let newData = currentUser;
     if (valueInputFile) {
@@ -42,19 +69,29 @@ export default function Profile() {
       }
       callback(null);
     }
+
+    if (!checkCurrentPass(oldPass)) {
+      return;
+    }
+
     if (password && cfPassword) {
       if (password === cfPassword) {
         try {
-          const user = await getAuth();
+          const user = getAuth();
           await updatePassword(user.currentUser, password);
           await setDoc(
             doc(db, "Users", user.currentUser.email),
             { password: password },
             { merge: true }
           );
+
           toast.success("パスワード編集成功");
         } catch (error) {
-          console.error(error);
+          switch (error.code) {
+            default:
+              ErrorMessage("パスワード編集失敗");
+              console.log(error.message);
+          }
         }
       } else {
         toast.error("エラー");
@@ -147,7 +184,9 @@ export default function Profile() {
 
               <ul className="ml-5 mt-7">
                 {classes.map((item, idx) => (
-                  <li key={idx} style={{listStyle:"initial"}}>{item.className}</li>
+                  <li key={idx} style={{ listStyle: "initial" }}>
+                    {item.className}
+                  </li>
                 ))}
               </ul>
             </div>
