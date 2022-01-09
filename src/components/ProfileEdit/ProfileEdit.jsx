@@ -5,31 +5,36 @@ import defaultAvatar from "../../assets/images/user.png";
 import "./index.scss";
 
 export default function ProfileEdit({ data, open, setOpen, onUpdate }) {
+  const [oldPass, setOldPass] = useState("");
   const [password, setPassword] = useState("");
   const [cfPassword, setCfPassword] = useState("");
 
+  const [isOldPassFocus, setIsOldPassFocus] = useState(false);
   const [isPassFocus, setIsPassFocus] = useState(false);
   const [isCfPassFocus, setIsCFPassFocus] = useState(false);
   const [imageUrl, setImageUrl] = useState(data?.imageUrl || null);
   const [valueInputFile, setvalueInputFile] = useState(null);
 
   const cancelButtonRef = useRef(null);
-  
+
   const onSubmit = () => {
-    onUpdate({password, cfPassword, valueInputFile}, setvalueInputFile)
-  }
-  
+    onUpdate({ password, cfPassword, valueInputFile, oldPass }, setvalueInputFile);
+    setPassword("");
+    setCfPassword("");
+    setOldPass("");
+  };
+
   const onChange = (e) => {
     setvalueInputFile(e.target.files[0]);
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
       reader.onload = function (e) {
-        setImageUrl(e.target.result)
+        setImageUrl(e.target.result);
       };
-  
+
       reader.readAsDataURL(e.target.files[0]);
     }
-  }
+  };
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -83,7 +88,7 @@ export default function ProfileEdit({ data, open, setOpen, onUpdate }) {
                         <div className="flex flex-col w-1/2">
                           <div className="avatar ">
                             <div className="avatar-container">
-                              <img src={imageUrl||defaultAvatar} alt=""/>
+                              <img src={imageUrl || defaultAvatar} alt="" />
                             </div>
                           </div>
                           <br />
@@ -91,7 +96,41 @@ export default function ProfileEdit({ data, open, setOpen, onUpdate }) {
                             <i className="fas fa-cloud-upload-alt mr-2"></i>{" "}
                             アバター編集 <br />
                           </label>
-                          <input type="file" id="avatar-file"  onChange={(e) => onChange(e)}/>
+                          <input
+                            type="file"
+                            id="avatar-file"
+                            onChange={(e) => onChange(e)}
+                          />
+                        </div>
+
+                        <div
+                          className={`input-div pass ${
+                            isOldPassFocus ? "focus" : ""
+                          }`}
+                        >
+                          <div className="i">
+                            <i className="fas fa-lock"></i>
+                          </div>
+                          <div className="div">
+                            <h5 className={`${oldPass ? "hidden" : ""}`}>
+                              旧パスワード
+                            </h5>
+                            <input
+                              onChange={(e) => {
+                                setOldPass(e.target.value);
+                              }}
+                              type="password"
+                              className="input"
+                              required
+                              onFocus={() => {
+                                setIsOldPassFocus(true);
+                              }}
+                              onBlur={() => {
+                                setIsOldPassFocus(false);
+                              }}
+                              name="password"
+                            />
+                          </div>
                         </div>
 
                         <div
@@ -161,14 +200,19 @@ export default function ProfileEdit({ data, open, setOpen, onUpdate }) {
                 <button
                   type="submit"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => {onSubmit()}}
+                  onClick={() => {
+                    onSubmit();
+                  }}
                 >
                   編集
                 </button>
                 <button
                   type="button"
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={() => {setOpen(false);setImageUrl(data?.imageUrl || null)}}
+                  onClick={() => {
+                    setOpen(false);
+                    setImageUrl(data?.imageUrl || null);
+                  }}
                   ref={cancelButtonRef}
                 >
                   キャンセル
