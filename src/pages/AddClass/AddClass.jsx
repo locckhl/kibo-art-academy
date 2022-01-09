@@ -31,45 +31,36 @@ export default function AddClass() {
   const [teachers, setTeachers] = useState("");
 
   const handleSignup = async () => {
-    if (!checkTitle()) {
-      return;
-    }
-    if (!checkSummary()) {
-      return;
-    }
-    if (!checkNumLessons()) {
-      return;
-    }
-    if (!checkDateBegin()) {
-      return;
-    }
-    if (!checkDateEnd()) {
-      return;
-    }
-    if (!checkTeacher()) {
-      return;
-    }
-    if (!checkTalents()) {
-      return;
-    }
-
-    await createClass({
-      title,
-      summary,
-      numLessons,
-      dateBegin,
-      dateEnd,
-      teacher,
-      talents: classTalents,
-      user,
-    })
-      .then(() => {
-        SuccessMessage("追加成功");
+    if (!validate()) return;
+    else {
+      await createClass({
+        title,
+        summary,
+        numLessons,
+        dateBegin,
+        dateEnd,
+        teacher,
+        talents: classTalents,
+        user,
       })
-      .catch((err) => {
-        ErrorMessage("追加失敗");
-        console.log(err);
-      });
+        .then(() => {
+          SuccessMessage("追加成功");
+        })
+        .catch((err) => {
+          ErrorMessage("追加失敗");
+          console.log(err);
+        });
+    }
+  };
+
+  const validate = () => {
+    return checkTitle() 
+    && checkSummary() 
+    && checkNumLessons() 
+    && checkDateBegin() 
+    && checkDateEnd() 
+    && checkTeacher() 
+    && checkTalents();
   };
 
   const checkTitle = () => {
@@ -92,8 +83,8 @@ export default function AddClass() {
 
   const checkNumLessons = () => {
     //check if numLessons is empty?
-    if (numLessons === "") {
-      ErrorMessage("numLessons cannot be empty");
+    if (numLessons === "" || numLessons <= 0) {
+      ErrorMessage("numLessons must be greater than 0 and cannot be empty ");
       return false;
     }
     return true;
@@ -109,8 +100,14 @@ export default function AddClass() {
   };
   const checkDateEnd = () => {
     //check if dateEnd is empty?
-    if (dateEnd === "") {
+    if (dateBegin === "") {
+      ErrorMessage("Must enter Date Begin first");
+      return false;
+    } else if (dateEnd === "") {
       ErrorMessage("dateEnd cannot be empty");
+      return false;
+    } else if (dateEnd <= dateBegin) {
+      ErrorMessage("dateEnd must be greater than dateBegin");
       return false;
     }
     return true;
