@@ -196,6 +196,7 @@ export default function AddClass() {
                       setIsTitleFocus(false);
                     }}
                     name="title"
+                    
                   />
                 </div>
               </div>
