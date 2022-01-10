@@ -35,6 +35,7 @@ export function AuthProvider({ children }) {
       setUser(user)
       getFirebaseItemWithCondition("Users", ["userID", "==", user?.uid]).then(
         (userInfo) => {
+          console.log("userInfo",userInfo);
           setCurrentUser(userInfo)
           // Get classes
           setLoading(false)

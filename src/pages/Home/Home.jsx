@@ -107,7 +107,7 @@ function Home() {
                         {/* Admin && Teacher */}
                         {currentUser.role === 0 && (
                           <>
-                            <td className="text-sm text-center font-medium text-gray-600">
+                            <td className="text-sm text-center font-medium text-gray-600 text-blue-600">
                               <button
                                 onClick={(event) => onEditClass(event, item)}
                               >
