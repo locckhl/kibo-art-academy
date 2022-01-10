@@ -187,7 +187,6 @@ export default function EditClass(props = {}) {
   }, [data]);
 
   console.log(teachers);
-  if (currentUser.role !== 0) return <Navigate to="/" />;
 
   return (
     data && (

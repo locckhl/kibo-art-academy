@@ -9,6 +9,8 @@ import "./index.scss"
 import EditClass from "./Section/EditClass"
 
 function Home() {
+
+  console.log("Home")
   const { currentUser } = useAuth()
   const naviagate = useNavigate()
   const [titleColumns] = useState(
