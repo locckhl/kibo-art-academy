@@ -1,20 +1,100 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment, useState } from "react";
+import { createLesson } from "../../lib/classInfo";
+import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
+import { useParams } from "react-router";
+import { collection, getDocs } from "@firebase/firestore";
+import { db } from "../../lib/firebase";
 import "./index.scss";
 export default function AddLesson(props = {}) {
   const { open, setOpen, data } = props;
+  const { classId } = useParams();
+  const [classUID, setClassesUID] = useState(classId);
   const [isTitleFocus, setIsTitleFocus] = useState(false);
   const [isDateEndFocus, setIsDateEndFocus] = useState(false);
 
-  const [title, setTitle] = useState(data?.title);
-  const [dateEnd, setDateEnd] = useState(data?.dateEnd);
+  const [title, setTitle] = useState("");
+  const [dateEnd, setDateEnd] = useState("");
+
+  const handleSignup = async () => {
+    const classes = (
+      await getDocs(collection(db, "Classes"))
+    ).docs;
+    let classesFormatted = []
+    for (let index = 0; index < classes.length; index++) {
+      const element = classes[index];
+      if (element.id === classUID) {
+        classesFormatted.push({info: element.data(), classId: element.id})
+      }
+    }
+    const classInfo = classesFormatted.filter(item => item.classId = classUID)[0]
+    console.log(classInfo,"classInfo")
+    const classLessons = (
+      await getDocs(collection(db, "Classes", classUID, "ClassLessons"))
+    ).docs;
+    const classTalents = (
+      await getDocs(collection(db, "Classes", classUID, "ClassTalents"))
+    ).docs;
+    const talents = classTalents.map((talent) => talent.data());
+    const lessons = classLessons.map((lesson) => lesson.data());
+    const dateBeginClass = classInfo.info.dateBegin.seconds
+    const dateEndClass = classInfo.info.dateEnd.seconds
+    const dateLesson = (new Date(dateEnd).getTime()) / 1000
+    const dateFormatted = new Date(dateEnd)
+    if (!validate(dateBeginClass, dateEndClass, dateLesson, lessons.length, parseInt(classInfo.info.numLessons) )) return;
+    await createLesson({
+      title,
+      dateFormatted,
+      classUID,
+      talentIds: talents[0].talentIDs
+    })
+      .then(() => {
+        SuccessMessage("追加成功");
+        setOpen(false);
+      })
+      .catch((err) => {
+        ErrorMessage("追加失敗");
+        console.log(err);
+      });
+  };
+
+  const validate = (dateBeginClass, dateEndClass, dateLesson, currentLessons, numLessons) => {
+    return checkTitle() && checkDate(dateBeginClass, dateEndClass, dateLesson) && checkNumLessons(currentLessons, numLessons)
+  };
+
+  const checkTitle = () => {
+    if (title === "") {
+      ErrorMessage("title cannot be empty");
+      return false;
+    }
+    return true;
+  };
+
+  const checkDate = (dateBeginClass, dateEndClass, dateLesson) => {
+    if (dateEnd === "") {
+      ErrorMessage("date cannot be empty");
+      return false;
+    }
+    if (dateLesson  < dateBeginClass || dateLesson > dateEndClass) {
+      ErrorMessage("The date must be between the start and end date of the class");
+      return false;
+    }
+    return true
+  }
+
+  const checkNumLessons = (currentLessons, numLessons) => {
+    if (currentLessons >= numLessons) {
+      ErrorMessage("The number of lessons in the class is full");
+      return false;
+    }
+      return true
+  }
 
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
         as="div"
         className="fixed z-10 inset-0 overflow-y-auto"
-        // initialFocus={cancelButtonRef}
         onClose={setOpen}
       >
         <div className="flex items-end justify-center text-center">
@@ -29,8 +109,6 @@ export default function AddLesson(props = {}) {
           >
             <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
           </Transition.Child>
-
-          {/* This element is to trick the browser into centering the modal contents. */}
           <span
             className="hidden sm:inline-block sm:align-middle sm:h-screen"
             aria-hidden="true"
@@ -46,24 +124,16 @@ export default function AddLesson(props = {}) {
             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all">
+            <div className="inline-block my-auto bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all">
               <div className="bg-white">
                 <div className="w-full">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    {/* <Dialog.Title
-                      as="h3"
-                      className="text-lg leading-6 font-medium text-gray-900 text-center font-bold"
-                    >
-                      レッソン追加
-                    </Dialog.Title> */}
                     <section className="signin flex justify-center text-center mt-10">
                       <div className="flex justify-center flex p-10 w-50 sm:mt-0 sm:ml-4">
-                        {/* <div className="login-content"> */}
                         <form action="index.html">
                           <h3 className="title font-bold text-lg mb-10">
                           レッソン追加
                           </h3>
-
                           <div
                             className={`input-div one ${
                               isTitleFocus ? "focus" : ""
@@ -93,7 +163,6 @@ export default function AddLesson(props = {}) {
                               />
                             </div>
                           </div>
-
                           <div
                             className="text-left mt-5"
                             style={{ color: "#999" }}
@@ -127,18 +196,7 @@ export default function AddLesson(props = {}) {
                               />
                             </div>
                           </div>
-
-                          {/* <input
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    handleSignup();
-                                  }}
-                                  type="submit"
-                                  className="btn"
-                                  value="追加"
-                                /> */}
                         </form>
-                        {/* </div> */}
                       </div>
                     </section>
                   </div>
@@ -149,7 +207,7 @@ export default function AddLesson(props = {}) {
                   type="submit"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={() => {
-                    //   handleSignup();
+                      handleSignup();
                   }}
                 >
                   編集
