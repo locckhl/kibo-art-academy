@@ -1,8 +1,11 @@
 import React from "react";
-import { useState} from "react";
+import { useState } from "react";
+import AddClass from "../../pages/AddClass/AddClass";
 
 export default function ClassInfo({ classInfo, classes, changeClassId }) {
   const [classId, setClassId] = useState(classInfo.id);
+  const [editClass, setEditClass] = React.useState(null);
+  const [showModal, setShowModal] = React.useState(false);
   return (
     <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
       <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -22,7 +25,8 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
               <tr key="title">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900 pl-10">
-                    クラス名: {classInfo?.className}<br />
+                    クラス名: {classInfo?.className}
+                    <br />
                     人数: {classInfo?.numTalents}
                     <br />
                     クラス内容: {classInfo?.summary}
@@ -37,16 +41,26 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
                   <div className="text-sm font-medium text-gray-900 flex flex-col">
                     <div className="class-list mx-auto my-2">
                       <label for="dates">クラスリスト：</label>
-                      <select defaultValue={classInfo.id} onChange={(event)=> {setClassId(event.target.value)}} name="dates" id="">
-                        {classes.map((item,idx) => (
-                        <option  key={idx} value={item.id}>{item.className}</option>))}
+                      <select
+                        defaultValue={classInfo.id}
+                        onChange={(event) => {
+                          setClassId(event.target.value);
+                        }}
+                        name="dates"
+                        id=""
+                      >
+                        {classes.map((item, idx) => (
+                          <option key={idx} value={item.id}>
+                            {item.className}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div className="class-action mx-auto ">
                       <button
                         className="btn"
-                        onClick={()=> {
-                          changeClassId(classId)
+                        onClick={() => {
+                          changeClassId(classId);
                         }}
                       >
                         クラス変更
@@ -59,6 +73,7 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
           </table>
         </div>
       </div>
+      {/* <AddClass data={editClass} open={showModal} setOpen={setShowModal} /> */}
     </div>
   );
 }
