@@ -1,18 +1,17 @@
-import React, { useState } from "react"
-import Skeleton from "react-loading-skeleton"
-import { useQuery } from "react-query"
-import { useNavigate } from "react-router"
-import { Link } from "react-router-dom"
-import { useAuth } from "../../contexts/AuthContext"
-import { getClasses } from "../../lib/class"
-import "./index.scss"
-import EditClass from "./Section/EditClass"
+import React, { useState } from "react";
+import Skeleton from "react-loading-skeleton";
+import { useQuery } from "react-query";
+import { useNavigate } from "react-router";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { getClasses } from "../../lib/class";
+import "./index.scss";
+import EditClass from "./Section/EditClass";
 
 function Home() {
-
-  console.log("Home")
-  const { currentUser } = useAuth()
-  const naviagate = useNavigate()
+  console.log("Home");
+  const { currentUser } = useAuth();
+  const naviagate = useNavigate();
   const [titleColumns] = useState(
     currentUser.role === 2
       ? [
@@ -26,25 +25,42 @@ function Home() {
           "アクション",
         ]
       : ["クラス名", "人数", "クラス内容", "授業数", "主任教員", "アクション"]
-  )
-  const { data: classes, isLoading } = useQuery(
+  );
+  const { data, isLoading } = useQuery(
     ["getClasses", { currentUser: currentUser }],
     getClasses,
     {
       enabled: !!currentUser,
       refetchOnWindowFocus: false,
     }
-  )
-  const [editClass, setEditClass] = React.useState(null)
-  const [showModal, setShowModal] = React.useState(false)
+  );
+  const [editClass, setEditClass] = React.useState(null);
+  const [showModal, setShowModal] = React.useState(false);
 
   const onEditClass = (event, item) => {
-    event.stopPropagation()
-    setEditClass(item)
-    setShowModal(true)
-  }
+    event.stopPropagation();
+    setEditClass(item);
+    setShowModal(true);
+  };
 
-  if (isLoading) return <Skeleton count={20} />
+  const classes = data.sort((a, b) => {
+    // If only classA is managed by teacher then classA show first
+    if (
+      a.teacherID === currentUser.userID &&
+      b.teacherID !== currentUser.userID
+    )
+      return -1;
+    // If only classB is managed by teacher then classB show first
+    if (
+      a.teacherID !== currentUser.userID &&
+      b.teacherID === currentUser.userID
+    )
+      return 1;
+    // If neither of above conditions is true then keep the order
+    return 0;
+  });
+
+  if (isLoading) return <Skeleton count={20} />;
   return (
     classes && (
       <>
@@ -82,7 +98,7 @@ function Home() {
                             : "cursor-pointer "
                         }`}
                         onClick={(e) => {
-                          naviagate(`/classDetail/${item.id}`)
+                          naviagate(`/classDetail/${item.id}`);
                         }}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -159,7 +175,10 @@ function Home() {
                               {item.totalAttendance}
                             </td>
                             <td className="text-sm text-center font-medium text-gray-600">
-                              {item.totalAchivement}/100
+                              {isNaN(item.totalAchivement)
+                                ? "-"
+                                : item.totalAchivement}
+                              /100
                             </td>
                             <td className="px-6 py-4 flex whitespace-nowrap">
                               <div className="flex-auto text-center">
@@ -190,6 +209,6 @@ function Home() {
         />
       </>
     )
-  )
+  );
 }
-export default Home
+export default Home;
