@@ -37,9 +37,20 @@ export default function EditClass(props = {}) {
    *
    * @param {string} date
    */
-   const formatTime = (stringSeconds) => {
+  const formatTime = (stringSeconds) => {
+    var Day;
+    var Month;
     const date = new Date(parseInt(stringSeconds) * 1000);
-    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    if (date.getMonth() < 9)
+      Month = `0${date.getMonth() + 1}`;
+    else
+      Month = `${date.getMonth() + 1}`;
+    if (date.getDate() < 10)
+      Day = `0${date.getDate()}`;
+    else
+      Day = `${date.getDate()}`;
+
+    return `${date.getFullYear()}-${Month}-${Day}`;
   };
 
   React.useEffect(() => {
@@ -255,9 +266,8 @@ export default function EditClass(props = {}) {
                             </h3>
 
                             <div
-                              className={`input-div one ${
-                                isTitleFocus ? "focus" : ""
-                              }`}
+                              className={`input-div one ${isTitleFocus ? "focus" : ""
+                                }`}
                             >
                               <div className="i">
                                 <i className="fas fa-file-alt"></i>
@@ -286,9 +296,8 @@ export default function EditClass(props = {}) {
                             </div>
 
                             <div
-                              className={`input-div one ${
-                                isSummaryFocus ? "focus" : ""
-                              }`}
+                              className={`input-div one ${isSummaryFocus ? "focus" : ""
+                                }`}
                             >
                               <div className="i">
                                 <i className="fas fa-align-right"></i>
@@ -317,9 +326,8 @@ export default function EditClass(props = {}) {
                             </div>
 
                             <div
-                              className={`input-div one ${
-                                isNumLessonsFocus ? "focus" : ""
-                              }`}
+                              className={`input-div one ${isNumLessonsFocus ? "focus" : ""
+                                }`}
                             >
                               <div className="i">
                                 <i className="fas fa-sort-numeric-up-alt"></i>
@@ -353,9 +361,8 @@ export default function EditClass(props = {}) {
                               開始日
                             </div>
                             <div
-                              className={`input-div pass ${
-                                isDateBeginFocus ? "focus" : ""
-                              }`}
+                              className={`input-div pass ${isDateBeginFocus ? "focus" : ""
+                                }`}
                               style={{ margin: 0 }}
                             >
                               <div className="i">
@@ -387,9 +394,8 @@ export default function EditClass(props = {}) {
                               終了日
                             </div>
                             <div
-                              className={`input-div pass ${
-                                isDateEndFocus ? "focus" : ""
-                              }`}
+                              className={`input-div pass ${isDateEndFocus ? "focus" : ""
+                                }`}
                               style={{ margin: 0 }}
                             >
                               <div className="i">
@@ -422,7 +428,7 @@ export default function EditClass(props = {}) {
                                 <i className="fas fa-users-cog"></i>
                               </div>
                               <div className="div ">
-                                　<h5 className="hidden">教師</h5>
+                                <h5 className="hidden">教師</h5>
                                 <select
                                   name="teacher"
                                   id="teacher"
@@ -449,7 +455,7 @@ export default function EditClass(props = {}) {
                               </div>
                             </div>
 
-                            <div style={{width: "600px"}}>
+                            <div style={{ width: "600px" }}>
                               <Select
                                 isMulti
                                 options={talents}

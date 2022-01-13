@@ -13,6 +13,26 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
   const [IsTalent, setIsTalent] = useState(false);
   const { currentUser: userInfo } = useAuth();
 
+  /**
+   *
+   * @param {string} date
+   */
+  const formatTime = (stringSeconds) => {
+    var Day;
+    var Month;
+    const date = new Date(parseInt(stringSeconds) * 1000);
+    if (date.getMonth() < 9)
+      Month = `0${date.getMonth() + 1}`;
+    else
+      Month = `${date.getMonth() + 1}`;
+    if (date.getDate() < 10)
+      Day = `0${date.getDate()}`;
+    else
+      Day = `${date.getDate()}`;
+
+    return `${date.getFullYear()}-${Month}-${Day}`;
+  };
+
   //check role
   useEffect(() => {
     setIsTalent(false);
@@ -61,6 +81,9 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
                     授業数: {IsTalent && classInfo?.numLessons}
                     {!IsTalent && `${currentLessonsNumer}/${classInfo?.numLessons}`}
                     <br />
+                    開始日: {formatTime(classInfo?.dateBegin.seconds)}
+                    <br />
+                    終了日: {formatTime(classInfo?.dateEnd.seconds)}
                   </div>
                 </td>
               </tr>
