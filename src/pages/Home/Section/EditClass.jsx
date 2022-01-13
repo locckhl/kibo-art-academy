@@ -33,6 +33,15 @@ export default function EditClass(props = {}) {
   const [teachers, setTeachers] = useState([]);
   const [classTalentId, setClassesTalentId] = useState("");
 
+  /**
+   *
+   * @param {string} date
+   */
+   const formatTime = (stringSeconds) => {
+    const date = new Date(parseInt(stringSeconds) * 1000);
+    return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+  };
+
   React.useEffect(() => {
     if (data) {
       setTitle(data.className);
@@ -367,7 +376,7 @@ export default function EditClass(props = {}) {
                                     setIsDateBeginFocus(false);
                                   }}
                                   name="dateBegin"
-                                  defaultValue={data?.dateBegin}
+                                  defaultValue={formatTime(data?.dateBegin.seconds)}
                                 />
                               </div>
                             </div>
@@ -401,7 +410,7 @@ export default function EditClass(props = {}) {
                                     setIsDateEndFocus(false);
                                   }}
                                   name="dateEnd"
-                                  defaultValue={data?.dateEnd}
+                                  defaultValue={formatTime(data?.dateEnd.seconds)}
                                 />
                               </div>
                             </div>
