@@ -1,5 +1,8 @@
 import {
-  EmailAuthProvider, getAuth, reauthenticateWithCredential, updatePassword
+  EmailAuthProvider,
+  getAuth,
+  reauthenticateWithCredential,
+  updatePassword,
 } from "@firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
@@ -15,7 +18,7 @@ import {
   getFirebaseItems,
   getFirebaseItemWithCondition,
   updateItemFireBase,
-  uploadImage
+  uploadImage,
 } from "../../lib/firebase";
 import { ErrorMessage } from "../../utils/toastify";
 import "./index.scss";
@@ -40,6 +43,7 @@ export default function Profile() {
       switch (error.code) {
         case "auth/wrong-password":
           ErrorMessage("Wrong old password entered");
+          result = false;
           break;
         default:
           ErrorMessage("パスワード編集失敗");
@@ -70,9 +74,7 @@ export default function Profile() {
       callback(null);
     }
 
-    if (!checkCurrentPass(oldPass)) {
-      return;
-    }
+    if (!(await checkCurrentPass(oldPass))) return;
 
     if (password && cfPassword) {
       if (password === cfPassword) {
