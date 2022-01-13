@@ -1,11 +1,39 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddClass from "../../pages/AddClass/AddClass";
+import { useAuth } from "../../contexts/AuthContext";
+import { db } from "../../lib/firebase";
+import { collection, onSnapshot } from "firebase/firestore";
 
 export default function ClassInfo({ classInfo, classes, changeClassId }) {
   const [classId, setClassId] = useState(classInfo.id);
   const [editClass, setEditClass] = React.useState(null);
   const [showModal, setShowModal] = React.useState(false);
+  const [maxLessonsNumber, setmaxLessonsNumber] = useState("");
+  const [currentLessonsNumer, setcurrentLessonsNumer] = useState("");
+  const [IsTalent, setIsTalent] = useState(false);
+  const { currentUser: userInfo } = useAuth();
+
+  //check role
+  useEffect(() => {
+    setIsTalent(false);
+    if (parseInt(userInfo.role) === 2) {
+      setIsTalent(true);
+    }
+  }, [userInfo]);
+
+  //get lessons number
+  useEffect(() => {
+    let refer = collection(db, "Classes", classInfo.id, "ClassLessons");
+    const unsub = onSnapshot(
+      refer,
+      (snapshot) => {
+        setcurrentLessonsNumer(snapshot.size);
+      }
+    )
+    return () => unsub();
+  }, [classInfo])
+
   return (
     <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
       <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -31,7 +59,8 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
                     <br />
                     クラス内容: {classInfo?.summary}
                     <br />
-                    授業数: {classInfo?.numLessons}
+                    授業数: {IsTalent && classInfo?.numLessons}
+                    {!IsTalent && `${currentLessonsNumer}/${classInfo?.numLessons}`}
                     <br />
                   </div>
                 </td>
