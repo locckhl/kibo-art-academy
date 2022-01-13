@@ -8,6 +8,7 @@ import { createClass } from "../../lib/class";
 import { getFirebaseItemsWithCondition } from "../../lib/firebase";
 import { ErrorMessage, SuccessMessage } from "../../utils/toastify";
 import "./index.scss";
+import { Timestamp } from "firebase/firestore";
 
 export default function AddClass() {
   console.log("SignUp");
@@ -260,7 +261,7 @@ export default function AddClass() {
                 <div className="div ">
                   <input
                     onChange={(e) => {
-                      setDateBegin(e.target.value);
+                      setDateBegin(Timestamp.fromDate(new Date(e.target.value)));
                     }}
                     type="date"
                     className="input"
@@ -271,7 +272,7 @@ export default function AddClass() {
                     onBlur={() => {
                       setIsDateBeginFocus(false);
                     }}
-                    name="dateBegin"
+                    id="dateBegin"
                   />
                 </div>
               </div>
@@ -288,7 +289,7 @@ export default function AddClass() {
                 <div className="div ">
                   <input
                     onChange={(e) => {
-                      setDateEnd(e.target.value);
+                      setDateEnd(Timestamp.fromDate(new Date(e.target.value)));
                     }}
                     type="date"
                     className="input"
@@ -299,7 +300,7 @@ export default function AddClass() {
                     onBlur={() => {
                       setIsDateEndFocus(false);
                     }}
-                    name="dateEnd"
+                    id="dateEnd"
                   />
                 </div>
               </div>

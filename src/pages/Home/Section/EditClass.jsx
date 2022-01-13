@@ -8,6 +8,7 @@ import { ErrorMessage, SuccessMessage } from "../../../utils/toastify";
 import { Dialog, Transition } from "@headlessui/react";
 import "./index.scss";
 import { getAllTalentsByClassID } from "../../../lib/home";
+import { Timestamp } from "firebase/firestore";
 
 export default function EditClass(props = {}) {
   const { open, setOpen, data } = props;
@@ -31,6 +32,26 @@ export default function EditClass(props = {}) {
   const [talents, setTalents] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [classTalentId, setClassesTalentId] = useState("");
+
+  /**
+   *
+   * @param {string} date
+   */
+  const formatTime = (stringSeconds) => {
+    var Day;
+    var Month;
+    const date = new Date(parseInt(stringSeconds) * 1000);
+    if (date.getMonth() < 9)
+      Month = `0${date.getMonth() + 1}`;
+    else
+      Month = `${date.getMonth() + 1}`;
+    if (date.getDate() < 10)
+      Day = `0${date.getDate()}`;
+    else
+      Day = `${date.getDate()}`;
+
+    return `${date.getFullYear()}-${Month}-${Day}`;
+  };
 
   React.useEffect(() => {
     if (data) {
@@ -245,9 +266,8 @@ export default function EditClass(props = {}) {
                             </h3>
 
                             <div
-                              className={`input-div one ${
-                                isTitleFocus ? "focus" : ""
-                              }`}
+                              className={`input-div one ${isTitleFocus ? "focus" : ""
+                                }`}
                             >
                               <div className="i">
                                 <i className="fas fa-file-alt"></i>
@@ -276,9 +296,8 @@ export default function EditClass(props = {}) {
                             </div>
 
                             <div
-                              className={`input-div one ${
-                                isSummaryFocus ? "focus" : ""
-                              }`}
+                              className={`input-div one ${isSummaryFocus ? "focus" : ""
+                                }`}
                             >
                               <div className="i">
                                 <i className="fas fa-align-right"></i>
@@ -307,9 +326,8 @@ export default function EditClass(props = {}) {
                             </div>
 
                             <div
-                              className={`input-div one ${
-                                isNumLessonsFocus ? "focus" : ""
-                              }`}
+                              className={`input-div one ${isNumLessonsFocus ? "focus" : ""
+                                }`}
                             >
                               <div className="i">
                                 <i className="fas fa-sort-numeric-up-alt"></i>
@@ -343,9 +361,8 @@ export default function EditClass(props = {}) {
                               開始日
                             </div>
                             <div
-                              className={`input-div pass ${
-                                isDateBeginFocus ? "focus" : ""
-                              }`}
+                              className={`input-div pass ${isDateBeginFocus ? "focus" : ""
+                                }`}
                               style={{ margin: 0 }}
                             >
                               <div className="i">
@@ -354,7 +371,7 @@ export default function EditClass(props = {}) {
                               <div className="div ">
                                 <input
                                   onChange={(e) => {
-                                    setDateBegin(e.target.value);
+                                    setDateBegin(Timestamp.fromDate(new Date(e.target.value)));
                                   }}
                                   type="date"
                                   className="input"
@@ -366,7 +383,7 @@ export default function EditClass(props = {}) {
                                     setIsDateBeginFocus(false);
                                   }}
                                   name="dateBegin"
-                                  defaultValue={data?.dateBegin}
+                                  defaultValue={formatTime(data?.dateBegin.seconds)}
                                 />
                               </div>
                             </div>
@@ -377,9 +394,8 @@ export default function EditClass(props = {}) {
                               終了日
                             </div>
                             <div
-                              className={`input-div pass ${
-                                isDateEndFocus ? "focus" : ""
-                              }`}
+                              className={`input-div pass ${isDateEndFocus ? "focus" : ""
+                                }`}
                               style={{ margin: 0 }}
                             >
                               <div className="i">
@@ -388,7 +404,7 @@ export default function EditClass(props = {}) {
                               <div className="div ">
                                 <input
                                   onChange={(e) => {
-                                    setDateEnd(e.target.value);
+                                    setDateEnd(Timestamp.fromDate(new Date(e.target.value)));
                                   }}
                                   type="date"
                                   className="input"
@@ -400,7 +416,7 @@ export default function EditClass(props = {}) {
                                     setIsDateEndFocus(false);
                                   }}
                                   name="dateEnd"
-                                  defaultValue={data?.dateEnd}
+                                  defaultValue={formatTime(data?.dateEnd.seconds)}
                                 />
                               </div>
                             </div>
@@ -412,7 +428,7 @@ export default function EditClass(props = {}) {
                                 <i className="fas fa-users-cog"></i>
                               </div>
                               <div className="div ">
-                                　<h5 className="hidden">教師</h5>
+                                <h5 className="hidden">教師</h5>
                                 <select
                                   name="teacher"
                                   id="teacher"
@@ -439,7 +455,7 @@ export default function EditClass(props = {}) {
                               </div>
                             </div>
 
-                            <div style={{width: "600px"}}>
+                            <div style={{ width: "600px" }}>
                               <Select
                                 isMulti
                                 options={talents}

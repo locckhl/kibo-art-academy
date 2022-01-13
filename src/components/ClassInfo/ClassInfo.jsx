@@ -1,11 +1,58 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddClass from "../../pages/AddClass/AddClass";
+import { useAuth } from "../../contexts/AuthContext";
+import { db } from "../../lib/firebase";
+import { collection, onSnapshot } from "firebase/firestore";
 
 export default function ClassInfo({ classInfo, classes, changeClassId }) {
   const [classId, setClassId] = useState(classInfo.id);
   const [editClass, setEditClass] = React.useState(null);
   const [showModal, setShowModal] = React.useState(false);
+  const [currentLessonsNumer, setcurrentLessonsNumer] = useState("");
+  const [IsTalent, setIsTalent] = useState(false);
+  const { currentUser: userInfo } = useAuth();
+
+  /**
+   *
+   * @param {string} date
+   */
+  const formatTime = (stringSeconds) => {
+    var Day;
+    var Month;
+    const date = new Date(parseInt(stringSeconds) * 1000);
+    if (date.getMonth() < 9)
+      Month = `0${date.getMonth() + 1}`;
+    else
+      Month = `${date.getMonth() + 1}`;
+    if (date.getDate() < 10)
+      Day = `0${date.getDate()}`;
+    else
+      Day = `${date.getDate()}`;
+
+    return `${date.getFullYear()}-${Month}-${Day}`;
+  };
+
+  //check role
+  useEffect(() => {
+    setIsTalent(false);
+    if (parseInt(userInfo.role) === 2) {
+      setIsTalent(true);
+    }
+  }, [userInfo]);
+
+  //get lessons number
+  useEffect(() => {
+    let refer = collection(db, "Classes", classInfo.id, "ClassLessons");
+    const unsub = onSnapshot(
+      refer,
+      (snapshot) => {
+        setcurrentLessonsNumer(snapshot.size);
+      }
+    )
+    return () => unsub();
+  }, [classInfo])
+
   return (
     <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
       <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -31,8 +78,12 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
                     <br />
                     クラス内容: {classInfo?.summary}
                     <br />
-                    授業数: {classInfo?.numLessons}
+                    授業数: {IsTalent && classInfo?.numLessons}
+                    {!IsTalent && `${currentLessonsNumer}/${classInfo?.numLessons}`}
                     <br />
+                    開始日: {formatTime(classInfo?.dateBegin.seconds)}
+                    <br />
+                    終了日: {formatTime(classInfo?.dateEnd.seconds)}
                   </div>
                 </td>
               </tr>
