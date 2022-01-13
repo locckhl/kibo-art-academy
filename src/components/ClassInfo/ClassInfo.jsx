@@ -9,7 +9,6 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
   const [classId, setClassId] = useState(classInfo.id);
   const [editClass, setEditClass] = React.useState(null);
   const [showModal, setShowModal] = React.useState(false);
-  const [maxLessonsNumber, setmaxLessonsNumber] = useState("");
   const [currentLessonsNumer, setcurrentLessonsNumer] = useState("");
   const [IsTalent, setIsTalent] = useState(false);
   const { currentUser: userInfo } = useAuth();

@@ -8,6 +8,7 @@ import { ErrorMessage, SuccessMessage } from "../../../utils/toastify";
 import { Dialog, Transition } from "@headlessui/react";
 import "./index.scss";
 import { getAllTalentsByClassID } from "../../../lib/home";
+import { Timestamp } from "firebase/firestore";
 
 export default function EditClass(props = {}) {
   const { open, setOpen, data } = props;
@@ -354,7 +355,7 @@ export default function EditClass(props = {}) {
                               <div className="div ">
                                 <input
                                   onChange={(e) => {
-                                    setDateBegin(e.target.value);
+                                    setDateBegin(Timestamp.fromDate(new Date(e.target.value)));
                                   }}
                                   type="date"
                                   className="input"
@@ -388,7 +389,7 @@ export default function EditClass(props = {}) {
                               <div className="div ">
                                 <input
                                   onChange={(e) => {
-                                    setDateEnd(e.target.value);
+                                    setDateEnd(Timestamp.fromDate(new Date(e.target.value)));
                                   }}
                                   type="date"
                                   className="input"
