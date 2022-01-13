@@ -10,6 +10,8 @@ import EditClass from "./Section/EditClass";
 
 function Home() {
   console.log("Home");
+  const [editClass, setEditClass] = React.useState(null);
+  const [showModal, setShowModal] = React.useState(false);
   const { currentUser } = useAuth();
   const naviagate = useNavigate();
   const [titleColumns] = useState(
@@ -34,8 +36,8 @@ function Home() {
       refetchOnWindowFocus: false,
     }
   );
-  const [editClass, setEditClass] = React.useState(null);
-  const [showModal, setShowModal] = React.useState(false);
+
+  if (isLoading) return <Skeleton count={20} />;
 
   const onEditClass = (event, item) => {
     event.stopPropagation();
@@ -60,9 +62,8 @@ function Home() {
     return 0;
   });
 
-  if (isLoading) return <Skeleton count={20} />;
   return (
-    classes && (
+    data && (
       <>
         <section className="flex flex-col home px-24">
           <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">

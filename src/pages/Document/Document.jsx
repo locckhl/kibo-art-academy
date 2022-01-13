@@ -43,7 +43,8 @@ export default function Document() {
     ['getClasses', { currentUser:userInfo }],
     getClasses,
     {
-      enabled: !!userInfo
+      enabled: !!userInfo,
+      refetchOnWindowFocus: false,
     }
   );
   /**

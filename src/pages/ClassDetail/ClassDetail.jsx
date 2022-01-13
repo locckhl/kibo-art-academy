@@ -25,6 +25,7 @@ export default function ClassDetail() {
     getClasses,
     {
       enabled: !!userInfo,
+      refetchOnWindowFocus: false,
     }
   );
   /**

@@ -38,6 +38,7 @@ export default function Attendance() {
     getClasses,
     {
       enabled: !!currentUser,
+      refetchOnWindowFocus: false,
     }
   );
   console.log("Attendance");

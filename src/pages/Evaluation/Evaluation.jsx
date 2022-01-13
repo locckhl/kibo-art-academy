@@ -21,7 +21,8 @@ export default function Evaluation() {
     ['getClasses', { currentUser:currentUser }],
     getClasses,
     {
-      enabled: !!currentUser
+      enabled: !!currentUser,
+      refetchOnWindowFocus: false,
     }
   );
   const { classId } = useParams();
