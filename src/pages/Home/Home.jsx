@@ -32,6 +32,7 @@ function Home() {
     getClasses,
     {
       enabled: !!currentUser,
+      refetchOnWindowFocus: false,
     }
   )
   const [editClass, setEditClass] = React.useState(null)
