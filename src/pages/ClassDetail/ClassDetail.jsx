@@ -19,7 +19,7 @@ export default function ClassDetail() {
   const [showModal, setShowModal] = React.useState(false);
 
   const { currentUser } = useAuth();
-  const { data: classes, isLoading } = useQuery(
+  const { data: classes, isLoading, refetch } = useQuery(
     ["getClasses", { currentUser: currentUser }],
     getClasses,
     {
@@ -48,7 +48,7 @@ export default function ClassDetail() {
   };
   useEffect(() => {
     getClassInfo(classUID);
-  }, []);
+  }, [classes, classUID]);
   //check role
   useEffect(() => {
     setIsTeacher(false);
@@ -147,7 +147,7 @@ export default function ClassDetail() {
           />
           </div>
         </div>
-      <AddLesson data={editClass} open={showModal} setOpen={setShowModal} />
+      <AddLesson data={editClass} open={showModal} setOpen={setShowModal} refetch={refetch}/>
       </div>
     </section>
   );

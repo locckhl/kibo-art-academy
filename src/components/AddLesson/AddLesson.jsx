@@ -7,7 +7,7 @@ import { collection, getDocs } from "@firebase/firestore";
 import { db } from "../../lib/firebase";
 import "./index.scss";
 export default function AddLesson(props = {}) {
-  const { open, setOpen, data } = props;
+  const { open, setOpen, data, refetch } = props;
   const { classId } = useParams();
   const [classUID, setClassesUID] = useState(classId);
   const [isTitleFocus, setIsTitleFocus] = useState(false);
@@ -17,18 +17,18 @@ export default function AddLesson(props = {}) {
   const [dateEnd, setDateEnd] = useState("");
 
   const handleSignup = async () => {
-    const classes = (
-      await getDocs(collection(db, "Classes"))
-    ).docs;
-    let classesFormatted = []
+    const classes = (await getDocs(collection(db, "Classes"))).docs;
+    let classesFormatted = [];
     for (let index = 0; index < classes.length; index++) {
       const element = classes[index];
       if (element.id === classUID) {
-        classesFormatted.push({info: element.data(), classId: element.id})
+        classesFormatted.push({ info: element.data(), classId: element.id });
       }
     }
-    const classInfo = classesFormatted.filter(item => item.classId = classUID)[0]
-    console.log(classInfo,"classInfo")
+    const classInfo = classesFormatted.filter(
+      (item) => (item.classId = classUID)
+    )[0];
+    console.log(classInfo, "classInfo");
     const classLessons = (
       await getDocs(collection(db, "Classes", classUID, "ClassLessons"))
     ).docs;
@@ -37,20 +37,30 @@ export default function AddLesson(props = {}) {
     ).docs;
     const talents = classTalents.map((talent) => talent.data());
     const lessons = classLessons.map((lesson) => lesson.data());
-    const dateBeginClass = classInfo.info.dateBegin.seconds
-    const dateEndClass = classInfo.info.dateEnd.seconds
-    const dateLesson = (new Date(dateEnd).getTime()) / 1000
-    const dateFormatted = new Date(dateEnd)
-    if (!validate(dateBeginClass, dateEndClass, dateLesson, lessons.length, parseInt(classInfo.info.numLessons) )) return;
+    const dateBeginClass = classInfo.info.dateBegin.seconds;
+    const dateEndClass = classInfo.info.dateEnd.seconds;
+    const dateLesson = new Date(dateEnd).getTime() / 1000;
+    const dateFormatted = new Date(dateEnd);
+    if (
+      !validate(
+        dateBeginClass,
+        dateEndClass,
+        dateLesson,
+        lessons.length,
+        parseInt(classInfo.info.numLessons)
+      )
+    )
+      return;
     await createLesson({
       title,
       dateFormatted,
       classUID,
-      talentIds: talents[0].talentIDs
+      talentIds: talents[0].talentIDs,
     })
       .then(() => {
         SuccessMessage("追加成功");
         setOpen(false);
+        refetch();
       })
       .catch((err) => {
         ErrorMessage("追加失敗");
@@ -58,8 +68,18 @@ export default function AddLesson(props = {}) {
       });
   };
 
-  const validate = (dateBeginClass, dateEndClass, dateLesson, currentLessons, numLessons) => {
-    return checkTitle() && checkDate(dateBeginClass, dateEndClass, dateLesson) && checkNumLessons(currentLessons, numLessons)
+  const validate = (
+    dateBeginClass,
+    dateEndClass,
+    dateLesson,
+    currentLessons,
+    numLessons
+  ) => {
+    return (
+      checkTitle() &&
+      checkDate(dateBeginClass, dateEndClass, dateLesson) &&
+      checkNumLessons(currentLessons, numLessons)
+    );
   };
 
   const checkTitle = () => {
@@ -75,20 +95,20 @@ export default function AddLesson(props = {}) {
       ErrorMessage("日付を空にすることはできません");
       return false;
     }
-    if (dateLesson  < dateBeginClass || dateLesson > dateEndClass) {
+    if (dateLesson < dateBeginClass || dateLesson > dateEndClass) {
       ErrorMessage("日付はクラスの開始日と終了日の間にある必要があります。");
       return false;
     }
-    return true
-  }
+    return true;
+  };
 
   const checkNumLessons = (currentLessons, numLessons) => {
     if (currentLessons >= numLessons) {
       ErrorMessage("クラスのレッスン(授業数)がいっぱいです。");
       return false;
     }
-      return true
-  }
+    return true;
+  };
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -132,7 +152,7 @@ export default function AddLesson(props = {}) {
                       <div className="flex justify-center flex p-10 w-50 sm:mt-0 sm:ml-4">
                         <form action="index.html">
                           <h3 className="title font-bold text-lg mb-10">
-                          レッソン追加
+                            レッソン追加
                           </h3>
                           <div
                             className={`input-div one ${
@@ -144,7 +164,7 @@ export default function AddLesson(props = {}) {
                             </div>
                             <div className="div ">
                               <h5 className={`${title ? "hidden" : ""}`}>
-                              レッソンタイトル
+                                レッソンタイトル
                               </h5>
                               <input
                                 onChange={(e) => {
@@ -207,7 +227,7 @@ export default function AddLesson(props = {}) {
                   type="submit"
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={() => {
-                      handleSignup();
+                    handleSignup();
                   }}
                 >
                   編集

@@ -28,7 +28,7 @@ function Home() {
         ]
       : ["クラス名", "人数", "クラス内容", "授業数", "主任教員", "アクション"]
   );
-  const { data, isLoading } = useQuery(
+  const { data, isLoading, refetch } = useQuery(
     ["getClasses", { currentUser: currentUser }],
     getClasses,
     {
@@ -206,6 +206,7 @@ function Home() {
           data={editClass}
           open={showModal}
           setOpen={setShowModal}
+          refetch={refetch}
           // onUpdate={onSubmit}
         />
       </>
