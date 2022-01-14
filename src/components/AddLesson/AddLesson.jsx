@@ -64,7 +64,7 @@ export default function AddLesson(props = {}) {
 
   const checkTitle = () => {
     if (title === "") {
-      ErrorMessage("title cannot be empty");
+      ErrorMessage("タイトルを空にすることはできません。");
       return false;
     }
     return true;
@@ -72,11 +72,11 @@ export default function AddLesson(props = {}) {
 
   const checkDate = (dateBeginClass, dateEndClass, dateLesson) => {
     if (dateEnd === "") {
-      ErrorMessage("date cannot be empty");
+      ErrorMessage("日付を空にすることはできません");
       return false;
     }
     if (dateLesson  < dateBeginClass || dateLesson > dateEndClass) {
-      ErrorMessage("The date must be between the start and end date of the class");
+      ErrorMessage("日付はクラスの開始日と終了日の間にある必要があります。");
       return false;
     }
     return true
@@ -84,7 +84,7 @@ export default function AddLesson(props = {}) {
 
   const checkNumLessons = (currentLessons, numLessons) => {
     if (currentLessons >= numLessons) {
-      ErrorMessage("The number of lessons in the class is full");
+      ErrorMessage("クラスのレッスン(授業数)がいっぱいです。");
       return false;
     }
       return true

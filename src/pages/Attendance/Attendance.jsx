@@ -86,11 +86,11 @@ export default function Attendance() {
       if (isSuccess) {
         SuccessMessage("完成しました");
       } else {
-        ErrorMessage("Error");
+        ErrorMessage("エラー");
       }
       setLoadding(false);
     } else {
-      ErrorMessage("Error");
+      ErrorMessage("エラー");
     }
   };
 

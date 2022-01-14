@@ -112,9 +112,9 @@ export default function Evaluation() {
         isEdit: false,
         isLoading: false,
       });
-      SuccessMessage("Success");
+      SuccessMessage("成功");
     } else {
-      ErrorMessage("Error");
+      ErrorMessage("エラー");
     }
     state.isLoading = false;
   };

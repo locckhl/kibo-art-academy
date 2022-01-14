@@ -101,7 +101,7 @@ export default function EditClass(props = {}) {
   const checkTitle = () => {
     //check if title is empty?
     if (title === "") {
-      ErrorMessage("title cannot be empty");
+      ErrorMessage("タイトルを空にすることはできません。");
       return false;
     }
     return true;
@@ -110,7 +110,7 @@ export default function EditClass(props = {}) {
   const checkSummary = () => {
     //check if title is empty?
     if (summary === "") {
-      ErrorMessage("title cannot be empty");
+      ErrorMessage("タイトルを空にすることはできません。");
       return false;
     }
     return true;
@@ -119,7 +119,7 @@ export default function EditClass(props = {}) {
   const checkNumLessons = () => {
     //check if numLessons is empty?
     if (numLessons === "" || numLessons <= 0) {
-      ErrorMessage("numLessons must be greater than 0 and cannot be empty ");
+      ErrorMessage("クラスのレッスン数(授業数)は0より大きくなければならず、空にすることはできません");
       return false;
     }
     return true;
@@ -128,7 +128,7 @@ export default function EditClass(props = {}) {
   const checkDateBegin = () => {
     //check if dateBegin is empty?
     if (dateBegin === "") {
-      ErrorMessage("dateBegin cannot be empty");
+      ErrorMessage("開始日を空にすることはできません。");
       return false;
     }
     return true;
@@ -136,13 +136,13 @@ export default function EditClass(props = {}) {
   const checkDateEnd = () => {
     //check if dateEnd is empty?
     if (dateBegin === "") {
-      ErrorMessage("Must enter Date Begin first");
+      ErrorMessage("最初に開始日を入力する必要があります");
       return false;
     } else if (dateEnd === "") {
-      ErrorMessage("dateEnd cannot be empty");
+      ErrorMessage("終了日を空にすることはできません。");
       return false;
     } else if (dateEnd <= dateBegin) {
-      ErrorMessage("dateEnd must be greater than dateBegin");
+      ErrorMessage("終了日は開始日より大きくなければなりません");
       return false;
     }
     return true;
@@ -151,7 +151,7 @@ export default function EditClass(props = {}) {
   const checkTeacher = () => {
     //check if teacher is empty?
     if (teacher === "") {
-      ErrorMessage("teacher cannot be empty");
+      ErrorMessage("先生は空にすることはできません");
       return false;
     }
     return true;
@@ -160,7 +160,7 @@ export default function EditClass(props = {}) {
   const checkTalents = () => {
     //check if classTalents is empty?
     if (classTalents.length === 0) {
-      ErrorMessage("classTalents cannot be empty");
+      ErrorMessage("クラスのタレントは空にすることはできません");
       return false;
     }
     return true;
@@ -251,18 +251,13 @@ export default function EditClass(props = {}) {
                 <div className="bg-white">
                   <div className="w-full">
                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                      <Dialog.Title
-                        as="h3"
-                        className="text-lg leading-6 font-medium text-gray-900 text-center font-bold"
-                      >
-                        プロフィール編集
-                      </Dialog.Title>
+                      
                       <section className="signin flex justify-center text-center mt-10">
                         <div className="flex justify-center flex p-10 w-50 sm:mt-0 sm:ml-4">
                           {/* <div className="login-content"> */}
                           <form action="index.html">
                             <h3 className="title font-bold text-lg">
-                              クラス変更
+                              クラス編集
                             </h3>
 
                             <div
