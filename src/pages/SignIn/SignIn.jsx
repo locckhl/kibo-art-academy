@@ -36,16 +36,16 @@ export default function SignIn() {
       .catch((err) => {
         switch (err.code) {
           case "auth/invalid-email":
-            ErrorMessage("Invalid email");
+            ErrorMessage("無効なメール");
             break;
           case "auth/user-not-found":
-            ErrorMessage("User not found");
+            ErrorMessage("ユーザーが見つかりません");
             break;
           case "auth/wrong-password":
-            ErrorMessage("Wrong password entered");
+            ErrorMessage("パスワードを間違って入力しました。");
             break;
           default:
-            ErrorMessage("Password cannot be empty");
+            ErrorMessage("パスワードを空にすることはできません");
             console.log(err.message);
         }
       });

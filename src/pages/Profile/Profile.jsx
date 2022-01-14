@@ -42,7 +42,7 @@ export default function Profile() {
     } catch (error) {
       switch (error.code) {
         case "auth/wrong-password":
-          ErrorMessage("Wrong old password entered");
+          ErrorMessage("現在のパスワードを間違って入力しました。");
           result = false;
           break;
         default:

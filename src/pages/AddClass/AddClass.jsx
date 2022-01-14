@@ -67,7 +67,7 @@ export default function AddClass() {
   const checkTitle = () => {
     //check if title is empty?
     if (title === "") {
-      ErrorMessage("title cannot be empty");
+      ErrorMessage("タイトルを空にすることはできません。");
       return false;
     }
     return true;
@@ -76,7 +76,7 @@ export default function AddClass() {
   const checkSummary = () => {
     //check if title is empty?
     if (summary === "") {
-      ErrorMessage("title cannot be empty");
+      ErrorMessage("タイトルを空にすることはできません。");
       return false;
     }
     return true;
@@ -85,7 +85,7 @@ export default function AddClass() {
   const checkNumLessons = () => {
     //check if numLessons is empty?
     if (numLessons === "" || numLessons <= 0) {
-      ErrorMessage("numLessons must be greater than 0 and cannot be empty ");
+      ErrorMessage("クラスのレッスン数(授業数)は0より大きくなければならず、空にすることはできません");
       return false;
     }
     return true;
@@ -94,7 +94,7 @@ export default function AddClass() {
   const checkDateBegin = () => {
     //check if dateBegin is empty?
     if (dateBegin === "") {
-      ErrorMessage("dateBegin cannot be empty");
+      ErrorMessage("開始日を空にすることはできません。");
       return false;
     }
     return true;
@@ -102,13 +102,13 @@ export default function AddClass() {
   const checkDateEnd = () => {
     //check if dateEnd is empty?
     if (dateBegin === "") {
-      ErrorMessage("Must enter Date Begin first");
+      ErrorMessage("最初に開始日を入力する必要があります");
       return false;
     } else if (dateEnd === "") {
-      ErrorMessage("dateEnd cannot be empty");
+      ErrorMessage("終了日を空にすることはできません。");
       return false;
     } else if (dateEnd <= dateBegin) {
-      ErrorMessage("dateEnd must be greater than dateBegin");
+      ErrorMessage("終了日は開始日より大きくなければなりません");
       return false;
     }
     return true;
@@ -117,7 +117,7 @@ export default function AddClass() {
   const checkTeacher = () => {
     //check if teacher is empty?
     if (teacher === "") {
-      ErrorMessage("teacher cannot be empty");
+      ErrorMessage("先生は空にすることはできません");
       return false;
     }
     return true;
@@ -126,7 +126,7 @@ export default function AddClass() {
   const checkTalents = () => {
     //check if classTalents is empty?
     if (classTalents.length === 0) {
-      ErrorMessage("classTalents cannot be empty");
+      ErrorMessage("クラスのタレントは空にすることはできません");
       return false;
     }
     return true;

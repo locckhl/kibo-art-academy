@@ -171,7 +171,7 @@ export default function Document() {
       (err) => {
         if (!isCancelled) {
           console.log(err);
-          seterror("could not fetch the data");
+          seterror("データをフェッチできません。");
         }
       }
     );

@@ -127,16 +127,16 @@ export default function SignUp() {
       .catch((err) => {
         switch (err.code) {
           case "auth/email-already-in-use":
-            ErrorMessage("Email already in use");
+            ErrorMessage("すでに使用中のメール");
             break;
           case "auth/missing-email":
-            ErrorMessage("Missing email");
+            ErrorMessage("メールがありません");
             break;
           case "auth/invalid-email":
-            ErrorMessage("Invalid email");
+            ErrorMessage("無効なメール");
             break;
           case "auth/weak-password":
-            ErrorMessage("Weak password");
+            ErrorMessage("弱いパスワード");
             break;
           default:
             ErrorMessage(err);
@@ -160,7 +160,7 @@ export default function SignUp() {
   const checkPassValidation = () => {
     if (password.length < 8 || password.length > 20) {
       ErrorMessage(
-        "Password must have more than 8 characters and less than 20 characters"
+        "パスワードは8文字以上20文字未満である必要があります"
       );
       return false;
     }
@@ -174,12 +174,12 @@ export default function SignUp() {
     setUserName((oldUsername) => oldUsername.replace(/\s+/g, " ").trim());
     //check if userName is empty?
     if (userName === "") {
-      ErrorMessage("Username cannot be empty");
+      ErrorMessage("ユーザーネームを空にすることはできません");
       return false;
     }
     for (let i = 0; i < special.length; i++) {
       if (userName.includes(special[i])) {
-        ErrorMessage("Special characters are not allowed");
+        ErrorMessage("特殊文字は使用できません");
         return false;
       }
     }
@@ -188,7 +188,7 @@ export default function SignUp() {
 
   const checkRoleValidation = () => {
     if (role === "") {
-      ErrorMessage("Role cannot be empty");
+      ErrorMessage("ロール(役割)を空にすることはできません");
       return false;
     }
     return true;
