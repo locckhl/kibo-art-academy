@@ -8,7 +8,6 @@ import { collection, getDocs } from "@firebase/firestore";
 import { useQuery } from "react-query";
 import { getClasses } from "../../lib/class";
 import Skeleton from "react-loading-skeleton";
-import AddClass from "../AddClass/AddClass";
 import AddLesson from "../../components/AddLesson/AddLesson";
 
 export default function ClassDetail() {
@@ -19,12 +18,12 @@ export default function ClassDetail() {
   const [editClass, setEditClass] = React.useState(null);
   const [showModal, setShowModal] = React.useState(false);
 
-  const { currentUser: userInfo } = useAuth();
+  const { currentUser } = useAuth();
   const { data: classes, isLoading } = useQuery(
-    ["getClasses", { currentUser: userInfo }],
+    ["getClasses", { currentUser: currentUser }],
     getClasses,
     {
-      enabled: !!userInfo,
+      enabled: !!currentUser,
       refetchOnWindowFocus: false,
     }
   );
@@ -38,24 +37,25 @@ export default function ClassDetail() {
   };
   const changeClassId = (classId) => {
     setClassesUID(classId);
+    getClassInfo(classId);
   };
-  const getClassInfo = async () => {
+  const getClassInfo = async (classId) => {
     let classLessons = (
-      await getDocs(collection(db, "Classes", classUID, "ClassLessons"))
+      await getDocs(collection(db, "Classes", classId, "ClassLessons"))
     ).docs;
     const lessons = classLessons.map((lesson) => lesson.data());
     setLessonsInfo(lessons);
   };
   useEffect(() => {
-    getClassInfo();
+    getClassInfo(classUID);
   }, []);
   //check role
   useEffect(() => {
     setIsTeacher(false);
-    if (parseInt(userInfo.role) === 1) {
+    if (parseInt(currentUser.role) === 1) {
       setIsTeacher(true);
     }
-  }, [userInfo]);
+  }, [currentUser]);
 
   if (isLoading) return <Skeleton count={20} />;
 
@@ -138,13 +138,13 @@ export default function ClassDetail() {
         </div>
         <div className="mx-8 class-right flex-auto w-80 flex-grow-0">
           <div className="flex justify-end">
-            <ClassInfo
-              classInfo={
-                classes[classes.findIndex((item) => item.id === classUID)]
-              }
-              classes={classes}
-              changeClassId={changeClassId}
-            />
+           <ClassInfo
+            classInfo={
+              classes[classes.findIndex((item) => item.id === classUID)]
+            }
+            classes={classes}
+            changeClassId={changeClassId}
+          />
           </div>
         </div>
       <AddLesson data={editClass} open={showModal} setOpen={setShowModal} />
