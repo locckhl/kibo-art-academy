@@ -71,9 +71,9 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
                     <br />
                     クラス内容: {classInfo?.summary}
                     <br />
-                    授業数: {IsTalent && classInfo?.numLessons}
+                    授業数: {IsTalent && currentLessonsNumer}
                     {!IsTalent &&
-                      `${currentLessonsNumer}/${classInfo?.numLessons}`}
+                      `${currentLessonsNumer}/${classInfo?.numLessons} (現在の授業数/最大授業数)`}
                     <br />
                     開始日: {formatTime(classInfo?.dateBegin.seconds)}
                     <br />
