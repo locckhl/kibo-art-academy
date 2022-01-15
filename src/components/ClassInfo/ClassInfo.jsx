@@ -21,14 +21,10 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
     var Day;
     var Month;
     const date = new Date(parseInt(stringSeconds) * 1000);
-    if (date.getMonth() < 9)
-      Month = `0${date.getMonth() + 1}`;
-    else
-      Month = `${date.getMonth() + 1}`;
-    if (date.getDate() < 10)
-      Day = `0${date.getDate()}`;
-    else
-      Day = `${date.getDate()}`;
+    if (date.getMonth() < 9) Month = `0${date.getMonth() + 1}`;
+    else Month = `${date.getMonth() + 1}`;
+    if (date.getDate() < 10) Day = `0${date.getDate()}`;
+    else Day = `${date.getDate()}`;
 
     return `${date.getFullYear()}-${Month}-${Day}`;
   };
@@ -44,17 +40,14 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
   //get lessons number
   useEffect(() => {
     let refer = collection(db, "Classes", classInfo.id, "ClassLessons");
-    const unsub = onSnapshot(
-      refer,
-      (snapshot) => {
-        setcurrentLessonsNumer(snapshot.size);
-      }
-    )
+    const unsub = onSnapshot(refer, (snapshot) => {
+      setcurrentLessonsNumer(snapshot.size);
+    });
     return () => unsub();
-  }, [classInfo])
+  }, [classInfo]);
 
   return (
-    <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
+    <div className="-my-2  sm:-mx-6 lg:-mx-8 ">
       <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
         <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
           <table className="min-w-full divide-y divide-gray-200 ">
@@ -70,8 +63,8 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               <tr key="title">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900 pl-10">
+                <td className="px-6 py-4 ">
+                  <div className="text-sm font-medium text-gray-900 pl-10 ">
                     クラス名: {classInfo?.className}
                     <br />
                     人数: {classInfo?.numTalents}
@@ -79,7 +72,8 @@ export default function ClassInfo({ classInfo, classes, changeClassId }) {
                     クラス内容: {classInfo?.summary}
                     <br />
                     授業数: {IsTalent && classInfo?.numLessons}
-                    {!IsTalent && `${currentLessonsNumer}/${classInfo?.numLessons}`}
+                    {!IsTalent &&
+                      `${currentLessonsNumer}/${classInfo?.numLessons}`}
                     <br />
                     開始日: {formatTime(classInfo?.dateBegin.seconds)}
                     <br />

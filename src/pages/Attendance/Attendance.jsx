@@ -250,7 +250,7 @@ export default function Attendance() {
             )}
           </div>
         </div>
-        <div className="mx-10 class-right flex-auto w-80 flex-grow-0">
+        <div className="mx-10 class-right flex-auto w-80 flex-grow-0 overflow-hidden">
           {/* <div className="flex jutify-end"> */}
           <ClassInfo
             classInfo={
