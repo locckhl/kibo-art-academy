@@ -249,7 +249,7 @@ export default function AddLesson(props = {}) {
                     handleSignup();
                   }}
                 >
-                  編集
+                  追加
                 </button>
                 <button
                   type="button"

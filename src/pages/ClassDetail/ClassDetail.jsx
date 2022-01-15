@@ -99,6 +99,8 @@ export default function ClassDetail() {
 
       await Promise.all(getTalentInfoByLessonPromise);
       setTalentLessons(_talentLessons);
+    } else{
+      setTalentLessons(lessonsInfo);
     }
   };
 
@@ -117,7 +119,7 @@ export default function ClassDetail() {
     }
   }, [currentUser]);
 
-  if (isLoading || !talentLessons) return <Skeleton count={20} />;
+  if (isLoading ) return <Skeleton count={20} />;
 
   return (
     <section className="container px-20 flex flex-col">
