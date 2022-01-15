@@ -147,7 +147,7 @@ export default function ClassDetail() {
           />
           </div>
         </div>
-      <AddLesson data={editClass} open={showModal} setOpen={setShowModal} refetch={refetch}/>
+      <AddLesson data={editClass} open={showModal} setOpen={setShowModal} refetch={refetch} classUID={classUID}/>
       </div>
     </section>
   );

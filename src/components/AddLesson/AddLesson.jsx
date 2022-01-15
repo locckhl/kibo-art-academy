@@ -7,9 +7,7 @@ import { collection, getDocs } from "@firebase/firestore";
 import { db } from "../../lib/firebase";
 import "./index.scss";
 export default function AddLesson(props = {}) {
-  const { open, setOpen, data, refetch } = props;
-  const { classId } = useParams();
-  const [classUID, setClassesUID] = useState(classId);
+  const { open, setOpen, data, refetch, classUID } = props;
   const [isTitleFocus, setIsTitleFocus] = useState(false);
   const [isDateEndFocus, setIsDateEndFocus] = useState(false);
 
@@ -46,6 +44,7 @@ export default function AddLesson(props = {}) {
         dateBeginClass,
         dateEndClass,
         dateLesson,
+        lessons,
         lessons.length,
         parseInt(classInfo.info.numLessons)
       )
@@ -72,12 +71,13 @@ export default function AddLesson(props = {}) {
     dateBeginClass,
     dateEndClass,
     dateLesson,
+    lessons,
     currentLessons,
     numLessons
   ) => {
     return (
       checkTitle() &&
-      checkDate(dateBeginClass, dateEndClass, dateLesson) &&
+      checkDate(dateBeginClass, dateEndClass, dateLesson, lessons) &&
       checkNumLessons(currentLessons, numLessons)
     );
   };
@@ -90,7 +90,7 @@ export default function AddLesson(props = {}) {
     return true;
   };
 
-  const checkDate = (dateBeginClass, dateEndClass, dateLesson) => {
+  const checkDate = (dateBeginClass, dateEndClass, dateLesson, lessons) => {
     if (dateEnd === "") {
       ErrorMessage("日付を空にすることはできません");
       return false;
@@ -99,10 +99,29 @@ export default function AddLesson(props = {}) {
       ErrorMessage("日付はクラスの開始日と終了日の間にある必要があります。");
       return false;
     }
-    return true;
+
+    // check if date already created then fail
+    return lessons.every((lesson) => {
+      const oldDate = new Date(lesson.date.seconds*1000)
+      const newDate = new Date(dateLesson*1000)
+      console.log(
+        oldDate.getDate(),
+        oldDate.getMonth(),
+        oldDate.getFullYear(),
+        newDate.getDate(),
+        newDate.getMonth(),
+        newDate.getFullYear(),
+      );
+      if (oldDate.getDate() === newDate.getDate() && oldDate.getMonth() === newDate.getMonth() && oldDate.getFullYear() === newDate.getFullYear() ) {
+        ErrorMessage("同じ日付を追加出来ません");
+        return false;
+      }
+      return true;
+    });
   };
 
   const checkNumLessons = (currentLessons, numLessons) => {
+    console.log(currentLessons, numLessons);
     if (currentLessons >= numLessons) {
       ErrorMessage("クラスのレッスン(授業数)がいっぱいです。");
       return false;
