@@ -74,9 +74,8 @@ export default function Profile() {
       callback(null);
     }
 
-    if (!(await checkCurrentPass(oldPass))) return;
-
     if (password && cfPassword) {
+      if (!(await checkCurrentPass(oldPass))) return;
       if (password === cfPassword) {
         try {
           const user = getAuth();
