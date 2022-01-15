@@ -9,24 +9,27 @@ import { useQuery } from "react-query";
 import { getClasses } from "../../lib/class";
 import Skeleton from "react-loading-skeleton";
 import AddLesson from "../../components/AddLesson/AddLesson";
+import { getClassesLesson } from "./../../lib/evaluation";
 
 export default function ClassDetail() {
   const { classId } = useParams();
   const [classUID, setClassesUID] = useState(classId);
   const [lessonsInfo, setLessonsInfo] = useState(null);
+  const [talentLessons, setTalentLessons] = useState(null);
   const [isTeacher, setIsTeacher] = useState(false);
+  const [isTalent, setIsTalent] = useState(false);
   const [editClass, setEditClass] = React.useState(null);
   const [showModal, setShowModal] = React.useState(false);
 
   const { currentUser } = useAuth();
-  const { data: classes, isLoading, refetch } = useQuery(
-    ["getClasses", { currentUser: currentUser }],
-    getClasses,
-    {
-      enabled: !!currentUser,
-      refetchOnWindowFocus: false,
-    }
-  );
+  const {
+    data: classes,
+    isLoading,
+    refetch,
+  } = useQuery(["getClasses", { currentUser: currentUser }], getClasses, {
+    enabled: !!currentUser,
+    refetchOnWindowFocus: false,
+  });
   /**
    *
    * @param {string} date
@@ -39,25 +42,82 @@ export default function ClassDetail() {
     setClassesUID(classId);
     getClassInfo(classId);
   };
-  const getClassInfo = async (classId) => {
-    let classLessons = (
-      await getDocs(collection(db, "Classes", classId, "ClassLessons"))
-    ).docs;
-    const lessons = classLessons.map((lesson) => lesson.data());
-    setLessonsInfo(lessons);
+
+  const getTalentScore = async (lesson, classId) => {
+    await getDocs(
+      collection(
+        db,
+        "Classes",
+        classId,
+        "ClassLessons",
+        lesson.id,
+        "Achievements"
+      )
+    ).then((talents) => {
+      const talentData = talents.docs.map((talent) => talent.data());
+      let index = talentData.findIndex(
+        (item) => item.talentID === currentUser.userID
+      );
+      lesson.score = talentData[index].score;
+    });
   };
+
+  const getTalentAttendance = async (lesson, classId) => {
+    await getDocs(
+      collection(
+        db,
+        "Classes",
+        classId,
+        "ClassLessons",
+        lesson.id,
+        "Attendances"
+      )
+    ).then((talents) => {
+      const talentData = talents.docs.map((talent) => talent.data());
+      let index = talentData.findIndex(
+        (item) => item.talentID === currentUser.userID
+      );
+      lesson.attendance = talentData[index].status;
+    });
+  };
+
+  const getClassInfo = async (classId) => {
+    const getAllLessons = async () => {
+      await getClassesLesson(classUID).then((lessons) => {
+        setLessonsInfo(lessons);
+      });
+    };
+    getAllLessons();
+    if (lessonsInfo && isTalent) {
+      const _talentLessons = lessonsInfo;
+      const getTalentInfoByLessonPromise = _talentLessons.map(
+        async (lesson) => {
+          await getTalentScore(lesson, classId);
+          await getTalentAttendance(lesson, classId);
+        }
+      );
+
+      await Promise.all(getTalentInfoByLessonPromise);
+      setTalentLessons(_talentLessons);
+    }
+  };
+
   useEffect(() => {
     getClassInfo(classUID);
   }, [classes, classUID]);
+
   //check role
   useEffect(() => {
     setIsTeacher(false);
+    setIsTalent(false);
     if (parseInt(currentUser.role) === 1) {
       setIsTeacher(true);
+    } else if (parseInt(currentUser.role) === 2) {
+      setIsTalent(true);
     }
   }, [currentUser]);
 
-  if (isLoading) return <Skeleton count={20} />;
+  if (isLoading || !talentLessons) return <Skeleton count={20} />;
 
   return (
     <section className="container px-20 flex flex-col">
@@ -106,11 +166,33 @@ export default function ClassDetail() {
                         >
                           日付
                         </th>
+                        {isTalent && (
+                          <th
+                            style={{
+                              textAlign: "center",
+                            }}
+                            scope="col"
+                            className="px-6 py-3 text-left text-md font-medium text-black-500 uppercase tracking-wider"
+                          >
+                            出席情報
+                          </th>
+                        )}
+                        {isTalent && (
+                          <th
+                            style={{
+                              textAlign: "center",
+                            }}
+                            scope="col"
+                            className="px-6 py-3 text-left text-md font-medium text-black-500 uppercase tracking-wider"
+                          >
+                            成績
+                          </th>
+                        )}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {lessonsInfo &&
-                        lessonsInfo.map((item, idx) => (
+                      {talentLessons &&
+                        talentLessons.map((item, idx) => (
                           <tr key={idx}>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm font-medium text-gray-900">
@@ -127,6 +209,34 @@ export default function ClassDetail() {
                                 {formatTime(item.date.seconds)}
                               </div>
                             </td>
+                            {isTalent && (
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <input
+                                  type="checkbox"
+                                  className="mx-auto block"
+                                  checked={item.attendance}
+                                  disabled={true}
+                                />
+                              </td>
+                            )}
+                            {isTalent && (
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900 text-center">
+                                  <input
+                                    style={{
+                                      width: "3.5em",
+                                      paddingLeft: "1em",
+                                      textAlign: "center",
+                                    }}
+                                    type="number"
+                                    max={100}
+                                    size="5"
+                                    disabled={true}
+                                    value={item.score}
+                                  />
+                                </div>
+                              </td>
+                            )}
                           </tr>
                         ))}
                     </tbody>
@@ -138,13 +248,13 @@ export default function ClassDetail() {
         </div>
         <div className="mx-8 class-right flex-auto w-80 flex-grow-0">
           <div className="flex justify-end">
-           <ClassInfo
-            classInfo={
-              classes[classes.findIndex((item) => item.id === classUID)]
-            }
-            classes={classes}
-            changeClassId={changeClassId}
-          />
+            <ClassInfo
+              classInfo={
+                classes[classes.findIndex((item) => item.id === classUID)]
+              }
+              classes={classes}
+              changeClassId={changeClassId}
+            />
           </div>
         </div>
       <AddLesson data={editClass} open={showModal} setOpen={setShowModal} refetch={refetch} classUID={classUID}/>
