@@ -9,7 +9,6 @@ import "./index.scss";
 import EditClass from "./Section/EditClass";
 
 function Home() {
-  console.log("Home");
   const [editClass, setEditClass] = React.useState(null);
   const [showModal, setShowModal] = React.useState(false);
   const { currentUser } = useAuth();

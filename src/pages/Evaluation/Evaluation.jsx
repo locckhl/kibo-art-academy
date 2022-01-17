@@ -156,7 +156,7 @@ export default function Evaluation() {
       getAllTalentsByClassUID(classUID, value.id).then((talents) => {
         allClasses.push(talents);
         for (let i = 0; i < talents.length; i++) {
-          sumScore[i] = sumScore[i] + talents[i].score;
+          sumScore[i] = sumScore[i] + parseInt(talents[i].score);
           const data = [...talents];
           data[i].score = parseInt(sumScore[i] / lessonList.length);
           setTalents(data);

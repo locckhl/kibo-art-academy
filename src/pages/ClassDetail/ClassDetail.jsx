@@ -38,10 +38,6 @@ export default function ClassDetail() {
     const date = new Date(parseInt(stringSeconds) * 1000);
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
-  const changeClassId = (classId) => {
-    setClassesUID(classId);
-    getClassInfo(classId);
-  };
 
   const getTalentScore = async (lesson, classId) => {
     await getDocs(
@@ -81,27 +77,50 @@ export default function ClassDetail() {
     });
   };
 
-  const getClassInfo = async (classId) => {
-    const getAllLessons = async () => {
-      await getClassesLesson(classUID).then((lessons) => {
-        setLessonsInfo(lessons);
-      });
-    };
-    getAllLessons();
-    if (lessonsInfo && isTalent) {
-      const _talentLessons = lessonsInfo;
-      const getTalentInfoByLessonPromise = _talentLessons.map(
-        async (lesson) => {
-          await getTalentScore(lesson, classId);
-          await getTalentAttendance(lesson, classId);
-        }
-      );
+  // const getClassInfo = async (classId) => {
+  //   const getAllLessons = async () => {
+  //     await getClassesLesson(classUID).then((lessons) => {
+  //       setLessonsInfo(lessons);
+  //     });
+  //   };
+  //   getAllLessons();
+  //   if (isTalent) {
+  //     const _talentLessons = lessonsInfo;
+  //     const getTalentInfoByLessonPromise = _talentLessons.map(
+  //       async (lesson) => {
+  //         await getTalentScore(lesson, classId);
+  //         await getTalentAttendance(lesson, classId);
+  //       }
+  //     );
 
-      await Promise.all(getTalentInfoByLessonPromise);
-      setTalentLessons(_talentLessons);
-    } else{
-      setTalentLessons(lessonsInfo);
-    }
+  //     await Promise.all(getTalentInfoByLessonPromise);
+  //     setTalentLessons(_talentLessons);
+  //   } else{
+  //     setTalentLessons(lessonsInfo);
+  //   }
+  // };
+
+  const getClassInfo = async () => {
+    setTalentLessons(null);
+    getClassesLesson(classUID).then((lessons) => {
+      setLessonsInfo(lessons);
+      if (isTalent) {
+        const _talentLessons = lessons;
+        const getScoreAndAttendance = async () => {
+          const getTalentInfoByLessonPromise = _talentLessons.map(
+            async (lesson) => {
+              await getTalentScore(lesson, classUID);
+              await getTalentAttendance(lesson, classUID);
+            }
+          );
+          await Promise.all(getTalentInfoByLessonPromise);
+          setTalentLessons(_talentLessons);
+        }
+        getScoreAndAttendance();
+      } else {
+        setTalentLessons(lessons);
+      }
+    });
   };
 
   useEffect(() => {
@@ -119,6 +138,10 @@ export default function ClassDetail() {
     }
   }, [currentUser]);
 
+  const changeClassId = (classId) => {
+    setClassesUID(classId);
+  };
+
   if (isLoading ) return <Skeleton count={20} />;
 
   return (
@@ -132,7 +155,7 @@ export default function ClassDetail() {
         <div className="class-left flex flex-col flex-auto">
           <div className="class-table relative">
             <div className="absolute bottom-full mb-8">
-              {isTeacher && (
+              {isTeacher && classes[classes.findIndex((item) => item.id === classUID)].teacherID === currentUser.userID && (
                 <button
                   className="btn"
                   onClick={(e) => {
@@ -193,7 +216,7 @@ export default function ClassDetail() {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {talentLessons &&
+                      {talentLessons && talentLessons.length !== 0 &&
                         talentLessons.map((item, idx) => (
                           <tr key={idx}>
                             <td className="px-6 py-4 whitespace-nowrap">
@@ -234,7 +257,7 @@ export default function ClassDetail() {
                                     max={100}
                                     size="5"
                                     disabled={true}
-                                    value={item.score}
+                                    value={item.score ? item.score : 0}
                                   />
                                 </div>
                               </td>
@@ -259,7 +282,7 @@ export default function ClassDetail() {
             />
           </div>
         </div>
-      <AddLesson data={editClass} open={showModal} setOpen={setShowModal} refetch={refetch} classUID={classUID}/>
+        <AddLesson data={editClass} open={showModal} setOpen={setShowModal} refetch={refetch} classUID={classUID} />
       </div>
     </section>
   );
